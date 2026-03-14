@@ -37,6 +37,63 @@ All backfill models include a `**Mode:** Backfill (reverse-engineered from exist
 
 After all three models are approved, @governance-reviewer verifies consistency between the models and the existing implementation. No code changes are expected — backfill is documentation, not refactoring.
 
+## Mermaid Diagrams
+
+Every model artifact MUST include a Mermaid ER diagram embedded in the markdown. This is the primary visual representation — the tables and text are supplementary. The diagram renders automatically on GitHub.
+
+### Conceptual Model Diagrams
+Use `erDiagram` with entity names and relationship labels only. No attributes — keep it high-level. Focus on cardinality (`||--o{`, `||--||`, `}o--o{`).
+
+Example:
+```mermaid
+erDiagram
+    COMPANY ||--o{ FILING : submits
+    FILING ||--o{ FACT : contains
+    FACT }o--|| CONCEPT : "reports as"
+    CONCEPT }o--o| CANONICAL_CDE : "maps to"
+```
+
+### Logical Model Diagrams
+Use `erDiagram` with entity names, attributes (name + type domain), and relationships with cardinality. Show primary keys and foreign keys.
+
+Example:
+```mermaid
+erDiagram
+    COMPANY {
+        identifier cik PK
+        text legal_name
+        text ticker
+    }
+    FILING {
+        identifier accession_number PK
+        identifier cik FK
+        date filed_date
+    }
+    COMPANY ||--o{ FILING : submits
+```
+
+### Physical Model Diagrams
+Use `erDiagram` with full column definitions (name + DuckDB type). Show all columns, keys, and relationships.
+
+Example:
+```mermaid
+erDiagram
+    base_entity_mappings {
+        INTEGER cik PK
+        VARCHAR canonical_name
+        VARCHAR ticker
+        FLOAT confidence
+    }
+```
+
+### Diagram Rules
+- Every model file must have exactly one Mermaid `erDiagram` block
+- The diagram is the FIRST thing after the metadata header — humans see the picture before the text
+- Conceptual diagrams show relationships only (no attributes)
+- Logical diagrams show key attributes and domains
+- Physical diagrams show all columns with DuckDB types
+- Keep diagrams readable — if a model has more than ~8 entities, split into focused sub-diagrams with a note explaining how they connect
+
 ## The 3-Stage Modeling Progression
 
 ### Stage 1: Conceptual Model
