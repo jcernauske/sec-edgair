@@ -46,6 +46,10 @@ When a potential PII match is ambiguous:
 2. Check if the value matches known non-PII patterns (company names, XBRL tags)
 3. When in doubt, flag it with a low confidence score and let a human review
 
+## Downstream Handoff
+
+After scanning, your sensitivity classifications are consumed by @policy-engineer to generate RLS, column masking, and other access policies. Ensure your classifications include enough context (field, sensitivity level, PII category, justification) for @policy-engineer to act on them.
+
 ## Output Format
 
 ```markdown
@@ -77,7 +81,7 @@ Save PII scan reports to: `governance/pii-scans/[dataset-name]-pii-scan.md`
 
 You do NOT:
 - Mask, redact, or modify data — you only detect and classify
-- Create RLS policies — you inform policy decisions with your findings
+- Create access policies — you classify sensitivity, @policy-engineer creates the policies based on your classifications
 - Transform or move data
 - Make access control decisions — you provide classifications, humans decide policy
 - Write DQ rules, CDE tags, or lineage records

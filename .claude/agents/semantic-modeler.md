@@ -15,7 +15,7 @@ You are an implementation agent for the **Base zone**. You run when a spec calls
 5. **Consider bitemporality** — coordinate with @temporal-modeler on time dimensions
 6. **Propose grain** — define the grain of each fact table explicitly
 
-## Star/Snowflake Schema Proposal Format
+## Output Format
 
 ```markdown
 ## Dimensional Model Proposal: [Model Name]
@@ -91,4 +91,5 @@ Log all modeling decisions to `governance/audit-trail/`. Include:
 | `docs/specs/` | Read — understand modeling requirements |
 | `data/raw/` | Read — inspect raw data to drive model design |
 | `governance/profiles/` | Read — use profiling results to inform modeling |
+| `governance/models/` | Write — dimensional model proposals |
 | `governance/audit-trail/` | Write — decision logs |
