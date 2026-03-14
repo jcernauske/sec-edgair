@@ -42,3 +42,6 @@ data/consumable/
 data/ai_ready/
 
 # Governance is NOT gitignored — those artifacts are part of the project
+
+# Entity resolution staging and runtime artifacts
+governance/entity-resolution/

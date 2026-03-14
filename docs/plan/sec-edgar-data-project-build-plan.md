@@ -239,18 +239,18 @@ Same spec-driven, multi-agent workflow as Arteeoo. Every agent has a defined rol
 ### Phase 0 — Setup (Week 1)
 - [x] Create private GitHub repo
 - [x] Set up Python project structure (uv for dependency management)
-- [ ] Set up DuckDB with Iceberg extension, verify local Iceberg table read/write
+- [x] Set up DuckDB with Iceberg extension, verify local Iceberg table read/write
 - [x] Set up Claude Code with CLAUDE.md and agent definitions
-- [ ] Download EDGAR bulk data for target companies
-- [ ] Verify data access and basic parsing
+- [x] Download EDGAR bulk data for target companies
+- [x] Verify data access and basic parsing
 
 ### Phase 1 — Raw Zone (Weeks 2-3)
-- [ ] Build ingest pipeline for XBRL company facts
-- [ ] Data profiling agent — schema, types, cardinality, nulls, anomalies
-- [ ] PII scanner — flag officer names, addresses
-- [ ] Data classification — sensitivity tagging
-- [ ] Source metadata capture — lineage from source to raw
-- [ ] **Milestone:** Raw data landed, profiled, classified, with full ingestion lineage
+- [x] Build ingest pipeline for XBRL company facts
+- [x] Data profiling agent — schema, types, cardinality, nulls, anomalies
+- [x] PII scanner — flag officer names, addresses
+- [x] Data classification — sensitivity tagging
+- [x] Source metadata capture — lineage from source to raw
+- [x] **Milestone:** Raw data landed, profiled, classified, with full ingestion lineage
 
 ### Phase 2 — Base Zone: Modeling (Weeks 4-6)
 - [ ] Entity resolution — CIK to canonical company identity

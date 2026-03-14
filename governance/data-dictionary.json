@@ -1,0 +1,241 @@
+{
+  "tables": [
+    {
+      "table_name": "raw.xbrl_company_facts",
+      "zone": "raw",
+      "description": "Flat table of XBRL fact observations from SEC EDGAR Company Facts API. One row per company per concept per unit per reporting period per filing. Flattened from the deeply nested SEC EDGAR JSON structure.",
+      "spec_reference": "docs/specs/raw-ingest-xbrl-company-facts.md",
+      "row_grain": "One fact observation: a single reported value for a specific XBRL concept, in a specific unit, for a specific reporting period, from a specific SEC filing.",
+      "fields": [
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key — unique numeric identifier assigned to every entity that files with the SEC. Used to join across all SEC data.",
+          "cde_reference": "CDE-001 (Central Index Key)",
+          "source": "SEC EDGAR API .cik",
+          "dq_rules": ["RAW-CF-001", "RAW-CF-015", "RAW-CF-016"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Official company name as registered with the SEC. May use all-caps or formal legal name (e.g., 'MICROSOFT CORPORATION' instead of 'Microsoft Corp.').",
+          "cde_reference": "CDE-003 (Legal Entity Name)",
+          "source": "SEC EDGAR API .entityName",
+          "dq_rules": ["RAW-CF-002"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "taxonomy",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "XBRL taxonomy the concept belongs to. Most common: 'us-gaap' (US Generally Accepted Accounting Principles), 'dei' (Document and Entity Information), 'ifrs-full' (International Financial Reporting Standards).",
+          "source": "SEC EDGAR API — key name under .facts object",
+          "dq_rules": ["RAW-CF-010"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "XBRL concept name — the specific financial metric being reported. Examples: 'Revenue', 'Assets', 'EarningsPerShareBasic'. These are the standardized tag names from the XBRL taxonomy.",
+          "source": "SEC EDGAR API — key name under taxonomy object",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "label",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable label for the concept, provided by the XBRL taxonomy. More readable than the concept name (e.g., 'Earnings Per Share, Basic' instead of 'EarningsPerShareBasic').",
+          "source": "SEC EDGAR API .label",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "description",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Longer description of what the concept represents, from the XBRL taxonomy. May be absent for some concepts.",
+          "source": "SEC EDGAR API .description",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "unit",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Unit of measurement for the fact value. Examples: 'USD' (US dollars), 'shares' (share count), 'USD/shares' (per-share dollar amounts like EPS).",
+          "source": "SEC EDGAR API — key name under .units object",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "start_date",
+          "data_type": "DATE",
+          "nullable": true,
+          "definition": "Start of the reporting period. Present for duration facts (income statement, cash flow). Null for point-in-time (instant) facts like balance sheet items.",
+          "source": "SEC EDGAR API .start",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "End of the reporting period. Always present. For instant facts (balance sheet), this is the measurement date. For duration facts, this is the period end.",
+          "source": "SEC EDGAR API .end",
+          "dq_rules": ["RAW-CF-003"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "The reported fact value. Can be zero (e.g., no goodwill impairment) or negative (e.g., net loss). Stored as double to accommodate integers (revenue), fractions (EPS), and ratios.",
+          "source": "SEC EDGAR API .val (cast to float)",
+          "dq_rules": ["RAW-CF-004"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "accession_number",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "SEC accession number — uniquely identifies the specific SEC filing this fact came from. Format: XXXXXXXXXX-YY-ZZZZZZ. Multiple facts share an accession number when they come from the same filing.",
+          "cde_reference": "CDE-002 (SEC Accession Number)",
+          "source": "SEC EDGAR API .accn",
+          "dq_rules": ["RAW-CF-005"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "The fiscal year the filing covers (e.g., 2023). Note: fiscal years may not align with calendar years for all companies.",
+          "source": "SEC EDGAR API .fy",
+          "dq_rules": ["RAW-CF-012"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "The fiscal period within the year. Common values: 'FY' (full year), 'Q1', 'Q2', 'Q3', 'Q4' (quarters).",
+          "source": "SEC EDGAR API .fp",
+          "dq_rules": ["RAW-CF-012"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "form",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "SEC form type. Common values: '10-K' (annual report), '10-Q' (quarterly report), '8-K' (current report), '10-K/A' and '10-Q/A' (amendments).",
+          "source": "SEC EDGAR API .form",
+          "dq_rules": ["RAW-CF-011"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "filed_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Date the filing was officially submitted to the SEC. Critical for amendment detection — later filed_date with same concept and period indicates a potential amendment.",
+          "cde_reference": "CDE-004 (SEC Filing Date)",
+          "source": "SEC EDGAR API .filed",
+          "dq_rules": ["RAW-CF-006", "RAW-CF-014"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "frame",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "XBRL frame identifier used by SEC for frame-based queries. Format examples: 'CY2023' (calendar year), 'CY2023Q1I' (Q1 instant). Frequently absent.",
+          "source": "SEC EDGAR API .frame",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ingested_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this row was written to the raw zone by the ingest pipeline. Used for pipeline auditing and debugging.",
+          "source": "Generated by pipeline (datetime.now(UTC))",
+          "dq_rules": ["RAW-CF-007"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "source_url",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "The URL the raw JSON data was fetched from. For API method, the per-company endpoint URL. For bulk_zip method, the ZIP download URL.",
+          "source": "Generated by pipeline",
+          "dq_rules": ["RAW-CF-008"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "source_method",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "How the data was obtained. Either 'api' (per-company API endpoint) or 'bulk_zip' (extracted from bulk companyfacts.zip download).",
+          "source": "Generated by pipeline",
+          "dq_rules": ["RAW-CF-009", "RAW-CF-013"],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
+      ]
+    },
+    {
+      "table_name": "base.entity_mappings",
+      "zone": "base",
+      "description": "Canonical mapping from SEC EDGAR CIK to normalized company identity. Each row is a resolved entity with confidence score, resolution method, and approval status.",
+      "spec_reference": "docs/specs/base-entity-resolution.md",
+      "row_grain": "One resolved entity: a canonical company identity mapped from a SEC EDGAR CIK.",
+      "fields": [
+        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "Stable identifier (ER-NNN). Primary key.", "cde_reference": "CDE-006", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key.", "cde_reference": "CDE-001", "dq_rules": ["BASE-ER-001", "BASE-ER-002"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "canonical_name", "data_type": "STRING", "nullable": false, "definition": "Normalized company display name.", "cde_reference": "CDE-005", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "raw_entity_name", "data_type": "STRING", "nullable": false, "definition": "Entity name as received from SEC EDGAR.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "ticker", "data_type": "STRING", "nullable": true, "definition": "Primary stock ticker symbol.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "sic_code", "data_type": "STRING", "nullable": true, "definition": "Standard Industrial Classification code.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "fiscal_year_end", "data_type": "STRING", "nullable": true, "definition": "Fiscal year end in MMDD format.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "confidence", "data_type": "DOUBLE", "nullable": false, "definition": "Resolution confidence (0.0-1.0).", "dq_rules": ["BASE-ER-003"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "resolution_method", "data_type": "STRING", "nullable": false, "definition": "Method: exact_cik_match or fuzzy_name_normalize.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "status", "data_type": "STRING", "nullable": false, "definition": "Approval status (approved).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "resolved_by", "data_type": "STRING", "nullable": false, "definition": "Agent that proposed this mapping.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "approved_by", "data_type": "STRING", "nullable": true, "definition": "Who approved: human:jeff or auto.", "dq_rules": ["BASE-ER-004"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "resolved_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when proposed.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "approved_at", "data_type": "TIMESTAMPTZ", "nullable": true, "definition": "UTC timestamp when approved.", "dq_rules": ["BASE-ER-004"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+      ]
+    },
+    {
+      "table_name": "base.entity_resolution_audit",
+      "zone": "base",
+      "description": "Audit trail for every entity resolution decision. Immutable append-only log.",
+      "spec_reference": "docs/specs/base-entity-resolution.md",
+      "row_grain": "One audit event on an entity mapping.",
+      "fields": [
+        {"field_name": "audit_id", "data_type": "STRING", "nullable": false, "definition": "UUID primary key.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "FK to entity_mappings.", "dq_rules": ["BASE-ER-005"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "action", "data_type": "STRING", "nullable": false, "definition": "Action: proposed, approved, rejected, updated.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "actor", "data_type": "STRING", "nullable": false, "definition": "Who performed: @entity-resolver, human:jeff, auto.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "reasoning", "data_type": "STRING", "nullable": false, "definition": "Why this action was taken.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "evidence", "data_type": "STRING", "nullable": false, "definition": "JSON string with supporting data.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "confidence_at_action", "data_type": "DOUBLE", "nullable": false, "definition": "Confidence at time of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "timestamp", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+      ]
+    }
+  ]
+}

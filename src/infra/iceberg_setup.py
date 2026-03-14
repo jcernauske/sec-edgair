@@ -18,6 +18,7 @@ import duckdb
 import pyarrow as pa
 from pyiceberg.catalog.sql import SqlCatalog
 from pyiceberg.exceptions import NamespaceAlreadyExistsError, TableAlreadyExistsError
+from pyiceberg.io.pyarrow import schema_to_pyarrow
 from pyiceberg.schema import Schema
 from pyiceberg.table import Table
 from pyiceberg.types import DateType
@@ -61,16 +62,17 @@ def create_test_table(catalog: SqlCatalog, namespace: str, table_name: str, sche
 
 def append_data(table: Table, records: list[dict]) -> int:
     """Append records to an Iceberg table. Returns the new snapshot ID."""
-    # Build Arrow arrays from records, matching Iceberg schema field order
-    date_fields = {f.name for f in table.schema().fields if isinstance(f.field_type, DateType)}
+    iceberg_schema = table.schema()
+    date_fields = {f.name for f in iceberg_schema.fields if isinstance(f.field_type, DateType)}
     columns = {}
-    for field in table.schema().fields:
+    for field in iceberg_schema.fields:
         values = [r.get(field.name) for r in records]
         if field.name in date_fields:
             values = [datetime.date.fromisoformat(v) if isinstance(v, str) else v for v in values]
         columns[field.name] = values
 
-    arrow_table = pa.table(columns)
+    arrow_schema = schema_to_pyarrow(iceberg_schema)
+    arrow_table = pa.table(columns, schema=arrow_schema)
     table.append(arrow_table)
     table.refresh()
     return list(table.snapshots())[-1].snapshot_id
