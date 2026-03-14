@@ -83,31 +83,54 @@ Every transformation produces governance artifacts automatically:
 
 ## Business Glossary
 
-25 business terms defined across three source tiers:
+25 business terms defined across three source tiers — all approved:
 
-| Source | Terms | Approval | Description |
-|--------|-------|----------|-------------|
-| XBRL Taxonomy | 7 | Auto-approved | Authoritative financial reporting standard |
-| SEC EDGAR | 7 | Auto-approved | Filing types, entity identifiers, regulatory concepts |
-| Project-Specific | 11 | Human approval required | Pipeline concepts (supersession, tiers, confidence, etc.) |
+| Source | Terms | Approved By | Description |
+|--------|-------|-------------|-------------|
+| XBRL Taxonomy | 7 | Auto (external standard) | Authoritative financial reporting standard |
+| SEC EDGAR | 7 | Auto (external standard) | Filing types, entity identifiers, regulatory concepts |
+| Project-Specific | 11 | human:jeff | Pipeline concepts (supersession, tiers, confidence, etc.) |
 
-### Key Financial Terms
+### Entity Terms
+| Term | Definition | Source |
+|------|-----------|--------|
+| Central Index Key (CIK) | SEC-assigned unique numeric identifier for every filing entity | SEC EDGAR |
+| Legal Entity Name | Official company name as registered with the SEC | SEC EDGAR |
+| Canonical Company Identity | Normalized, human-approved company identity — single source of truth | Project |
+| SIC Code | Four-digit industry classification code assigned by the SEC | SEC EDGAR |
+
+### Filing Terms
+| Term | Definition | Source |
+|------|-----------|--------|
+| SEC Filing | Document submitted to the SEC (10-K, 10-Q, 8-K, amendments) | SEC EDGAR |
+| Accession Number | Unique filing identifier (format: XXXXXXXXXX-YY-ZZZZZZ) | SEC EDGAR |
+| Filing Date | Date the filing was submitted to and accepted by the SEC | SEC EDGAR |
+| Amendment | Revised filing (10-K/A, 10-Q/A) that supersedes a prior submission | SEC EDGAR |
+
+### Financial Terms
 | Term | Definition | CDE |
 |------|-----------|-----|
 | Revenue | Total revenue from sale of goods and services, before deductions | CDE-015 |
 | Net Income | Total profit after all expenses, interest, and taxes | CDE-019 |
 | Total Assets | Sum of all current and non-current assets on the balance sheet | CDE-007 |
 | Financial Fact | A single reported value — one number, one concept, one unit, one period, one filing | — |
-| XBRL Concept | A specific financial metric tag from an XBRL taxonomy | — |
+| XBRL Concept | A specific financial metric tag from an XBRL taxonomy (e.g., us-gaap:Revenues) | — |
+| XBRL Taxonomy | Classification system defining financial reporting concepts (us-gaap, dei, ifrs-full) | — |
+| Financial Statement | Category of reporting: Balance Sheet, Income Statement, Cash Flow, Per-Share, Other | — |
+| Fiscal Period | Company's reporting period (FY, Q1-Q4) — may not align with calendar year | CDE-005/006 |
 
-### Key Pipeline Terms
-| Term | Definition | Status |
+### Pipeline Terms
+| Term | Definition | Source |
 |------|-----------|--------|
-| Supersession | Later filing replaces earlier filing for same company/concept/period | Proposed |
-| Tier | Match quality classification (1=exact, 2=pattern, 3=unmapped) | Proposed |
-| Confidence Score | Numeric certainty (0-1) in a proposed mapping | Proposed |
-| Human Approval Gate | Pipeline pause point requiring human review | Proposed |
-| Confidence Floor | Minimum confidence (0.7) below which human approval is always required | Proposed |
+| Entity Resolution | Process of mapping raw CIK + entity name to a canonical company identity | Project |
+| Tag Normalization | Classifying ~3,285 XBRL concepts into 25 canonical CDEs via tiered matching | Project |
+| Canonical CDE | One of 25 standardized financial data elements for cross-company comparison | Project |
+| Tier | Match quality classification: 1=exact (1.0), 2=pattern (0.6-0.7), 3=unmapped (0.0) | Project |
+| Confidence Score | Numeric certainty (0.0-1.0) in a proposed mapping | Project |
+| Confidence Floor | Minimum confidence (0.7) below which human approval is always required | Project |
+| Human Approval Gate | Pipeline pause point requiring human review, controlled by `REQUIRE_HUMAN_APPROVAL` | Project |
+| Supersession | Later filing replaces earlier filing for same company/concept/period — both preserved | Project |
+| Fiscal Calendar | Mapping of fiscal periods to calendar dates, built from observed filing data | Project |
 
 Full glossary: [`governance/business-glossary.json`](governance/business-glossary.json)
 
