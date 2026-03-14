@@ -95,6 +95,406 @@
           "spec_reference": "docs/specs/base-entity-resolution.md"
         }
       ]
+    },
+    {
+      "cde_id": "CDE-007",
+      "name": "Total Assets",
+      "definition": "Sum of all current and non-current assets reported on the balance sheet.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-007')",
+          "rationale": "Mapped from us-gaap:Assets via exact match. Appears in 20/20 companies, 2,919 facts.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-008",
+      "name": "Total Liabilities",
+      "definition": "Sum of all current and non-current liabilities reported on the balance sheet.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-008')",
+          "rationale": "Mapped from us-gaap:Liabilities and LiabilitiesAndStockholdersEquity. Multiple XBRL tags normalize to this CDE.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-009",
+      "name": "Total Stockholders Equity",
+      "definition": "Total equity attributable to shareholders, including common stock, APIC, retained earnings, and AOCI.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-009')",
+          "rationale": "Mapped from us-gaap:StockholdersEquity and StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-010",
+      "name": "Cash and Cash Equivalents",
+      "definition": "Cash on hand and short-term, highly liquid investments readily convertible to known cash amounts.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-010')",
+          "rationale": "Mapped from CashAndCashEquivalentsAtCarryingValue (20 companies) and CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-011",
+      "name": "Accounts Receivable",
+      "definition": "Amounts owed to the company by customers for goods or services delivered, net of allowances.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-011')",
+          "rationale": "Mapped from AccountsReceivableNetCurrent (15 companies) plus prefix matches for AccountsReceivable* variants.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-012",
+      "name": "Inventory",
+      "definition": "Goods available for sale or in production, including raw materials, WIP, and finished goods.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-012')",
+          "rationale": "Mapped from InventoryNet (14 companies) plus prefix matches for Inventory* variants.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-013",
+      "name": "Property Plant and Equipment",
+      "definition": "Tangible long-lived assets used in operations, net of accumulated depreciation.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-013')",
+          "rationale": "Mapped from PropertyPlantAndEquipmentNet (19 companies) plus prefix matches.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-014",
+      "name": "Goodwill",
+      "definition": "Excess of purchase price over fair value of net identifiable assets acquired in a business combination.",
+      "category": "Balance Sheet",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-014')",
+          "rationale": "Mapped from us-gaap:Goodwill (18 companies) plus GoodwillAcquired*, GoodwillImpairment* prefix matches.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-015",
+      "name": "Revenue",
+      "definition": "Total revenue recognized from the sale of goods and services, before deductions.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-015')",
+          "rationale": "Mapped from Revenues (17 co), RevenueFromContractWithCustomerExcludingAssessedTax (14 co), SalesRevenueNet (8 co), SalesRevenueGoodsNet (8 co). All revenue variants normalize to one CDE.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-016",
+      "name": "Cost of Revenue",
+      "definition": "Direct costs attributable to the production of goods and services sold.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-016')",
+          "rationale": "Mapped from CostOfRevenue, CostOfGoodsAndServicesSold, CostOfGoodsSold — three common variants.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-017",
+      "name": "Gross Profit",
+      "definition": "Revenue minus cost of revenue. Measures production efficiency.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-017')",
+          "rationale": "Mapped from us-gaap:GrossProfit. 9 companies report this directly.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-018",
+      "name": "Operating Income",
+      "definition": "Profit from core business operations, after operating expenses but before interest and taxes.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-018')",
+          "rationale": "Mapped from OperatingIncomeLoss. 16 companies, 3,447 facts.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-019",
+      "name": "Net Income",
+      "definition": "Total profit after all expenses, interest, and taxes. Bottom line.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-019')",
+          "rationale": "Mapped from NetIncomeLoss. All 20 companies, 5,344 facts — most reported concept.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-020",
+      "name": "Income Tax Expense",
+      "definition": "Total income tax expense (benefit) recognized for the period.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-020')",
+          "rationale": "Mapped from IncomeTaxExpenseBenefit. All 20 companies, 4,354 facts.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-021",
+      "name": "Research and Development Expense",
+      "definition": "Costs incurred for research and development activities.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-021')",
+          "rationale": "Mapped from ResearchAndDevelopmentExpense (11 companies) plus prefix matches for ResearchAndDevelopment* variants.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-022",
+      "name": "Selling General and Administrative Expense",
+      "definition": "Operating expenses for selling, general, and administrative activities.",
+      "category": "Income Statement",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-022')",
+          "rationale": "Mapped from SellingGeneralAndAdministrativeExpense (10 co) and GeneralAndAdministrativeExpense (8 co).",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-023",
+      "name": "Operating Cash Flow",
+      "definition": "Net cash provided by or used in operating activities.",
+      "category": "Cash Flow",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-023')",
+          "rationale": "Mapped from NetCashProvidedByUsedInOperatingActivities. All 20 companies, 2,929 facts.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-024",
+      "name": "Investing Cash Flow",
+      "definition": "Net cash provided by or used in investing activities.",
+      "category": "Cash Flow",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-024')",
+          "rationale": "Mapped from NetCashProvidedByUsedInInvestingActivities. 20 companies, 2,926 facts.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-025",
+      "name": "Financing Cash Flow",
+      "definition": "Net cash provided by or used in financing activities.",
+      "category": "Cash Flow",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-025')",
+          "rationale": "Mapped from NetCashProvidedByUsedInFinancingActivities. All 20 companies, 2,929 facts.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-026",
+      "name": "Capital Expenditures",
+      "definition": "Payments to acquire property, plant, and equipment.",
+      "category": "Cash Flow",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-026')",
+          "rationale": "Mapped from PaymentsToAcquirePropertyPlantAndEquipment (18 companies, 2,738 facts).",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-027",
+      "name": "Earnings Per Share Basic",
+      "definition": "Net income divided by weighted average basic shares outstanding.",
+      "category": "Per-Share",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-027')",
+          "rationale": "Mapped from EarningsPerShareBasic (19 companies, 4,504 facts) plus EarningsPerShare* prefix matches.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-028",
+      "name": "Earnings Per Share Diluted",
+      "definition": "Net income divided by weighted average diluted shares outstanding.",
+      "category": "Per-Share",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-028')",
+          "rationale": "Mapped from EarningsPerShareDiluted (18 companies, 4,588 facts).",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-029",
+      "name": "Dividends Per Share",
+      "definition": "Cash dividends declared per common share.",
+      "category": "Per-Share",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-029')",
+          "rationale": "Mapped from CommonStockDividendsPerShareDeclared (15 co) and CommonStockDividendsPerShareCashPaid (11 co).",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-030",
+      "name": "Comprehensive Income",
+      "definition": "Net income plus other comprehensive income items (unrealized gains/losses, foreign currency adjustments).",
+      "category": "Other",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-030')",
+          "rationale": "Mapped from ComprehensiveIncomeNetOfTax (20 co) and OtherComprehensiveIncomeLossNetOfTax (19 co) plus prefix matches.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-031",
+      "name": "Retained Earnings",
+      "definition": "Cumulative net income retained in the business, not distributed as dividends.",
+      "category": "Other",
+      "mappings": [
+        {
+          "table": "base.concept_mappings",
+          "field": "canonical_cde (where cde_id='CDE-031')",
+          "rationale": "Mapped from RetainedEarningsAccumulatedDeficit (20 co, 2,729 facts) plus prefix matches.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-14",
+          "spec_reference": "docs/specs/base-xbrl-tag-normalization.md"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,55 @@
+{
+  "spec": "base-xbrl-tag-normalization",
+  "date": "2026-03-14",
+  "decisions": [
+    {
+      "decision": "25 CDEs covering core financial statements, not sector-specific",
+      "agent": "@tag-normalizer",
+      "rationale": "Covers balance sheet (8), income statement (8), cash flow (4), per-share (3), other (2). Sector-specific CDEs (e.g., insurance premiums, bank NIM) are Consumable zone work. Base zone normalizes to universal financial concepts.",
+      "confidence": "high"
+    },
+    {
+      "decision": "All 3,285 us-gaap concepts get a row in concept_mappings",
+      "agent": "@tag-normalizer",
+      "rationale": "Complete census enables coverage analysis and future extension. Unmapped (tier 3) rows are explicitly 'not yet mapped' rather than silently missing. Downstream can filter by tier or status.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Tiered matching: exact (1.0) > prefix (0.7) > pattern (0.6) > unmapped (0.0)",
+      "agent": "@tag-normalizer",
+      "rationale": "Exact matches are curated and authoritative. Prefix matches catch known variants with high confidence. Pattern matches are regex-based and less precise. Clear confidence hierarchy makes approval decisions easier.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Tier 3 bypasses the human approval gate",
+      "agent": "@tag-normalizer",
+      "rationale": "Unmapped concepts don't need human review — they're explicitly 'not yet mapped' with confidence 0.0. Requiring approval for 3,000+ unmapped concepts would make the gate unusable. Only tier 1+2 proposals go through staging/approval.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Reuse entity_resolution.staging module directly",
+      "agent": "@tag-normalizer",
+      "rationale": "The staging module (write/read JSON, apply_gate, approve/reject) is domain-agnostic. Same interface: dicts with status/mapping_id/confidence fields. DRY > copy-paste. No staging.py needed in this module.",
+      "confidence": "high"
+    },
+    {
+      "decision": "All revenue variants map to one CDE (Revenue)",
+      "agent": "@tag-normalizer",
+      "rationale": "Revenues, RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet, SalesRevenueGoodsNet all normalize to CDE-015. Gross/net/segment distinctions are Consumable zone. Base zone answers 'what is this company's revenue?'",
+      "confidence": "high"
+    },
+    {
+      "decision": "Primary financial statement assignment only",
+      "agent": "@tag-normalizer",
+      "rationale": "Each concept maps to one financial statement (balance_sheet, income_statement, cash_flow, other). Depreciation goes to income_statement, not cash_flow. Cross-statement analysis is a downstream concern.",
+      "confidence": "high",
+      "alternatives_considered": ["Multi-statement mapping (over-engineering for base zone)", "No statement assignment (less useful for filtering)"]
+    },
+    {
+      "decision": "Heuristic categories for unmapped concepts via substring matching",
+      "agent": "@tag-normalizer",
+      "rationale": "Even unmapped concepts benefit from rough categorization (e.g., concepts containing 'Tax' → income_statement/tax). Enables coverage analysis by financial statement even for unmapped concepts. Falls back to other/uncategorized.",
+      "confidence": "medium"
+    }
+  ]
+}

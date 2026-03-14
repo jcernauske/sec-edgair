@@ -236,6 +236,44 @@
         {"field_name": "confidence_at_action", "data_type": "DOUBLE", "nullable": false, "definition": "Confidence at time of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
         {"field_name": "timestamp", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
       ]
+    },
+    {
+      "table_name": "base.concept_mappings",
+      "zone": "base",
+      "description": "Mapping from us-gaap XBRL concept names to canonical Critical Data Elements (CDEs). One row per distinct concept. Covers all 3,285 us-gaap concepts with tiered classification: Tier 1 (exact match), Tier 2 (prefix/pattern), Tier 3 (unmapped).",
+      "spec_reference": "docs/specs/base-xbrl-tag-normalization.md",
+      "row_grain": "One distinct us-gaap XBRL concept with its canonical CDE mapping (or null if unmapped).",
+      "fields": [
+        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "Stable identifier (TN-NNNN). Primary key. Assigned alphabetically by concept.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "concept", "data_type": "STRING", "nullable": false, "definition": "Raw us-gaap XBRL concept name as received from SEC EDGAR.", "dq_rules": ["BASE-TN-002"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "canonical_cde", "data_type": "STRING", "nullable": true, "definition": "Human-readable name of the mapped CDE. Null for unmapped (Tier 3) concepts.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "cde_id", "data_type": "STRING", "nullable": true, "definition": "CDE catalog reference (CDE-007 through CDE-031). Null for unmapped.", "dq_rules": ["BASE-TN-005"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "financial_statement", "data_type": "STRING", "nullable": false, "definition": "Primary financial statement: balance_sheet, income_statement, cash_flow, per_share, other.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "category", "data_type": "STRING", "nullable": false, "definition": "Specific grouping within financial statement (e.g., revenue, assets, eps, tax).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "tier", "data_type": "INTEGER", "nullable": false, "definition": "Classification tier: 1 (exact match), 2 (prefix/pattern match), 3 (unmapped).", "dq_rules": ["BASE-TN-001"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "confidence", "data_type": "DOUBLE", "nullable": false, "definition": "Mapping confidence: 1.0 (exact), 0.7 (prefix), 0.6 (pattern), 0.0 (unmapped).", "dq_rules": ["BASE-TN-003"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "mapping_method", "data_type": "STRING", "nullable": false, "definition": "How the mapping was determined: exact_match, prefix_match, pattern_match, unmapped.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "status", "data_type": "STRING", "nullable": false, "definition": "Approval status: approved (tier 1+2 after gate), unmapped (tier 3), pending, rejected.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "mapped_by", "data_type": "STRING", "nullable": false, "definition": "Agent that proposed this mapping (@tag-normalizer).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "mapped_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when mapping was proposed.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+      ]
+    },
+    {
+      "table_name": "base.tag_normalization_audit",
+      "zone": "base",
+      "description": "Audit trail for every tag normalization decision. Immutable append-only log. Same 8-field schema as entity_resolution_audit.",
+      "spec_reference": "docs/specs/base-xbrl-tag-normalization.md",
+      "row_grain": "One audit event on a concept mapping.",
+      "fields": [
+        {"field_name": "audit_id", "data_type": "STRING", "nullable": false, "definition": "UUID primary key.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "FK to concept_mappings.mapping_id.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "action", "data_type": "STRING", "nullable": false, "definition": "Action: proposed, approved, rejected, classified_unmapped.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "actor", "data_type": "STRING", "nullable": false, "definition": "Who performed: @tag-normalizer, human:jeff, auto.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "reasoning", "data_type": "STRING", "nullable": false, "definition": "Why this action was taken.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "evidence", "data_type": "STRING", "nullable": false, "definition": "JSON string with supporting data (concept, fact_count, company_count).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "confidence_at_action", "data_type": "DOUBLE", "nullable": false, "definition": "Confidence at time of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
+        {"field_name": "timestamp", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+      ]
     }
   ]
 }

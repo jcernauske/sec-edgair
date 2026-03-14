@@ -1,0 +1,119 @@
+[
+  {
+    "eventType": "COMPLETE",
+    "eventTime": "2026-03-14T14:00:00Z",
+    "run": {
+      "runId": "base-tn-001",
+      "facets": {
+        "secEdgair_specReference": {
+          "specFile": "docs/specs/base-xbrl-tag-normalization.md",
+          "specVersion": "1.0"
+        },
+        "secEdgair_agentAttribution": {
+          "agentId": "@tag-normalizer",
+          "reasoning": "Classify 3,285 us-gaap XBRL concepts into 25 canonical CDEs via tiered matching (exact, prefix, pattern) with human approval gate for Tier 1+2"
+        }
+      }
+    },
+    "job": {
+      "namespace": "sec-edgair",
+      "name": "base.tag_normalization",
+      "facets": {
+        "documentation": {
+          "description": "Reads raw.xbrl_company_facts, extracts distinct us-gaap concepts, classifies each into Tier 1 (exact match, confidence 1.0), Tier 2 (prefix/pattern match, confidence 0.6-0.7), or Tier 3 (unmapped, confidence 0.0). Tier 1+2 go through human approval gate. All 3,285 concepts written to base.concept_mappings. Every decision logged to base.tag_normalization_audit."
+        },
+        "sourceCode": {
+          "sourceCodeLocation": "src/base/xbrl_tag_normalization/normalize.py"
+        }
+      }
+    },
+    "inputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "raw.xbrl_company_facts",
+        "facets": {
+          "description": "Raw XBRL fact observations with concept names as-received from SEC EDGAR",
+          "schema": {
+            "fields": [
+              {"name": "cik", "type": "INTEGER"},
+              {"name": "taxonomy", "type": "STRING"},
+              {"name": "concept", "type": "STRING"}
+            ]
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "base.concept_mappings",
+        "facets": {
+          "schema": {
+            "fields": [
+              {"name": "mapping_id", "type": "STRING"},
+              {"name": "concept", "type": "STRING"},
+              {"name": "canonical_cde", "type": "STRING"},
+              {"name": "cde_id", "type": "STRING"},
+              {"name": "financial_statement", "type": "STRING"},
+              {"name": "category", "type": "STRING"},
+              {"name": "tier", "type": "INTEGER"},
+              {"name": "confidence", "type": "DOUBLE"},
+              {"name": "mapping_method", "type": "STRING"},
+              {"name": "status", "type": "STRING"},
+              {"name": "mapped_by", "type": "STRING"},
+              {"name": "mapped_at", "type": "TIMESTAMPTZ"}
+            ]
+          },
+          "columnLineage": {
+            "fields": {
+              "concept": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "concept"}],
+                "transformationType": "DIRECT"
+              },
+              "mapping_id": {
+                "inputFields": [],
+                "transformationDescription": "Sequential ID TN-NNNN assigned during normalization, sorted alphabetically by concept",
+                "transformationType": "DERIVED"
+              },
+              "canonical_cde": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "concept"}],
+                "transformationDescription": "Mapped from raw concept via EXACT_MAPPINGS (tier 1), PREFIX_RULES (tier 2), or PATTERN_RULES (tier 2). Null for tier 3 unmapped.",
+                "transformationType": "DERIVED"
+              },
+              "tier": {
+                "inputFields": [],
+                "transformationDescription": "1=exact match, 2=prefix/pattern match, 3=unmapped. Determined by matching engine priority.",
+                "transformationType": "DERIVED"
+              },
+              "confidence": {
+                "inputFields": [],
+                "transformationDescription": "1.0 for exact match, 0.7 for prefix match, 0.6 for pattern match, 0.0 for unmapped",
+                "transformationType": "DERIVED"
+              },
+              "financial_statement": {
+                "inputFields": [],
+                "transformationDescription": "Assigned by mapping rule or heuristic category for unmapped concepts",
+                "transformationType": "DERIVED"
+              }
+            }
+          },
+          "storage": {
+            "format": "Apache Iceberg",
+            "catalog_type": "SqlCatalog (SQLite)",
+            "warehouse_path": "data/base/iceberg_warehouse",
+            "catalog_path": "data/catalog/catalog.db",
+            "namespace": "base"
+          }
+        }
+      },
+      {
+        "namespace": "sec-edgair",
+        "name": "base.tag_normalization_audit",
+        "facets": {
+          "description": "Audit trail of every tag normalization decision — proposals, approvals, rejections, unmapped classifications"
+        }
+      }
+    ],
+    "producer": "sec_edgair/src/base/xbrl_tag_normalization/normalize.py"
+  }
+]
