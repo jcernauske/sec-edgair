@@ -4,7 +4,7 @@
 **Agent:** @semantic-modeler
 **Mode:** Backfill (reverse-engineered from existing implementation)
 **Stage:** Conceptual (1 of 3)
-**Status:** PROPOSED
+**Status:** APPROVED
 
 ```mermaid
 erDiagram

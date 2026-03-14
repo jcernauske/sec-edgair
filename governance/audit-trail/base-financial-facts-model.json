@@ -43,6 +43,15 @@
       "agent": "@financial-facts-model",
       "rationale": "Facts for concepts not in concept_mappings still need category/tier values for downstream filtering. Using explicit defaults makes these queryable without NULL handling. Consistent with tag normalization's tier 3 treatment.",
       "confidence": "high"
+    },
+    {
+      "decision": "Post-implementation governance review: APPROVED with advisory findings",
+      "agent": "@governance-reviewer",
+      "rationale": "All governance artifacts present and complete (lineage, DQ rules, scorecard, audit trail, data dictionary). All three data models (conceptual, logical, physical) are APPROVED and consistent with each other and implementation. Business glossary terms approved. DQ rules validate real behavior. No implementation changes during backfill. Two advisory findings: (1) CDE catalog lacks explicit mappings for the 3 new base tables (CDEs traceable through lineage), (2) README has stale counts and missing spec in Phase 2 table (data model diagrams are present and current). Neither advisory blocks approval.",
+      "confidence": "high",
+      "review_type": "post-implementation (backfill mode)",
+      "review_report": "governance/reviews/base-financial-facts-model-post-review.md",
+      "timestamp": "2026-03-14T21:00:00Z"
     }
   ]
 }

@@ -49,6 +49,7 @@ Each zone is governed by AI agents that produce lineage, data quality rules, CDE
 |------|--------|-------------|
 | `base-entity-resolution` | Complete | Maps SEC EDGAR CIKs to canonical company identities. 20 companies resolved via exact CIK match (confidence 1.0). Human approval gate with CLI (`approve`, `reject`, `status`). Produces `base.entity_mappings` + `base.entity_resolution_audit` Iceberg tables. |
 | `base-xbrl-tag-normalization` | Complete | Maps 3,285 us-gaap XBRL concepts to 25 canonical financial CDEs via tiered matching engine. **Tier 1** (37 exact matches, confidence 1.0): core concepts like Revenue, Assets, Net Income. **Tier 2** (305 prefix/pattern matches, confidence 0.6-0.7): known variants. **Tier 3** (2,943 unmapped, confidence 0.0): long-tail concepts tagged with heuristic categories. Produces `base.concept_mappings` + `base.tag_normalization_audit` Iceberg tables. Reuses entity_resolution staging module for human approval gate. |
+| `base-financial-facts-model` | Complete | Denormalized fact table joining raw XBRL facts with entity/concept metadata. **547K facts** enriched with 28 columns including supersession detection, fiscal calendar alignment, and amendment tracking. Produces `base.financial_facts` + `base.fiscal_calendar` + `base.amendment_tracking` Iceberg tables. 40 tests, 7 DQ rules at 100%. |
 
 ### Phases 3-4: Consumable & AI-Ready
 
@@ -63,6 +64,9 @@ raw.xbrl_company_facts          547,398 facts, 20 companies, 19 columns
     ↓
 base.entity_mappings            20 CIK → canonical company identity mappings
 base.concept_mappings           3,285 XBRL concept → CDE classifications
+base.financial_facts            547K enriched facts, 28 columns, supersession tracked
+base.fiscal_calendar            ~1,600 fiscal periods across 20 companies
+base.amendment_tracking         Supersession pairs with value changes
     ↓
 (consumable zone — next)
     ↓
@@ -74,7 +78,7 @@ base.concept_mappings           3,285 XBRL concept → CDE classifications
 Every transformation produces governance artifacts automatically:
 
 - **31 CDEs** defined in `governance/cde-catalog.json` (6 entity/filing + 25 financial)
-- **5 Iceberg tables** documented in `governance/data-dictionary.json`
+- **8 Iceberg tables** documented in `governance/data-dictionary.json`
 - **OpenLineage** events in `governance/lineage/`
 - **DQ rules** with scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
 - **Audit trails** capturing every design decision in `governance/audit-trail/`
@@ -475,7 +479,7 @@ erDiagram
 # Install
 uv sync
 
-# Run tests (106 tests)
+# Run tests (146 tests)
 uv run pytest
 
 # Run XBRL tag normalization
@@ -487,6 +491,10 @@ uv run python -m src.base.xbrl_tag_normalization.cli coverage
 # Run entity resolution
 uv run python -m src.base.entity_resolution.cli resolve
 uv run python -m src.base.entity_resolution.cli approve
+
+# Run financial facts model
+uv run python -m src.base.financial_facts_model.cli all
+uv run python -m src.base.financial_facts_model.cli status
 ```
 
 ## Project Structure
@@ -498,11 +506,12 @@ src/                            Source code organized by zone
   base/                         Base zone normalization
     entity_resolution/           CIK → canonical company identity
     xbrl_tag_normalization/      XBRL concept → canonical CDE
+    financial_facts_model/       Denormalized facts + fiscal calendar + amendments
 data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
   business-glossary.json        25 business terms (XBRL, SEC EDGAR, project-specific)
   cde-catalog.json              31 Critical Data Element definitions
-  data-dictionary.json          5 table schemas with field-level docs
+  data-dictionary.json          8 table schemas with field-level docs
   models/                       Data models (conceptual, logical, physical) with Mermaid diagrams
   lineage/                      OpenLineage events
   dq-rules/                     Data quality rule definitions
@@ -511,6 +520,6 @@ governance/                     Governance artifacts
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (106 passing)
+tests/                          Tests organized by zone (146 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```

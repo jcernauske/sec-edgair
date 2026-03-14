@@ -1,6 +1,6 @@
 # Base Zone: Financial Facts Model
 
-## Status: 🟠 IMPLEMENTATION
+## Status: 🟢 COMPLETE
 
 | Status | Meaning |
 |--------|---------|
@@ -231,3 +231,74 @@ tests/base/financial_facts_model/
 ```
 
 40 total tests, all passing. Full suite: 146 tests (40 new + 106 existing).
+
+## Staff Engineer Review
+### Date: 2026-03-14
+### Reviewer: @staff-engineer
+### Status: APPROVED
+
+### Summary
+
+This is solid work. The implementation faithfully matches the spec, the tests are real, and the governance artifacts are not boilerplate. Approving with minor observations noted below.
+
+### Code Review
+
+**config.py** — Clean separation of grain definitions, table names, and paths. SUPERSESSION_GRAIN and FACT_ID_GRAIN are defined once and used consistently across model.py and amendments.py. No issues.
+
+**schema.py** — All 28 fields for financial_facts, 12 for fiscal_calendar, and 16 for amendment_tracking match the spec exactly. Field IDs are sequential. Required/optional flags match the spec's "Required" column. No drift.
+
+**model.py** — The join logic is straightforward and correct:
+- Entity lookup by CIK, concept lookup by concept name.
+- Unknown CIKs are filtered out (correct per spec: "filtered to known entities").
+- Unmapped concepts get tier=3/other/uncategorized defaults rather than being dropped. This preserves all facts for known entities regardless of concept mapping coverage. Good decision, correctly tested.
+- `_apply_supersession` groups by the right grain and marks all-but-latest as superseded. The sort-by-filed_date approach matches the spec's algorithm exactly.
+- Date normalization handles both string and date objects, which matters for the dual in-memory/Iceberg code paths.
+- `promoted_at` is set once at build time, not per-record. Fine for batch operations.
+
+**amendments.py** — Correctly pairs each superseded filing with the latest (not pairwise chaining). The val_change_pct null-when-zero-original handling is correct. Uses abs(original_val) in the denominator, which is the right call for negative values.
+
+**fiscal_calendar.py** — Aggregates period boundaries correctly: min(start_dates) and max(end_dates) across all facts in a (cik, fiscal_year, fiscal_period) group. Handles the instant-fact case (no start_date) by allowing period_start to be None. Duration_days is None when period_start is None. All correct.
+
+**promote.py** — Three parallel promote functions with identical structure. Uses `create_test_table` which is an existing infra pattern. Empty-list short circuit returns promoted=0 without touching the catalog. Fine.
+
+**cli.py** — Five subcommands as specified. `cmd_all` runs model, calendar, amendments, status in sequence. The amendments command rebuilds facts from scratch rather than reading the just-promoted table, which is slightly wasteful but correct and avoids ordering dependency issues. Acceptable.
+
+### Test Review
+
+**Not theater.** Every test constructs specific input records with specific expected outputs and asserts on concrete values.
+
+- **test_model.py (14 tests)**: Covers fact_id determinism, entity/concept enrichment, unmapped concept defaults, unknown entity filtering, calendar year/quarter derivation, amendment flag detection, and supersession for single/double/triple filing chains plus cross-concept independence. The supersession chain test (3 filings, verify A1 and A2 both point to A3) is the kind of test that catches real bugs.
+
+- **test_amendments.py (6 tests)**: Covers no-amendment case, basic amendment detection with val_change verification, zero-original-val edge case, three-filing chain, cross-concept independence, and required field presence. The val_change_pct assertions (5.0 for 50/1000, None for 0 denominator) validate actual arithmetic, not just "not null."
+
+- **test_fiscal_calendar.py (12 tests)**: Tests calendar quarter math for all four quarters, calendar_id determinism, and then five build scenarios: basic, January FYE (Walmart), June FYE (Microsoft), all quarters plus FY, instant facts with no start_date, unknown entity filtering, and multiple-facts-same-period boundary merging. The boundary merging test (three facts, one with no start_date, verifying earliest start and latest end) is particularly good — it validates the aggregation logic, not just "it returned something."
+
+- **test_promote.py (5 tests)**: Iceberg roundtrip for all three tables using tmp_path fixtures, empty-list noop, and multi-record write. These are integration tests against real Iceberg tables, not mocks.
+
+- **test_cli.py (3 tests)**: Status with seeded data, status with empty warehouse, and help flag. The seeding helper constructs all three tables with realistic records. Adequate for CLI coverage.
+
+### Governance Artifacts
+
+**Lineage (base-financial-facts-model.json)**: OpenLineage format with correct inputs (raw.xbrl_company_facts, base.entity_mappings, base.concept_mappings) and outputs (all three tables). Column-level lineage for 8 derived fields with specific transformation descriptions (e.g., "SHA-256 hash of (cik, concept, unit, start_date, end_date, accession_number), truncated to 16 chars"). This is not template filler — the descriptions match the actual code.
+
+**Audit trail (base-financial-facts-model.json)**: Seven architectural decisions with rationale. All match the spec's Section 5 design decisions. The "unmapped concepts get tier=3" decision is documented here but not in the spec, which is fine — it's an implementation-level decision that belongs in the audit trail.
+
+**DQ rules (base-financial-facts-model.json)**: All 7 rules from spec Section 4 with SQL queries, thresholds, and rationale. The SQL is executable (not pseudocode). Rule BASE-FM-004 uses a cross-table join check, which is the right approach for fiscal calendar completeness.
+
+**DQ scorecard**: Maps each rule to specific tests by name. The "Join Logic Validation" and "Supersession Validation" sections go beyond the 7 DQ rules to document additional behavioral coverage. This is useful, not padding.
+
+### Observations (Non-Blocking)
+
+1. **Fact ID truncation**: `hashlib.sha256(...).hexdigest()[:16]` gives 16 hex chars = 64 bits of entropy. With ~547K facts, collision probability is negligible (~2.3e-8). Fine for this scale, but if the dataset grows by orders of magnitude, this could become a concern. Worth noting for future specs.
+
+2. **Supersession pairs all earlier filings to the latest**: In a chain of A1 -> A2 -> A3, the code creates (A1, A3) and (A2, A3) tracking entries. This means A2's relationship to A1 is not captured in amendment_tracking. The spec explicitly says "pairs each superseded filing with the latest (superseding) filing" so this is correct per spec. But downstream consumers who want the full chain history should be aware.
+
+3. **No idempotency guard on promote**: Running `cli all` twice will append duplicate rows. The spec doesn't require idempotency, and this is consistent with other promote patterns in the codebase. Just noting it.
+
+4. **`_calendar_quarter` is duplicated** in both model.py and fiscal_calendar.py. Minor DRY violation. Could be in a shared utility, but for 2 lines of code it's not worth the abstraction.
+
+### Verdict
+
+The implementation matches the spec. The tests validate real behavior with real assertions. The governance artifacts reference actual code and actual data. The architecture decisions are documented with rationale. 40 tests, all passing, 0.46 seconds.
+
+**APPROVED. Mark spec as COMPLETE.**

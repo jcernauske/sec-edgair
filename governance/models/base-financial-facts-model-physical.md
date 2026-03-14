@@ -4,7 +4,7 @@
 **Agent:** @semantic-modeler
 **Mode:** Backfill (reverse-engineered from existing implementation)
 **Stage:** Physical (3 of 3)
-**Status:** PROPOSED
+**Status:** APPROVED
 **Derived From (backfill):** Existing Iceberg tables + source code (documenting as-built)
 **Source Files:** src/base/financial_facts_model/schema.py, model.py, fiscal_calendar.py, amendments.py, promote.py
 

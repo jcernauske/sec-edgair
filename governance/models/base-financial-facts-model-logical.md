@@ -4,7 +4,7 @@
 **Agent:** @semantic-modeler
 **Mode:** Backfill (reverse-engineered from existing implementation)
 **Stage:** Logical (2 of 3)
-**Status:** PROPOSED
+**Status:** APPROVED
 **Derived From (backfill):** governance/models/base-financial-facts-model-physical.md + source code
 
 ```mermaid
