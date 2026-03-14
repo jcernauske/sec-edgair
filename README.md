@@ -78,6 +78,7 @@ Every transformation produces governance artifacts automatically:
 - **OpenLineage** events in `governance/lineage/`
 - **DQ rules** with scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
 - **Audit trails** capturing every design decision in `governance/audit-trail/`
+- **PII:** None detected. All data is public SEC filings — no personal or sensitive information.
 
 ## 25 Canonical Financial CDEs
 
