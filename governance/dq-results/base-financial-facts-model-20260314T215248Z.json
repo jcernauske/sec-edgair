@@ -1,0 +1,96 @@
+{
+  "run_id": "39ad9cea",
+  "spec": "base-financial-facts-model",
+  "executed_at": "2026-03-14T21:52:48.019098+00:00",
+  "rules_total": 7,
+  "rules_passed": 7,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "BASE-FM-001",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:47.952192+00:00"
+    },
+    {
+      "rule_id": "BASE-FM-002",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 6,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:47.959193+00:00"
+    },
+    {
+      "rule_id": "BASE-FM-003",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 10,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:47.969631+00:00"
+    },
+    {
+      "rule_id": "BASE-FM-004",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 15,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:47.985448+00:00"
+    },
+    {
+      "rule_id": "BASE-FM-005",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:47.986705+00:00"
+    },
+    {
+      "rule_id": "BASE-FM-006",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 25,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:48.012472+00:00"
+    },
+    {
+      "rule_id": "BASE-FM-007",
+      "spec": "base-financial-facts-model",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-14T21:52:48.013891+00:00"
+    }
+  ]
+}

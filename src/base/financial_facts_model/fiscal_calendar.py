@@ -104,6 +104,7 @@ def build_fiscal_calendar(
             "calendar_quarter": _calendar_quarter(period_end),
             "duration_days": duration_days,
             "is_annual": fp == "FY",
+            "load_date": datetime.date.today(),
         })
 
     return calendar_entries

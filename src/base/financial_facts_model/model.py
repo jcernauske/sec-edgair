@@ -153,6 +153,7 @@ def build_financial_facts(
             "filed_date": filed_date,
             "is_amendment": _is_amendment(form),
             "promoted_at": now,
+            "load_date": now.date(),
         }
 
         fact["fact_id"] = _compute_fact_id(fact)

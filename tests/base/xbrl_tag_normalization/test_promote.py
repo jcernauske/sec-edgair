@@ -158,7 +158,7 @@ def test_promote_mapping_fields_complete(tmp_path):
     expected_fields = {
         "mapping_id", "concept", "canonical_cde", "cde_id",
         "financial_statement", "category", "tier", "confidence",
-        "mapping_method", "status", "mapped_by", "mapped_at",
+        "mapping_method", "status", "mapped_by", "mapped_at", "load_date",
     }
     assert set(rows[0].keys()) == expected_fields
 

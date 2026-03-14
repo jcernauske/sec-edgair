@@ -2,6 +2,7 @@
 
 from pyiceberg.schema import Schema
 from pyiceberg.types import (
+    DateType,
     DoubleType,
     IntegerType,
     NestedField,
@@ -24,6 +25,7 @@ ENTITY_MAPPINGS_SCHEMA = Schema(
     NestedField(field_id=12, name="approved_by", field_type=StringType(), required=False),
     NestedField(field_id=13, name="resolved_at", field_type=TimestamptzType(), required=True),
     NestedField(field_id=14, name="approved_at", field_type=TimestamptzType(), required=False),
+    NestedField(field_id=15, name="load_date", field_type=DateType(), required=True),
 )
 
 ENTITY_RESOLUTION_AUDIT_SCHEMA = Schema(
@@ -35,4 +37,5 @@ ENTITY_RESOLUTION_AUDIT_SCHEMA = Schema(
     NestedField(field_id=6, name="evidence", field_type=StringType(), required=True),
     NestedField(field_id=7, name="confidence_at_action", field_type=DoubleType(), required=True),
     NestedField(field_id=8, name="timestamp", field_type=TimestamptzType(), required=True),
+    NestedField(field_id=9, name="load_date", field_type=DateType(), required=True),
 )

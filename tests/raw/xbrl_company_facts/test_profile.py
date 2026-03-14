@@ -46,10 +46,10 @@ def test_profile_returns_expected_structure(profiled_workspace):
     )
 
     assert profile["total_rows"] == 9
-    assert profile["field_count"] == 19
+    assert profile["field_count"] == 20
     assert "320193" in profile["cik_counts"]
     assert profile["cik_counts"]["320193"] == 9
-    assert len(profile["fields"]) == 19
+    assert len(profile["fields"]) == 20
 
 
 def test_profile_all_19_fields_present(profiled_workspace):
@@ -58,7 +58,7 @@ def test_profile_all_19_fields_present(profiled_workspace):
         "cik", "entity_name", "taxonomy", "concept", "label", "description",
         "unit", "start_date", "end_date", "val", "accession_number",
         "fiscal_year", "fiscal_period", "form", "filed_date", "frame",
-        "ingested_at", "source_url", "source_method",
+        "ingested_at", "source_url", "source_method", "load_date",
     }
     profile = profile_table(
         warehouse_path=profiled_workspace["warehouse"],

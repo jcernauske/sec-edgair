@@ -46,6 +46,7 @@ FINANCIAL_FACTS_SCHEMA = Schema(
     NestedField(field_id=26, name="is_superseded", field_type=BooleanType(), required=True),
     NestedField(field_id=27, name="superseded_by", field_type=StringType(), required=False),
     NestedField(field_id=28, name="promoted_at", field_type=TimestamptzType(), required=True),
+    NestedField(field_id=29, name="load_date", field_type=DateType(), required=True),
 )
 
 
@@ -62,6 +63,7 @@ FISCAL_CALENDAR_SCHEMA = Schema(
     NestedField(field_id=10, name="calendar_quarter", field_type=IntegerType(), required=True),
     NestedField(field_id=11, name="duration_days", field_type=IntegerType(), required=False),
     NestedField(field_id=12, name="is_annual", field_type=BooleanType(), required=True),
+    NestedField(field_id=13, name="load_date", field_type=DateType(), required=True),
 )
 
 
@@ -82,4 +84,5 @@ AMENDMENT_TRACKING_SCHEMA = Schema(
     NestedField(field_id=14, name="val_change_pct", field_type=DoubleType(), required=False),
     NestedField(field_id=15, name="amendment_form", field_type=StringType(), required=True),
     NestedField(field_id=16, name="detected_at", field_type=TimestamptzType(), required=True),
+    NestedField(field_id=17, name="load_date", field_type=DateType(), required=True),
 )

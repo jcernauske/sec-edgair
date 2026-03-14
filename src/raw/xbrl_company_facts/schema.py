@@ -34,4 +34,5 @@ XBRL_COMPANY_FACTS_SCHEMA = Schema(
     NestedField(field_id=17, name="ingested_at", field_type=TimestamptzType(), required=True),
     NestedField(field_id=18, name="source_url", field_type=StringType(), required=True),
     NestedField(field_id=19, name="source_method", field_type=StringType(), required=True),
+    NestedField(field_id=20, name="load_date", field_type=DateType(), required=True),
 )

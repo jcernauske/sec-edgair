@@ -40,6 +40,7 @@ def _make_fact_record() -> dict:
         "is_superseded": False,
         "superseded_by": None,
         "promoted_at": datetime.datetime.now(datetime.timezone.utc),
+        "load_date": datetime.date.today(),
     }
 
 
@@ -57,6 +58,7 @@ def _make_calendar_record() -> dict:
         "calendar_quarter": 3,
         "duration_days": 364,
         "is_annual": True,
+        "load_date": datetime.date.today(),
     }
 
 
@@ -78,6 +80,7 @@ def _make_amendment_record() -> dict:
         "val_change_pct": 5.0,
         "amendment_form": "10-K/A",
         "detected_at": datetime.datetime.now(datetime.timezone.utc),
+        "load_date": datetime.date.today(),
     }
 
 

@@ -60,6 +60,7 @@ def detect_amendments(facts: list[dict]) -> list[dict]:
                 "val_change_pct": val_change_pct,
                 "amendment_form": latest["form"],
                 "detected_at": now,
+                "load_date": now.date(),
             })
 
     return tracking

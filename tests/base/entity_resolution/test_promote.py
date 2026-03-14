@@ -170,6 +170,6 @@ def test_promote_mapping_fields_complete(tmp_path):
         "mapping_id", "cik", "canonical_name", "raw_entity_name",
         "ticker", "sic_code", "fiscal_year_end", "confidence",
         "resolution_method", "status", "resolved_by", "approved_by",
-        "resolved_at", "approved_at",
+        "resolved_at", "approved_at", "load_date",
     }
     assert set(rows[0].keys()) == expected_fields

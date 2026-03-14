@@ -72,14 +72,14 @@ def test_ingest_creates_iceberg_table(tmp_workspace):
 
 
 def test_ingest_all_19_columns_present(tmp_workspace):
-    """Verify all 19 schema columns are present in the output."""
+    """Verify all 20 schema columns are present in the output."""
     from src.infra.iceberg_setup import get_catalog
 
     expected_columns = {
         "cik", "entity_name", "taxonomy", "concept", "label", "description",
         "unit", "start_date", "end_date", "val", "accession_number",
         "fiscal_year", "fiscal_period", "form", "filed_date", "frame",
-        "ingested_at", "source_url", "source_method",
+        "ingested_at", "source_url", "source_method", "load_date",
     }
 
     ciks = {320193: "Apple Inc."}
