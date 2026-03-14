@@ -1,0 +1,42 @@
+{
+  "spec": "base-bitemporal-schema",
+  "date": "2026-03-14",
+  "decisions": [
+    {
+      "decision": "No new Iceberg tables — query/validation module only",
+      "agent": "@bitemporal-schema",
+      "rationale": "The base-financial-facts-model spec already built the correct schema with all bitemporal fields. This spec adds the ergonomic layer: query helpers, snapshot management, and temporal DQ rules. Adding tables would duplicate data.",
+      "confidence": "high"
+    },
+    {
+      "decision": "as_known_on uses filed_date, not Iceberg snapshots",
+      "agent": "@bitemporal-schema",
+      "rationale": "filed_date is the real-world 'when was this known?' signal (valid time). Iceberg snapshot time is system-level transaction time — it reflects when data was loaded into the pipeline, not when the SEC received the filing. For 'what did we know on date X?' the filing date is authoritative.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Query helpers operate on list[dict]",
+      "agent": "@bitemporal-schema",
+      "rationale": "Matches the existing base zone pattern established in financial_facts_model. Keeps functions testable without Iceberg infrastructure. Only facts_at_snapshot requires an Iceberg table reference.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Snapshot registry is in-memory, not a new table",
+      "agent": "@bitemporal-schema",
+      "rationale": "Storing snapshot metadata in an Iceberg table would be circular — the registry would need its own snapshots. The in-memory approach enriches PyIceberg's get_snapshots() with labels and ISO timestamps on the fly.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Import SUPERSESSION_GRAIN from financial_facts_model.config",
+      "agent": "@bitemporal-schema",
+      "rationale": "Single source of truth for the grain definition. If the grain changes, it changes in one place. Clean dependency — bitemporal module depends on financial_facts_model config, not the other way around.",
+      "confidence": "high"
+    },
+    {
+      "decision": "BASE-BT-004 uses 99% threshold instead of 100%",
+      "agent": "@bitemporal-schema",
+      "rationale": "Some SEC filings have edge cases where filed_date is before end_date (e.g., NT filings, early preliminary filings). A 100% threshold would produce false failures. 99% allows for known edge cases while still catching systemic issues.",
+      "confidence": "high"
+    }
+  ]
+}

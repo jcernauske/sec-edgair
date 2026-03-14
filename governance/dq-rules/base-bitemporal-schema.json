@@ -1,0 +1,51 @@
+{
+  "spec": "base-bitemporal-schema",
+  "tables": ["base.financial_facts"],
+  "rules": [
+    {
+      "rule_id": "BASE-BT-001",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "No facts with filed_date in the future",
+      "implementation": "validate_no_future_filed_dates(facts)",
+      "threshold": "100% — zero violations",
+      "rationale": "Future filed_dates indicate data corruption or incorrect date parsing — SEC filings are always historical"
+    },
+    {
+      "rule_id": "BASE-BT-002",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "start_date < end_date for all period facts",
+      "implementation": "validate_start_before_end(facts)",
+      "threshold": "100% — zero violations",
+      "rationale": "A period where start >= end is logically impossible — indicates date parsing or mapping error"
+    },
+    {
+      "rule_id": "BASE-BT-003",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "Superseded facts have filed_date <= superseding fact's filed_date",
+      "implementation": "validate_supersession_order(facts)",
+      "threshold": "100% — zero violations",
+      "rationale": "Supersession is defined by filing order — if a 'superseded' fact was filed AFTER its superseder, the supersession logic is broken"
+    },
+    {
+      "rule_id": "BASE-BT-004",
+      "category": "Validity",
+      "priority": "P1",
+      "description": "filed_date >= end_date (filings come after period ends)",
+      "implementation": "validate_filed_after_period(facts)",
+      "threshold": "99% — allows edge cases (NT filings, preliminary filings)",
+      "rationale": "Filings should be submitted after the period they cover. Some edge cases exist (NT filings, pre-release), so 99% threshold avoids false failures while catching systemic issues"
+    },
+    {
+      "rule_id": "BASE-BT-005",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every superseded_by accession number exists in facts",
+      "implementation": "validate_superseded_by_exists(facts)",
+      "threshold": "100% — zero violations",
+      "rationale": "A superseded_by reference to a non-existent accession indicates orphaned supersession — the superseding filing is missing from the dataset"
+    }
+  ]
+}

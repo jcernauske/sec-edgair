@@ -1,0 +1,43 @@
+[
+  {
+    "eventType": "COMPLETE",
+    "eventTime": "2026-03-14T16:00:00Z",
+    "run": {
+      "runId": "base-bt-001",
+      "facets": {
+        "secEdgair_specReference": {
+          "specFile": "docs/specs/base-bitemporal-schema.md",
+          "specVersion": "1.0"
+        },
+        "secEdgair_agentAttribution": {
+          "agentId": "@bitemporal-schema",
+          "reasoning": "Add temporal query helpers, snapshot registry, and validation rules on top of existing base.financial_facts. No new tables — this is an ergonomic layer for downstream consumers."
+        }
+      }
+    },
+    "job": {
+      "namespace": "sec-edgair",
+      "name": "base.bitemporal_schema",
+      "facets": {
+        "documentation": {
+          "description": "Provides temporal query helpers (current_facts, as_known_on, fact_history, compare_periods, facts_at_snapshot), snapshot registry (get_labeled_snapshots, find_snapshot_at, snapshot_diff_summary), and 5 temporal DQ validation rules (BASE-BT-001 through BASE-BT-005). Operates on existing base.financial_facts table — no new Iceberg tables created."
+        },
+        "sourceCode": {
+          "sourceCodeLocation": "src/base/bitemporal/"
+        }
+      }
+    },
+    "inputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "base.financial_facts",
+        "facets": {
+          "description": "Denormalized financial facts with bitemporal markers (filed_date, is_superseded, superseded_by, promoted_at)",
+          "usage": "Read-only — queries and validation operate on existing data"
+        }
+      }
+    ],
+    "outputs": [],
+    "producer": "sec_edgair/src/base/bitemporal/"
+  }
+]
