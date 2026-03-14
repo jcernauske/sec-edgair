@@ -125,6 +125,149 @@ erDiagram
     SEC_FILING ||--o{ FINANCIAL_FACT : "source of"
 ```
 
+### Logical: Entity Resolution
+
+```mermaid
+erDiagram
+    EntityMapping {
+        identifier mapping_id PK
+        identifier cik
+        text canonical_name
+        text raw_entity_name
+        text ticker
+        text sic_code
+        text fiscal_year_end
+        number confidence
+        text resolution_method
+        text status
+        text resolved_by
+        text approved_by
+        timestamp resolved_at
+        timestamp approved_at
+    }
+    EntityResolutionAudit {
+        identifier audit_id PK
+        identifier mapping_id FK
+        text action
+        text actor
+        text reasoning
+        text evidence
+        number confidence_at_action
+        timestamp timestamp
+    }
+    EntityMapping ||--o{ EntityResolutionAudit : "has audit trail"
+```
+
+### Logical: XBRL Tag Normalization
+
+```mermaid
+erDiagram
+    ConceptMapping {
+        identifier mapping_id PK
+        text concept
+        text canonical_cde
+        identifier cde_id
+        text financial_statement
+        text category
+        number tier
+        number confidence
+        text mapping_method
+        text status
+        text mapped_by
+        timestamp mapped_at
+    }
+    TagNormalizationAudit {
+        identifier audit_id PK
+        identifier mapping_id FK
+        text action
+        text actor
+        text reasoning
+        text evidence
+        number confidence_at_action
+        timestamp timestamp
+    }
+    CanonicalCDE {
+        identifier cde_id PK
+        text name
+        text category
+        text subcategory
+        text definition
+    }
+    ConceptMapping }o--o| CanonicalCDE : "maps to"
+    ConceptMapping ||--o{ TagNormalizationAudit : "has audit trail"
+```
+
+### Logical: Financial Facts Model
+
+```mermaid
+erDiagram
+    Entity {
+        identifier entity_id PK
+        identifier cik
+        text canonical_name
+        text ticker
+        text sic_code
+        text fiscal_year_end
+    }
+    Concept {
+        identifier mapping_id PK
+        text concept
+        identifier cde_id
+        text canonical_cde
+        text financial_statement
+        text category
+        number tier
+    }
+    FinancialFact {
+        identifier fact_id PK
+        identifier entity_id FK
+        text concept FK
+        text taxonomy
+        text unit
+        number val
+        date start_date
+        date end_date
+        number fiscal_year
+        text fiscal_period
+        number calendar_year
+        number calendar_quarter
+        identifier accession_number
+        text form
+        date filed_date
+        boolean is_amendment
+        boolean is_superseded
+        identifier superseded_by
+    }
+    FiscalCalendar {
+        identifier calendar_id PK
+        identifier cik FK
+        identifier entity_id FK
+        number fiscal_year
+        text fiscal_period
+        date period_start
+        date period_end
+        number duration_days
+        boolean is_annual
+    }
+    AmendmentTracking {
+        identifier tracking_id PK
+        identifier cik
+        text concept
+        text unit
+        date end_date
+        identifier original_accession
+        number original_val
+        identifier amendment_accession
+        number amendment_val
+        number val_change
+        number val_change_pct
+    }
+    Entity ||--o{ FinancialFact : "reported by"
+    Concept ||--o{ FinancialFact : "classified as"
+    Entity ||--o{ FiscalCalendar : "has periods"
+    FinancialFact ||--o{ AmendmentTracking : "superseded by"
+```
+
 ### Physical: Entity Resolution
 
 ```mermaid
