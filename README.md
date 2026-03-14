@@ -90,6 +90,41 @@ Every transformation produces governance artifacts automatically:
 | Per-Share (3) | EPS Basic, EPS Diluted, Dividends Per Share |
 | Other (2) | Comprehensive Income, Retained Earnings |
 
+## Data Models
+
+Full model documentation (conceptual, logical, physical) lives in [`governance/models/`](governance/models/).
+
+### Conceptual: Entity Resolution
+
+```mermaid
+erDiagram
+    RAW_ENTITY }o--|| CANONICAL_COMPANY : "resolves to"
+    CANONICAL_COMPANY ||--o{ RESOLUTION_DECISION : "has history of"
+    HUMAN_REVIEWER ||--o{ RESOLUTION_DECISION : "approves or rejects"
+```
+
+### Conceptual: XBRL Tag Normalization
+
+```mermaid
+erDiagram
+    XBRL_CONCEPT }o--o| CANONICAL_CDE : "maps to (optional)"
+    XBRL_CONCEPT ||--o{ CLASSIFICATION_DECISION : "has history of"
+    CANONICAL_CDE ||--|{ FINANCIAL_STATEMENT : "belongs to"
+    HUMAN_REVIEWER ||--o{ CLASSIFICATION_DECISION : "approves or rejects"
+```
+
+### Conceptual: Financial Facts Model
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ FINANCIAL_FACT : "reports"
+    FINANCIAL_CONCEPT ||--o{ FINANCIAL_FACT : "measures"
+    COMPANY ||--o{ FISCAL_PERIOD : "operates in"
+    FINANCIAL_FACT ||--o{ AMENDMENT : "corrected by"
+    FISCAL_PERIOD ||--o{ FINANCIAL_FACT : "contains"
+    SEC_FILING ||--o{ FINANCIAL_FACT : "source of"
+```
+
 ## Quick Start
 
 ```bash
@@ -123,6 +158,7 @@ data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
   cde-catalog.json              31 Critical Data Element definitions
   data-dictionary.json          5 table schemas with field-level docs
+  models/                       Data models (conceptual, logical, physical) with Mermaid diagrams
   lineage/                      OpenLineage events
   dq-rules/                     Data quality rule definitions
   dq-scorecards/                DQ validation results
