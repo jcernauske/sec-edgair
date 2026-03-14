@@ -1,0 +1,231 @@
+[
+  {
+    "eventType": "COMPLETE",
+    "eventTime": "2026-03-14T01:06:00Z",
+    "run": {
+      "runId": "raw-cf-api-001",
+      "facets": {
+        "secEdgair_specReference": {
+          "specFile": "docs/specs/raw-ingest-xbrl-company-facts.md",
+          "specVersion": "1.0"
+        },
+        "secEdgair_agentAttribution": {
+          "agentId": "@data-profiler",
+          "reasoning": "Ingest XBRL Company Facts from SEC EDGAR per-company API into raw.xbrl_company_facts Iceberg table"
+        }
+      }
+    },
+    "job": {
+      "namespace": "sec-edgair",
+      "name": "raw.ingest_company_facts_api",
+      "facets": {
+        "documentation": {
+          "description": "Fetches company facts JSON from SEC EDGAR per-company API, flattens nested XBRL structure into one row per fact observation, and appends to raw.xbrl_company_facts Iceberg table. One snapshot per company."
+        },
+        "sourceCode": {
+          "sourceCodeLocation": "src/raw/xbrl_company_facts/ingest.py"
+        }
+      }
+    },
+    "inputs": [
+      {
+        "namespace": "sec-edgar",
+        "name": "api.xbrl.companyfacts",
+        "facets": {
+          "description": "SEC EDGAR XBRL Company Facts API (https://data.sec.gov/api/xbrl/companyfacts/CIK{padded}.json)",
+          "schema": {
+            "fields": [
+              {"name": "cik", "type": "INTEGER"},
+              {"name": "entityName", "type": "STRING"},
+              {"name": "facts", "type": "STRUCT (nested: taxonomy → concept → units → observations)"}
+            ]
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "raw.xbrl_company_facts",
+        "facets": {
+          "schema": {
+            "fields": [
+              {"name": "cik", "type": "INTEGER"},
+              {"name": "entity_name", "type": "STRING"},
+              {"name": "taxonomy", "type": "STRING"},
+              {"name": "concept", "type": "STRING"},
+              {"name": "label", "type": "STRING"},
+              {"name": "description", "type": "STRING"},
+              {"name": "unit", "type": "STRING"},
+              {"name": "start_date", "type": "DATE"},
+              {"name": "end_date", "type": "DATE"},
+              {"name": "val", "type": "DOUBLE"},
+              {"name": "accession_number", "type": "STRING"},
+              {"name": "fiscal_year", "type": "INTEGER"},
+              {"name": "fiscal_period", "type": "STRING"},
+              {"name": "form", "type": "STRING"},
+              {"name": "filed_date", "type": "DATE"},
+              {"name": "frame", "type": "STRING"},
+              {"name": "ingested_at", "type": "TIMESTAMPTZ"},
+              {"name": "source_url", "type": "STRING"},
+              {"name": "source_method", "type": "STRING"}
+            ]
+          },
+          "columnLineage": {
+            "fields": {
+              "cik": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "cik"}],
+                "transformationType": "DIRECT"
+              },
+              "entity_name": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "entityName"}],
+                "transformationType": "DIRECT"
+              },
+              "taxonomy": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": "Key name under .facts object (e.g., us-gaap, dei)",
+                "transformationType": "DERIVED"
+              },
+              "concept": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": "Key name under taxonomy object (e.g., Revenue, Assets)",
+                "transformationType": "DERIVED"
+              },
+              "label": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".label field within concept object",
+                "transformationType": "DERIVED"
+              },
+              "description": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".description field within concept object (nullable)",
+                "transformationType": "DERIVED"
+              },
+              "unit": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": "Key name under .units object (e.g., USD, shares)",
+                "transformationType": "DERIVED"
+              },
+              "start_date": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".start field in observation (nullable for instant facts)",
+                "transformationType": "DERIVED"
+              },
+              "end_date": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".end field in observation",
+                "transformationType": "DERIVED"
+              },
+              "val": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".val field in observation, cast to float",
+                "transformationType": "DERIVED"
+              },
+              "accession_number": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".accn field in observation",
+                "transformationType": "DERIVED"
+              },
+              "fiscal_year": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".fy field in observation",
+                "transformationType": "DERIVED"
+              },
+              "fiscal_period": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".fp field in observation",
+                "transformationType": "DERIVED"
+              },
+              "form": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".form field in observation",
+                "transformationType": "DERIVED"
+              },
+              "filed_date": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".filed field in observation",
+                "transformationType": "DERIVED"
+              },
+              "frame": {
+                "inputFields": [{"namespace": "sec-edgar", "name": "api.xbrl.companyfacts", "field": "facts"}],
+                "transformationDescription": ".frame field in observation (nullable, often absent)",
+                "transformationType": "DERIVED"
+              },
+              "ingested_at": {
+                "inputFields": [],
+                "transformationDescription": "UTC timestamp generated at ingest time",
+                "transformationType": "DERIVED"
+              },
+              "source_url": {
+                "inputFields": [],
+                "transformationDescription": "API URL used to fetch this company's data",
+                "transformationType": "DERIVED"
+              },
+              "source_method": {
+                "inputFields": [],
+                "transformationDescription": "Literal 'api' — identifies the fetch method used",
+                "transformationType": "DERIVED"
+              }
+            }
+          },
+          "storage": {
+            "format": "Apache Iceberg",
+            "catalog_type": "SqlCatalog (SQLite)",
+            "warehouse_path": "data/raw/iceberg_warehouse",
+            "catalog_path": "data/catalog/catalog.db",
+            "namespace": "raw"
+          }
+        }
+      }
+    ],
+    "producer": "sec_edgair/src/raw/xbrl_company_facts/ingest.py"
+  },
+  {
+    "eventType": "COMPLETE",
+    "eventTime": "2026-03-14T01:06:00Z",
+    "run": {
+      "runId": "raw-cf-bulk-001",
+      "facets": {
+        "secEdgair_specReference": {
+          "specFile": "docs/specs/raw-ingest-xbrl-company-facts.md",
+          "specVersion": "1.0"
+        },
+        "secEdgair_agentAttribution": {
+          "agentId": "@data-profiler",
+          "reasoning": "Ingest XBRL Company Facts from SEC EDGAR bulk ZIP into raw.xbrl_company_facts Iceberg table"
+        }
+      }
+    },
+    "job": {
+      "namespace": "sec-edgair",
+      "name": "raw.ingest_company_facts_bulk",
+      "facets": {
+        "documentation": {
+          "description": "Downloads SEC EDGAR companyfacts.zip, selectively extracts requested CIK files, flattens nested XBRL structure, and appends to raw.xbrl_company_facts Iceberg table."
+        },
+        "sourceCode": {
+          "sourceCodeLocation": "src/raw/xbrl_company_facts/ingest.py"
+        }
+      }
+    },
+    "inputs": [
+      {
+        "namespace": "sec-edgar",
+        "name": "bulk.companyfacts.zip",
+        "facets": {
+          "description": "SEC EDGAR bulk companyfacts.zip (https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip, ~2-3 GB)"
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "raw.xbrl_company_facts",
+        "facets": {
+          "description": "Same target table as API ingest — source_method column distinguishes origin"
+        }
+      }
+    ],
+    "producer": "sec_edgair/src/raw/xbrl_company_facts/ingest.py"
+  }
+]

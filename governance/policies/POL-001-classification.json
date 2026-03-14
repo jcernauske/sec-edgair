@@ -1,0 +1,45 @@
+{
+  "policy_id": "POL-001",
+  "policy_type": "classification",
+  "status": "active",
+  "target": {
+    "table": "raw.xbrl_company_facts",
+    "scope": "all_fields"
+  },
+  "classification": {
+    "sensitivity_level": 1,
+    "sensitivity_label": "Public",
+    "justification": "SEC EDGAR XBRL Company Facts data is public record, filed with the SEC by public companies, and freely available via the SEC EDGAR API. No field in this table contains PII, confidential business data, or restricted information."
+  },
+  "field_classifications": [
+    {"field": "cik", "sensitivity": "Public", "pii": false},
+    {"field": "entity_name", "sensitivity": "Public", "pii": false, "note": "Company legal names, not personal names"},
+    {"field": "taxonomy", "sensitivity": "Public", "pii": false},
+    {"field": "concept", "sensitivity": "Public", "pii": false},
+    {"field": "label", "sensitivity": "Public", "pii": false},
+    {"field": "description", "sensitivity": "Public", "pii": false},
+    {"field": "unit", "sensitivity": "Public", "pii": false},
+    {"field": "start_date", "sensitivity": "Public", "pii": false},
+    {"field": "end_date", "sensitivity": "Public", "pii": false},
+    {"field": "val", "sensitivity": "Public", "pii": false},
+    {"field": "accession_number", "sensitivity": "Public", "pii": false},
+    {"field": "fiscal_year", "sensitivity": "Public", "pii": false},
+    {"field": "fiscal_period", "sensitivity": "Public", "pii": false},
+    {"field": "form", "sensitivity": "Public", "pii": false},
+    {"field": "filed_date", "sensitivity": "Public", "pii": false},
+    {"field": "frame", "sensitivity": "Public", "pii": false},
+    {"field": "ingested_at", "sensitivity": "Public", "pii": false},
+    {"field": "source_url", "sensitivity": "Public", "pii": false},
+    {"field": "source_method", "sensitivity": "Public", "pii": false}
+  ],
+  "access_policy": {
+    "default_action": "ALLOW",
+    "rls_required": false,
+    "column_masking_required": false,
+    "rationale": "All data is public SEC filings. No access restrictions needed. RLS and masking patterns will be demonstrated when the pipeline processes non-public data sources."
+  },
+  "source_scan": "governance/pii-scans/raw-xbrl-company-facts-pii-scan.md",
+  "agent": "@policy-engineer",
+  "spec_reference": "docs/specs/raw-profile-classify-company-facts.md",
+  "created": "2026-03-14"
+}

@@ -1,0 +1,92 @@
+{
+  "spec": "raw-ingest-xbrl-company-facts",
+  "date": "2026-03-14",
+  "decisions": [
+    {
+      "decision": "Flat table (raw.xbrl_company_facts) instead of normalized",
+      "agent": "@data-profiler",
+      "rationale": "Raw zone stores data in a queryable but minimally transformed form. One row per fact observation is the natural grain. Normalization (separate taxonomy, concept, unit dimension tables) belongs in the Base zone.",
+      "confidence": "high",
+      "alternatives_considered": ["Normalized tables in raw (premature)", "Keep as JSON blobs (not queryable)"]
+    },
+    {
+      "decision": "DoubleType for val column",
+      "agent": "@data-profiler",
+      "rationale": "XBRL values span integers (revenue = 383285000000), fractions (EPS = 3.28), and ratios (0.45). DoubleType handles all of these. Precision loss is acceptable in raw — Base zone can use DecimalType if exact arithmetic is needed.",
+      "confidence": "high",
+      "alternatives_considered": ["IntegerType (loses fractions)", "DecimalType (overkill for raw)", "StringType (loses numeric operations)"]
+    },
+    {
+      "decision": "TimestamptzType for ingested_at instead of TimestampType",
+      "agent": "@data-profiler",
+      "rationale": "ingested_at is generated with UTC timezone. TimestamptzType preserves timezone information, which is important for audit trail accuracy. Discovered during implementation that DuckDB requires pytz for timestamptz columns.",
+      "confidence": "high",
+      "discovery": "DuckDB requires pytz package to read Arrow tables with timestamptz columns. Added pytz to project dependencies."
+    },
+    {
+      "decision": "Cache raw JSON in data/raw/json_cache/ before flattening",
+      "agent": "@data-profiler",
+      "rationale": "Offline development after first fetch. Prevents hammering SEC servers during iteration. Essential for development velocity and SEC fair access compliance.",
+      "confidence": "high"
+    },
+    {
+      "decision": "One Iceberg snapshot per company",
+      "agent": "@data-profiler",
+      "rationale": "Creates natural lineage boundaries. Each snapshot traces to exactly one company's data. Supports incremental re-ingestion of individual companies.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Use schema_to_pyarrow for explicit Arrow schema in append_data",
+      "agent": "@data-profiler",
+      "rationale": "PyArrow's type inference from Python dicts produces nullable columns and int64 instead of int32. Using PyIceberg's schema_to_pyarrow ensures the Arrow table matches the Iceberg schema exactly. This was a bug fix discovered during integration testing.",
+      "confidence": "high",
+      "discovery": "pa.table(columns) infers wrong types — nullable instead of required, long instead of int. Fixed by passing explicit Arrow schema derived from Iceberg schema via schema_to_pyarrow."
+    },
+    {
+      "decision": "httpx for HTTP calls",
+      "agent": "@data-profiler",
+      "rationale": "Modern Python HTTP client with built-in timeout support and cleaner API. Lighter than requests for a new project.",
+      "confidence": "medium"
+    },
+    {
+      "decision": "Selective ZIP extraction for bulk download",
+      "agent": "@data-profiler",
+      "rationale": "Bulk ZIP is 2-3 GB. Python's zipfile module supports reading individual entries without full extraction, saving disk and time.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Skip network tests by default with pytest marker",
+      "agent": "@data-profiler",
+      "rationale": "Network tests (@pytest.mark.network) hit real SEC EDGAR API. Default pytest config now uses addopts = \"-m 'not network'\" so they only run when explicitly requested. Discovered during test run that unmarked network tests ran unexpectedly.",
+      "confidence": "high"
+    },
+    {
+      "decision": "SEC EDGAR entity names may differ from common names",
+      "agent": "@data-profiler",
+      "rationale": "Live API test revealed SEC uses 'MICROSOFT CORPORATION' not 'Microsoft Corp.' Entity names in the raw zone are stored as-received from SEC. Name normalization is a Base zone concern.",
+      "confidence": "high",
+      "discovery": "Microsoft's entityName from SEC EDGAR is 'MICROSOFT CORPORATION' (all caps, full name), not the commonly used 'Microsoft Corp.'"
+    },
+    {
+      "decision": "Made label, fiscal_year, and fiscal_period nullable",
+      "agent": "@data-profiler",
+      "rationale": "Live data verification revealed that label is null for 1 Apple concept (EffectiveIncomeTaxRateReconciliationFdiiAmount), and fiscal_year/fiscal_period are null for 2.3% of facts (569/24,579 in Apple). Schema must match reality, not spec assumptions.",
+      "confidence": "high",
+      "discovery": "SEC EDGAR XBRL data has nulls in fields the spec assumed were required: label (0.02%), fiscal_year (2.3%), fiscal_period (2.3%). Raw zone stores as-received — these nulls are real data, not errors."
+    },
+    {
+      "decision": "Live ingest verified: 104,810 rows across 3 companies",
+      "agent": "@data-profiler",
+      "rationale": "Full pipeline verified with real SEC EDGAR data: Apple (24,579 rows), JPMorgan (48,657 rows), Microsoft (31,574 rows). 3 Iceberg snapshots, DuckDB roundtrip confirmed.",
+      "confidence": "high"
+    }
+  ],
+  "versions_tested": {
+    "duckdb": "1.5.0",
+    "pyiceberg": "0.11.1",
+    "pyarrow": "23.0.1",
+    "httpx": "0.28.1",
+    "pytz": "2026.1.post1",
+    "python": "3.14.3"
+  }
+}
