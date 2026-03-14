@@ -1,0 +1,51 @@
+{
+  "spec": "base-entity-resolution",
+  "table": "base.entity_mappings",
+  "rules": [
+    {
+      "rule_id": "BASE-ER-001",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "Every CIK in raw.xbrl_company_facts has an approved mapping in base.entity_mappings",
+      "sql": "SELECT COUNT(DISTINCT r.cik) as unmapped FROM raw.xbrl_company_facts r LEFT JOIN base.entity_mappings m ON r.cik = m.cik AND m.status = 'approved' WHERE m.cik IS NULL",
+      "threshold": "result = 0",
+      "rationale": "No raw entity should be orphaned without a canonical mapping"
+    },
+    {
+      "rule_id": "BASE-ER-002",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "No duplicate CIKs in approved mappings",
+      "sql": "SELECT cik, COUNT(*) as cnt FROM base.entity_mappings WHERE status = 'approved' GROUP BY cik HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "Each CIK maps to exactly one canonical entity"
+    },
+    {
+      "rule_id": "BASE-ER-003",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "All confidence scores between 0.0 and 1.0 inclusive",
+      "sql": "SELECT COUNT(*) FROM base.entity_mappings WHERE confidence < 0.0 OR confidence > 1.0",
+      "threshold": "result = 0",
+      "rationale": "Confidence is a probability — must be in [0, 1]"
+    },
+    {
+      "rule_id": "BASE-ER-004",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "Approved mappings have non-null approved_by and approved_at",
+      "sql": "SELECT COUNT(*) FROM base.entity_mappings WHERE status = 'approved' AND (approved_by IS NULL OR approved_at IS NULL)",
+      "threshold": "result = 0",
+      "rationale": "Every approval must be traceable to an actor and timestamp"
+    },
+    {
+      "rule_id": "BASE-ER-005",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every audit entry has a valid mapping_id that exists in entity_mappings",
+      "sql": "SELECT COUNT(*) FROM base.entity_resolution_audit a LEFT JOIN base.entity_mappings m ON a.mapping_id = m.mapping_id WHERE m.mapping_id IS NULL",
+      "threshold": "result = 0",
+      "rationale": "Audit entries must reference real mappings"
+    }
+  ]
+}

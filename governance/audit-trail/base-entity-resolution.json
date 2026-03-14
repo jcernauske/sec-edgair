@@ -1,0 +1,64 @@
+{
+  "spec": "base-entity-resolution",
+  "date": "2026-03-14",
+  "decisions": [
+    {
+      "decision": "CLI for human approval instead of JSON editing",
+      "agent": "@entity-resolver",
+      "rationale": "CLI commands are auditable (command history), idempotent (re-running approve is safe), and prevent JSON syntax errors. Each command is loggable as evidence in the audit trail.",
+      "confidence": "high",
+      "alternatives_considered": ["Direct JSON editing (error-prone)", "Web UI (overkill for 3 entities)", "YAML config (same issues as JSON)"]
+    },
+    {
+      "decision": "Confidence < 0.7 hard floor always requires human approval",
+      "agent": "@entity-resolver",
+      "rationale": "Auditors need a guarantee that auto-promote cannot bypass risky matches. The REQUIRE_HUMAN_APPROVAL toggle is a convenience for dev/demo — the hard floor is a safety net that cannot be disabled without code changes.",
+      "confidence": "high",
+      "alternatives_considered": ["Configurable floor (adds risk of misconfiguration)", "No auto-promote at all (too restrictive for known entities)"]
+    },
+    {
+      "decision": "Shared catalog (data/catalog/catalog.db) with base namespace",
+      "agent": "@entity-resolver",
+      "rationale": "Same pattern as raw zone. Single catalog DB, different namespaces (raw, base). DuckDB can query across namespaces in one connection.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Warehouse at data/base/iceberg_warehouse (separate from raw)",
+      "agent": "@entity-resolver",
+      "rationale": "Mirrors raw zone pattern (data/raw/iceberg_warehouse). Zone separation at the filesystem level makes it clear which zone owns which data files.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Archive staging files with timestamp instead of deleting",
+      "agent": "@entity-resolver",
+      "rationale": "Preserves the full proposal history without requiring Iceberg time-travel queries. Archived files are cheap storage and valuable for auditing.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Rejected mappings stay out of entity_mappings table",
+      "agent": "@entity-resolver",
+      "rationale": "Downstream consumers query WHERE status = 'approved' — rejected entries would be noise. Full rejection history is in entity_resolution_audit where auditors look for it.",
+      "confidence": "high",
+      "alternatives_considered": ["Include rejected in entity_mappings with status filter (adds noise)", "Separate rejected table (over-engineering)"]
+    },
+    {
+      "decision": "Two audit entries per approved mapping (proposed + approved)",
+      "agent": "@entity-resolver",
+      "rationale": "Each state transition is a separate audit entry with its own timestamp and actor. This captures the full lifecycle: who proposed, who approved, when each happened.",
+      "confidence": "high"
+    },
+    {
+      "decision": "resolve_entities_from_records for testability",
+      "agent": "@entity-resolver",
+      "rationale": "Core resolution logic is testable without an Iceberg table. resolve_entities_from_records takes raw dicts, resolve_entities reads from Iceberg. Same algorithm, different data source.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Only archive staging when no pending proposals remain",
+      "agent": "@entity-resolver",
+      "rationale": "If a partial approve is done (e.g., approve ER-001 but not ER-002), the staging file must persist so ER-002 can still be reviewed. Archive only when all proposals are resolved.",
+      "confidence": "high",
+      "discovery": "Initial implementation archived after any promote, which broke partial approvals. Fixed to check for remaining pending proposals before archiving."
+    }
+  ]
+}
