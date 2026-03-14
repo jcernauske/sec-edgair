@@ -46,38 +46,38 @@ erDiagram
 - **Partitioning:** None (20 rows)
 - **Row Count:** 20
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
-|--------|------------|----------|-------------|----------------|---------------|----------|
-| mapping_id | STRING | No | Stable ID (ER-001, ER-002...) | Generated sequentially | — | — |
-| cik | INTEGER | No | SEC Central Index Key | raw.xbrl_company_facts.cik | Central Index Key (CIK) | Unique numeric identifier assigned by SEC to every filing entity |
-| canonical_name | STRING | No | Normalized company display name | KNOWN_ENTITIES lookup or title-case heuristic | Canonical Company Identity | Normalized, human-approved company identity; single source of truth |
-| raw_entity_name | STRING | No | As-received from SEC EDGAR | raw.xbrl_company_facts.entity_name (most common per CIK) | Legal Entity Name | Official company name as registered with the SEC |
-| ticker | STRING | Yes | Primary stock ticker symbol | KNOWN_ENTITIES lookup | — | — |
-| sic_code | STRING | Yes | Standard Industrial Classification | KNOWN_ENTITIES lookup | SIC Code | Four-digit SEC code classifying a company's primary business line |
-| fiscal_year_end | STRING | Yes | MMDD format | KNOWN_ENTITIES lookup | — | — |
-| confidence | DOUBLE | No | Resolution confidence (0.0-1.0) | 1.0 for exact CIK match, 0.5 for fuzzy | Confidence Score | Numeric value (0.0-1.0) representing pipeline certainty in a mapping |
-| resolution_method | STRING | No | "exact_cik_match" or "fuzzy_name_normalize" | Determined by KNOWN_ENTITIES hit/miss | — | — |
-| status | STRING | No | Always "approved" (post-gate) | Set on approval | — | — |
-| resolved_by | STRING | No | Agent name | "@entity-resolver" | — | — |
-| approved_by | STRING | Yes | Approver identity | "human:jeff" or "auto" | Human Approval Gate | Pipeline pause point for human review before proceeding |
-| resolved_at | TIMESTAMPTZ | No | When mapping was proposed | Generated at resolve time | — | — |
-| approved_at | TIMESTAMPTZ | Yes | When mapping was approved | Set on approval | — | — |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
+| mapping_id | STRING | No | Stable ID (ER-001, ER-002...) | Generated sequentially | — | — | CDE-006 | None |
+| cik | INTEGER | No | SEC Central Index Key | raw.xbrl_company_facts.cik | Central Index Key (CIK) | Unique numeric identifier assigned by SEC to every filing entity | CDE-001 | None |
+| canonical_name | STRING | No | Normalized company display name | KNOWN_ENTITIES lookup or title-case heuristic | Canonical Company Identity | Normalized, human-approved company identity; single source of truth | CDE-005 | None |
+| raw_entity_name | STRING | No | As-received from SEC EDGAR | raw.xbrl_company_facts.entity_name (most common per CIK) | Legal Entity Name | Official company name as registered with the SEC | CDE-003 | None |
+| ticker | STRING | Yes | Primary stock ticker symbol | KNOWN_ENTITIES lookup | — | — | — | None |
+| sic_code | STRING | Yes | Standard Industrial Classification | KNOWN_ENTITIES lookup | SIC Code | Four-digit SEC code classifying a company's primary business line | — | None |
+| fiscal_year_end | STRING | Yes | MMDD format | KNOWN_ENTITIES lookup | — | — | — | None |
+| confidence | DOUBLE | No | Resolution confidence (0.0-1.0) | 1.0 for exact CIK match, 0.5 for fuzzy | Confidence Score | Numeric value (0.0-1.0) representing pipeline certainty in a mapping | — | None |
+| resolution_method | STRING | No | "exact_cik_match" or "fuzzy_name_normalize" | Determined by KNOWN_ENTITIES hit/miss | — | — | — | None |
+| status | STRING | No | Always "approved" (post-gate) | Set on approval | — | — | — | None |
+| resolved_by | STRING | No | Agent name | "@entity-resolver" | — | — | — | None |
+| approved_by | STRING | Yes | Approver identity | "human:jeff" or "auto" | Human Approval Gate | Pipeline pause point for human review before proceeding | — | None |
+| resolved_at | TIMESTAMPTZ | No | When mapping was proposed | Generated at resolve time | — | — | — | None |
+| approved_at | TIMESTAMPTZ | Yes | When mapping was approved | Set on approval | — | — | — | None |
 
 #### base.entity_resolution_audit
 - **Grain:** One audit event per action on a mapping (append-only log)
 - **Partitioning:** None (low volume)
 - **Row Count:** ~40-60 (2-3 events per mapping)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
-|--------|------------|----------|-------------|----------------|---------------|----------|
-| audit_id | STRING | No | UUID primary key | Generated (uuid4) | — | — |
-| mapping_id | STRING | No | FK to entity_mappings | From proposal | — | — |
-| action | STRING | No | "proposed", "approved", "rejected", "updated" | Pipeline stage | — | — |
-| actor | STRING | No | Who performed action | "@entity-resolver", "human:jeff", "auto" | — | — |
-| reasoning | STRING | No | Why decision was made | Generated explanation | — | — |
-| evidence | STRING | No | JSON string with supporting data | Serialized evidence dict | — | — |
-| confidence_at_action | DOUBLE | No | Confidence at time of action | From proposal | Confidence Score | Numeric value (0.0-1.0) representing pipeline certainty in a mapping |
-| timestamp | TIMESTAMPTZ | No | When action occurred | Generated at action time | — | — |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
+| audit_id | STRING | No | UUID primary key | Generated (uuid4) | — | — | — | None |
+| mapping_id | STRING | No | FK to entity_mappings | From proposal | — | — | — | None |
+| action | STRING | No | "proposed", "approved", "rejected", "updated" | Pipeline stage | — | — | — | None |
+| actor | STRING | No | Who performed action | "@entity-resolver", "human:jeff", "auto" | — | — | — | None |
+| reasoning | STRING | No | Why decision was made | Generated explanation | — | — | — | None |
+| evidence | STRING | No | JSON string with supporting data | Serialized evidence dict | — | — | — | None |
+| confidence_at_action | DOUBLE | No | Confidence at time of action | From proposal | Confidence Score | Numeric value (0.0-1.0) representing pipeline certainty in a mapping | — | None |
+| timestamp | TIMESTAMPTZ | No | When action occurred | Generated at action time | — | — | — | None |
 
 ### Physical Design Decisions
 - **No partitioning** — both tables are small (20 entities, ~60 audit rows). Scan-all is fine.

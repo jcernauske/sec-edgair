@@ -53,49 +53,49 @@ erDiagram
 - **Natural Key:** concept (one mapping per distinct XBRL concept)
 - **Description:** Classification of a us-gaap XBRL concept into a canonical CDE with tiered confidence. Maps the XBRL taxonomy's ~3,285 concepts to 25 standardized financial data elements.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
-|-----------|--------|----------|-------------|---------------|--------------|
-| mapping_id | Identifier | No | Stable human-readable ID | — | — |
-| concept | Text | No | Raw XBRL concept name (e.g., "Revenues") | — | BT-009 |
-| canonical_cde | Text | Yes | Mapped CDE name (null for unmapped) | — | BT-013 |
-| cde_id | Identifier | Yes | CDE catalog reference (null for unmapped) | CDE-007..CDE-031 | BT-013 |
-| financial_statement | Text (enum) | No | Statement classification | — | BT-021 |
-| category | Text | No | Subcategory within statement | — | — |
-| tier | Number (1-3) | No | Match quality tier | — | BT-015 |
-| confidence | Number (0-1) | No | Match confidence score | — | BT-010 |
-| mapping_method | Text (enum) | No | How the match was determined | — | — |
-| status | Text (enum) | No | Approval/classification status | — | — |
-| mapped_by | Text | No | Agent that classified | — | — |
-| mapped_at | Timestamp | No | When classified | — | — |
+| Attribute | Domain | Nullable | Description | CDE Reference | PII | Business Term |
+|-----------|--------|----------|-------------|---------------|-----|--------------|
+| mapping_id | Identifier | No | Stable human-readable ID | — | None | — |
+| concept | Text | No | Raw XBRL concept name (e.g., "Revenues") | — | None | BT-009 |
+| canonical_cde | Text | Yes | Mapped CDE name (null for unmapped) | — | None | BT-013 |
+| cde_id | Identifier | Yes | CDE catalog reference (null for unmapped) | CDE-007..CDE-031 | None | BT-013 |
+| financial_statement | Text (enum) | No | Statement classification | — | None | BT-021 |
+| category | Text | No | Subcategory within statement | — | None | — |
+| tier | Number (1-3) | No | Match quality tier | — | None | BT-015 |
+| confidence | Number (0-1) | No | Match confidence score | — | None | BT-010 |
+| mapping_method | Text (enum) | No | How the match was determined | — | None | — |
+| status | Text (enum) | No | Approval/classification status | — | None | — |
+| mapped_by | Text | No | Agent that classified | — | None | — |
+| mapped_at | Timestamp | No | When classified | — | None | — |
 
 #### CanonicalCDE
 - **Primary Key:** cde_id
 - **Description:** One of 25 canonical financial data elements that XBRL concepts map to. Defined in governance/cde-catalog.json. This entity is a reference table — it exists in config, not as an Iceberg table.
 - **Note:** This is a logical entity only. Physically it lives in CDE_DEFINITIONS in config.py and governance/cde-catalog.json, not in an Iceberg table.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
-|-----------|--------|----------|-------------|---------------|--------------|
-| cde_id | Identifier | No | CDE-007 through CDE-031 | Self-referencing | BT-013 |
-| name | Text | No | Human-readable name (e.g., "Revenue") | — | — |
-| category | Text | No | balance_sheet, income_statement, cash_flow, per_share, other | — | — |
-| subcategory | Text | No | More specific grouping | — | — |
-| definition | Text | No | Business definition | — | — |
+| Attribute | Domain | Nullable | Description | CDE Reference | PII | Business Term |
+|-----------|--------|----------|-------------|---------------|-----|--------------|
+| cde_id | Identifier | No | CDE-007 through CDE-031 | Self-referencing | None | BT-013 |
+| name | Text | No | Human-readable name (e.g., "Revenue") | — | None | — |
+| category | Text | No | balance_sheet, income_statement, cash_flow, per_share, other | — | None | — |
+| subcategory | Text | No | More specific grouping | — | None | — |
+| definition | Text | No | Business definition | — | None | — |
 
 #### TagNormalizationAudit
 - **Primary Key:** audit_id
 - **Foreign Key:** mapping_id → ConceptMapping.mapping_id
 - **Description:** Append-only log of every classification action. Identical structure to EntityResolutionAudit (shared staging module).
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
-|-----------|--------|----------|-------------|---------------|--------------|
-| audit_id | Identifier | No | Unique event ID | — | — |
-| mapping_id | Identifier | No | Which concept mapping this applies to | — | — |
-| action | Text (enum) | No | proposed, approved, rejected, classified_unmapped | — | — |
-| actor | Text | No | Who performed the action | — | — |
-| reasoning | Text | No | Explanation of classification decision | — | — |
-| evidence | Structured (JSON) | No | fact_count, company_count for coverage | — | — |
-| confidence_at_action | Number (0-1) | No | Confidence at time of action | — | BT-010 |
-| timestamp | Timestamp | No | When action occurred | — | — |
+| Attribute | Domain | Nullable | Description | CDE Reference | PII | Business Term |
+|-----------|--------|----------|-------------|---------------|-----|--------------|
+| audit_id | Identifier | No | Unique event ID | — | None | — |
+| mapping_id | Identifier | No | Which concept mapping this applies to | — | None | — |
+| action | Text (enum) | No | proposed, approved, rejected, classified_unmapped | — | None | — |
+| actor | Text | No | Who performed the action | — | None | — |
+| reasoning | Text | No | Explanation of classification decision | — | None | — |
+| evidence | Structured (JSON) | No | fact_count, company_count for coverage | — | None | — |
+| confidence_at_action | Number (0-1) | No | Confidence at time of action | — | None | BT-010 |
+| timestamp | Timestamp | No | When action occurred | — | None | — |
 
 ### Relationships
 | Parent Entity | Child Entity | FK Field | Cardinality | On Delete |

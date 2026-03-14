@@ -17,13 +17,13 @@ erDiagram
 > **†** Entities marked with † have a matching business glossary term
 
 ### Entities
-| Entity | Description | Business Owner | Business Term |
-|--------|-------------|----------------|--------------|
-| XBRL Concept† | A specific financial metric tag from the us-gaap XBRL taxonomy (e.g., "Revenues", "EarningsPerShareBasic"). There are ~3,285 distinct concepts in the dataset. | Data Engineering | BT-009: XBRL Concept |
-| Canonical CDE† | One of 25 standardized financial data elements (e.g., "Revenue", "Total Assets", "Net Income"). The common language for cross-company comparison. | Data Governance | BT-013: Canonical CDE |
-| Financial Statement† | A category of financial reporting: Balance Sheet, Income Statement, Cash Flow, Per-Share, or Other. Every concept is classified into one. | Finance / Accounting | BT-021: Financial Statement |
-| Classification Decision† | A recorded action (propose, approve, reject, classify as unmapped) on a concept-to-CDE mapping. Full audit trail. | Data Governance | BT-011: Tag Normalization |
-| Human Reviewer† | A person who approves or rejects proposed concept classifications. | Data Stewardship | BT-016: Human Approval Gate |
+| Entity | Description | Business Owner | Business Term | CDE | PII |
+|--------|-------------|----------------|--------------|-----|-----|
+| XBRL Concept† | A specific financial metric tag from the us-gaap XBRL taxonomy (e.g., "Revenues", "EarningsPerShareBasic"). There are ~3,285 distinct concepts in the dataset. | Data Engineering | BT-009: XBRL Concept | — | None |
+| Canonical CDE† | One of 25 standardized financial data elements (e.g., "Revenue", "Total Assets", "Net Income"). The common language for cross-company comparison. | Data Governance | BT-013: Canonical CDE | CDE-007..CDE-031 | None |
+| Financial Statement† | A category of financial reporting: Balance Sheet, Income Statement, Cash Flow, Per-Share, or Other. Every concept is classified into one. | Finance / Accounting | BT-021: Financial Statement | — | None |
+| Classification Decision† | A recorded action (propose, approve, reject, classify as unmapped) on a concept-to-CDE mapping. Full audit trail. | Data Governance | BT-011: Tag Normalization | — | None |
+| Human Reviewer† | A person who approves or rejects proposed concept classifications. | Data Stewardship | BT-016: Human Approval Gate | — | None |
 
 ### Relationships
 | From | To | Relationship | Cardinality | Description |

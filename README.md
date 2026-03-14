@@ -161,12 +161,12 @@ erDiagram
     HUMAN_REVIEWER ||--o{ RESOLUTION_DECISION : "approves or rejects"
 ```
 
-| Entity | Business Term |
-|--------|-------------|
-| RAW_ENTITY **†** | BT-003: Legal Entity Name |
-| CANONICAL_COMPANY **†** | BT-005: Canonical Company Identity |
-| RESOLUTION_DECISION **†** | BT-008: Entity Resolution |
-| HUMAN_REVIEWER **†** | BT-016: Human Approval Gate |
+| Entity | Business Term | CDE | PII |
+|--------|-------------|-----|-----|
+| RAW_ENTITY **†** | BT-003: Legal Entity Name | CDE-001, CDE-003 | None |
+| CANONICAL_COMPANY **†** | BT-005: Canonical Company Identity | CDE-001, CDE-005, CDE-006 | None |
+| RESOLUTION_DECISION **†** | BT-008: Entity Resolution | — | None |
+| HUMAN_REVIEWER **†** | BT-016: Human Approval Gate | — | None |
 
 ### Conceptual: XBRL Tag Normalization
 
@@ -178,13 +178,13 @@ erDiagram
     HUMAN_REVIEWER ||--o{ CLASSIFICATION_DECISION : "approves or rejects"
 ```
 
-| Entity | Business Term |
-|--------|-------------|
-| XBRL_CONCEPT **†** | BT-009: XBRL Concept |
-| CANONICAL_CDE **†** | BT-013: Canonical CDE |
-| FINANCIAL_STATEMENT **†** | BT-021: Financial Statement |
-| CLASSIFICATION_DECISION **†** | BT-011: Tag Normalization |
-| HUMAN_REVIEWER **†** | BT-016: Human Approval Gate |
+| Entity | Business Term | CDE | PII |
+|--------|-------------|-----|-----|
+| XBRL_CONCEPT **†** | BT-009: XBRL Concept | — | None |
+| CANONICAL_CDE **†** | BT-013: Canonical CDE | CDE-007..CDE-031 | None |
+| FINANCIAL_STATEMENT **†** | BT-021: Financial Statement | — | None |
+| CLASSIFICATION_DECISION **†** | BT-011: Tag Normalization | — | None |
+| HUMAN_REVIEWER **†** | BT-016: Human Approval Gate | — | None |
 
 ### Conceptual: Financial Facts Model
 
@@ -198,14 +198,14 @@ erDiagram
     SEC_FILING ||--o{ FINANCIAL_FACT : "source of"
 ```
 
-| Entity | Business Term |
-|--------|-------------|
-| COMPANY **†** | BT-005: Canonical Company Identity |
-| FINANCIAL_FACT **†** | BT-017: Financial Fact |
-| FINANCIAL_CONCEPT **†** | BT-009: XBRL Concept |
-| FISCAL_PERIOD **†** | BT-018: Fiscal Period |
-| SEC_FILING **†** | BT-004: SEC Filing |
-| AMENDMENT **†** | BT-007: Amendment |
+| Entity | Business Term | CDE | PII |
+|--------|-------------|-----|-----|
+| COMPANY **†** | BT-005: Canonical Company Identity | CDE-001, CDE-005 | None |
+| FINANCIAL_FACT **†** | BT-017: Financial Fact | CDE-001..006, CDE-007..031 | None |
+| FINANCIAL_CONCEPT **†** | BT-009: XBRL Concept | CDE-007..CDE-031 | None |
+| FISCAL_PERIOD **†** | BT-018: Fiscal Period | CDE-005, CDE-006 | None |
+| SEC_FILING **†** | BT-004: SEC Filing | CDE-002, CDE-004 | None |
+| AMENDMENT **†** | BT-007: Amendment | CDE-002, CDE-004 | None |
 
 ### Logical: Entity Resolution
 
@@ -240,15 +240,16 @@ erDiagram
     EntityMapping ||--o{ EntityResolutionAudit : "has audit trail"
 ```
 
-| Attribute | Business Term |
-|-----------|---------------|
-| cik | BT-001: Central Index Key (CIK) |
-| canonical_name | BT-005: Canonical Company Identity |
-| raw_entity_name | BT-003: Legal Entity Name |
-| sic_code | BT-025: SIC Code |
-| confidence | BT-010: Confidence Score |
-| approved_by | BT-016: Human Approval Gate |
-| confidence_at_action | BT-010: Confidence Score |
+| Attribute | Business Term | CDE | PII |
+|-----------|---------------|-----|-----|
+| mapping_id | — | CDE-006 | None |
+| cik | BT-001: Central Index Key (CIK) | CDE-001 | None |
+| canonical_name | BT-005: Canonical Company Identity | CDE-005 | None |
+| raw_entity_name | BT-003: Legal Entity Name | CDE-003 | None |
+| sic_code | BT-025: SIC Code | — | None |
+| confidence | BT-010: Confidence Score | — | None |
+| approved_by | BT-016: Human Approval Gate | — | None |
+| confidence_at_action | BT-010: Confidence Score | — | None |
 
 ### Logical: XBRL Tag Normalization
 
@@ -289,15 +290,15 @@ erDiagram
     ConceptMapping ||--o{ TagNormalizationAudit : "has audit trail"
 ```
 
-| Attribute | Business Term |
-|-----------|---------------|
-| concept | BT-009: XBRL Concept |
-| canonical_cde | BT-013: Canonical CDE |
-| cde_id | BT-013: Canonical CDE |
-| financial_statement | BT-021: Financial Statement |
-| tier | BT-015: Tier |
-| confidence | BT-010: Confidence Score |
-| confidence_at_action | BT-010: Confidence Score |
+| Attribute | Business Term | CDE | PII |
+|-----------|---------------|-----|-----|
+| concept | BT-009: XBRL Concept | — | None |
+| canonical_cde | BT-013: Canonical CDE | CDE-007..031 | None |
+| cde_id | BT-013: Canonical CDE | CDE-007..031 | None |
+| financial_statement | BT-021: Financial Statement | — | None |
+| tier | BT-015: Tier | — | None |
+| confidence | BT-010: Confidence Score | — | None |
+| confidence_at_action | BT-010: Confidence Score | — | None |
 
 ### Logical: Financial Facts Model
 
@@ -370,20 +371,20 @@ erDiagram
     FinancialFact ||--o{ AmendmentTracking : "superseded by"
 ```
 
-| Attribute | Business Term |
-|-----------|---------------|
-| cik | BT-001: Central Index Key (CIK) |
-| canonical_name | BT-005: Canonical Company Identity |
-| concept | BT-009: XBRL Concept |
-| cde_id / canonical_cde | BT-013: Canonical CDE |
-| financial_statement | BT-021: Financial Statement |
-| tier | BT-015: Tier |
-| taxonomy | BT-020: XBRL Taxonomy |
-| fiscal_year / fiscal_period | BT-018: Fiscal Period |
-| accession_number | BT-002: Accession Number |
-| filed_date | BT-006: Filing Date |
-| is_amendment | BT-007: Amendment |
-| is_superseded / superseded_by | BT-012: Supersession |
+| Attribute | Business Term | CDE | PII |
+|-----------|---------------|-----|-----|
+| cik | BT-001: Central Index Key (CIK) | CDE-001 | None |
+| canonical_name | BT-005: Canonical Company Identity | CDE-005 | None |
+| concept | BT-009: XBRL Concept | — | None |
+| cde_id / canonical_cde | BT-013: Canonical CDE | CDE-007..031 | None |
+| financial_statement | BT-021: Financial Statement | — | None |
+| tier | BT-015: Tier | — | None |
+| taxonomy | BT-020: XBRL Taxonomy | — | None |
+| fiscal_year / fiscal_period | BT-018: Fiscal Period | CDE-005, CDE-006 | None |
+| accession_number | BT-002: Accession Number | CDE-002 | None |
+| filed_date | BT-006: Filing Date | CDE-004 | None |
+| is_amendment | BT-007: Amendment | — | None |
+| is_superseded / superseded_by | BT-012: Supersession | — | None |
 
 ### Physical: Entity Resolution
 

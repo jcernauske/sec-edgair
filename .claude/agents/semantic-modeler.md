@@ -104,9 +104,9 @@ Every model level must cross-reference business glossary terms from `governance/
 
 | Level | What to add | Format |
 |-------|-------------|--------|
-| Conceptual | `Business Term` column on Entities table | `BT-XXX: Term Name` — mark entity name with `†` suffix |
-| Logical | `Business Term` column on each attribute table | `BT-XXX` — use `—` for unmapped attributes |
-| Physical | `Business Term` + `Term Def` columns on each column table | Full term name + abbreviated definition (~10-15 words) |
+| Conceptual | `Business Term`, `CDE`, `PII` columns on Entities table | `BT-XXX: Term Name` — mark entity name with `†` suffix. CDE lists CDE IDs contained by entity. PII = `None` or category. |
+| Logical | `Business Term`, `PII` columns on each attribute table (CDE Reference already exists) | `BT-XXX` — use `—` for unmapped attributes. PII = `None` or category. |
+| Physical | `Business Term`, `Term Def`, `CDE`, `PII` columns on each column table | Full term name + abbreviated definition. CDE = CDE ID or `—`. PII = `None` or category. |
 
 After each Mermaid diagram, add this legend line:
 ```
@@ -140,8 +140,8 @@ Output format:
 |---------|------|---------------------------|
 
 ### Entities
-| Entity | Description | Business Owner | Glossary Term |
-|--------|-------------|----------------|---------------|
+| Entity | Description | Business Owner | Business Term | CDE | PII |
+|--------|-------------|----------------|---------------|-----|-----|
 
 ### Relationships
 | From | To | Relationship | Cardinality | Description |
@@ -183,8 +183,8 @@ Output format:
 - **Primary Key:** [key field(s)]
 - **Description:** [from conceptual model]
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
-|-----------|--------|----------|-------------|---------------|--------------|
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term | PII |
+|-----------|--------|----------|-------------|---------------|--------------|-----|
 
 ### Relationships
 | Parent Entity | Child Entity | FK Field | Cardinality | On Delete |
@@ -230,8 +230,8 @@ Output format:
 - **Partitioning:** [strategy or none]
 - **Estimated Row Count:** N
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
-|--------|------------|----------|-------------|----------------|---------------|----------|
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
 
 ### DDL
 \```sql

@@ -96,80 +96,80 @@ erDiagram
 - **Partitioning:** None
 - **Estimated Row Count:** ~547,000
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
-|--------|------------|----------|-------------|----------------|---------------|----------|
-| fact_id | STRING | No | SHA-256 hash of grain fields, truncated to 16 chars | Computed: SHA-256(cik, concept, unit, start_date, end_date, accession_number)[:16] | — | — |
-| entity_id | STRING | No | FK to entity_mappings.mapping_id | Looked up by CIK | — | — |
-| cik | INTEGER | No | SEC Central Index Key | raw.xbrl_company_facts.cik | Central Index Key (CIK) | Unique SEC-assigned numeric identifier for filing entities |
-| canonical_name | STRING | No | Normalized company name | entity_mappings.canonical_name | Canonical Company Identity | Normalized, human-approved company name as single source of truth |
-| ticker | STRING | Yes | Stock ticker | entity_mappings.ticker | — | — |
-| concept | STRING | No | XBRL concept name | raw.xbrl_company_facts.concept | XBRL Concept | Specific financial metric tag from an XBRL taxonomy |
-| cde_id | STRING | Yes | CDE catalog reference (null for Tier 3) | concept_mappings.cde_id | Canonical CDE | One of 25 standardized financial data elements for cross-company comparison |
-| canonical_cde | STRING | Yes | CDE name (null for Tier 3) | concept_mappings.canonical_cde | Canonical CDE | One of 25 standardized financial data elements for cross-company comparison |
-| financial_statement | STRING | No | Statement classification | concept_mappings.financial_statement | Financial Statement | Category of financial reporting (Balance Sheet, Income, Cash Flow, etc.) |
-| category | STRING | No | Subcategory | concept_mappings.category | — | — |
-| tier | INTEGER | No | Mapping tier (1/2/3) | concept_mappings.tier | Tier | Classification of match quality in tag normalization (1/2/3) |
-| taxonomy | STRING | No | XBRL taxonomy (us-gaap, dei, etc.) | raw.xbrl_company_facts.taxonomy | XBRL Taxonomy | Structured classification system defining financial reporting concepts |
-| unit | STRING | No | Measurement unit (USD, shares, USD/shares) | raw.xbrl_company_facts.unit | — | — |
-| val | DOUBLE | No | Reported fact value | raw.xbrl_company_facts.val | — | — |
-| start_date | DATE | Yes | Period start (null for instant facts) | raw.xbrl_company_facts.start_date | — | — |
-| end_date | DATE | No | Period end | raw.xbrl_company_facts.end_date | — | — |
-| fiscal_year | INTEGER | No | Fiscal year | raw.xbrl_company_facts.fiscal_year | Fiscal Period | Company reporting period identified by fiscal year and period type |
-| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | Fiscal Period | Company reporting period identified by fiscal year and period type |
-| fiscal_year_end | STRING | Yes | MMDD format | entity_mappings.fiscal_year_end | — | — |
-| calendar_year | INTEGER | No | Calendar year of end_date | Computed: end_date.year | — | — |
-| calendar_quarter | INTEGER | No | Calendar quarter of end_date | Computed: (end_date.month - 1) / 3 + 1 | — | — |
-| accession_number | STRING | No | SEC accession number | raw.xbrl_company_facts.accession_number | Accession Number | Unique identifier for each SEC EDGAR filing submission |
-| form | STRING | No | Filing form type | raw.xbrl_company_facts.form | — | — |
-| filed_date | DATE | No | SEC filing date | raw.xbrl_company_facts.filed_date | Filing Date | Date the filing was officially submitted to and accepted by the SEC |
-| is_amendment | BOOLEAN | No | Form ends in "/A" | Computed: form.endswith("/A") | Amendment | Revised SEC filing that corrects or updates a prior submission |
-| is_superseded | BOOLEAN | No | Later filing exists for same supersession grain | Computed by _apply_supersession() | Supersession | Later filing replaces earlier one for same company/concept/period |
-| superseded_by | STRING | Yes | Accession number of superseding filing | Set by _apply_supersession() | Supersession | Later filing replaces earlier one for same company/concept/period |
-| promoted_at | TIMESTAMPTZ | No | When written to base zone | Generated at promote time | — | — |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
+| fact_id | STRING | No | SHA-256 hash of grain fields, truncated to 16 chars | Computed: SHA-256(cik, concept, unit, start_date, end_date, accession_number)[:16] | — | — | — | None |
+| entity_id | STRING | No | FK to entity_mappings.mapping_id | Looked up by CIK | — | — | — | None |
+| cik | INTEGER | No | SEC Central Index Key | raw.xbrl_company_facts.cik | Central Index Key (CIK) | Unique SEC-assigned numeric identifier for filing entities | CDE-001 | None |
+| canonical_name | STRING | No | Normalized company name | entity_mappings.canonical_name | Canonical Company Identity | Normalized, human-approved company name as single source of truth | CDE-005 | None |
+| ticker | STRING | Yes | Stock ticker | entity_mappings.ticker | — | — | — | None |
+| concept | STRING | No | XBRL concept name | raw.xbrl_company_facts.concept | XBRL Concept | Specific financial metric tag from an XBRL taxonomy | — | None |
+| cde_id | STRING | Yes | CDE catalog reference (null for Tier 3) | concept_mappings.cde_id | Canonical CDE | One of 25 standardized financial data elements for cross-company comparison | CDE-007..031 (dynamic) | None |
+| canonical_cde | STRING | Yes | CDE name (null for Tier 3) | concept_mappings.canonical_cde | Canonical CDE | One of 25 standardized financial data elements for cross-company comparison | CDE-007..031 (dynamic) | None |
+| financial_statement | STRING | No | Statement classification | concept_mappings.financial_statement | Financial Statement | Category of financial reporting (Balance Sheet, Income, Cash Flow, etc.) | — | None |
+| category | STRING | No | Subcategory | concept_mappings.category | — | — | — | None |
+| tier | INTEGER | No | Mapping tier (1/2/3) | concept_mappings.tier | Tier | Classification of match quality in tag normalization (1/2/3) | — | None |
+| taxonomy | STRING | No | XBRL taxonomy (us-gaap, dei, etc.) | raw.xbrl_company_facts.taxonomy | XBRL Taxonomy | Structured classification system defining financial reporting concepts | — | None |
+| unit | STRING | No | Measurement unit (USD, shares, USD/shares) | raw.xbrl_company_facts.unit | — | — | — | None |
+| val | DOUBLE | No | Reported fact value | raw.xbrl_company_facts.val | — | — | — | None |
+| start_date | DATE | Yes | Period start (null for instant facts) | raw.xbrl_company_facts.start_date | — | — | — | None |
+| end_date | DATE | No | Period end | raw.xbrl_company_facts.end_date | — | — | — | None |
+| fiscal_year | INTEGER | No | Fiscal year | raw.xbrl_company_facts.fiscal_year | Fiscal Period | Company reporting period identified by fiscal year and period type | CDE-005 | None |
+| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | Fiscal Period | Company reporting period identified by fiscal year and period type | CDE-006 | None |
+| fiscal_year_end | STRING | Yes | MMDD format | entity_mappings.fiscal_year_end | — | — | — | None |
+| calendar_year | INTEGER | No | Calendar year of end_date | Computed: end_date.year | — | — | — | None |
+| calendar_quarter | INTEGER | No | Calendar quarter of end_date | Computed: (end_date.month - 1) / 3 + 1 | — | — | — | None |
+| accession_number | STRING | No | SEC accession number | raw.xbrl_company_facts.accession_number | Accession Number | Unique identifier for each SEC EDGAR filing submission | CDE-002 | None |
+| form | STRING | No | Filing form type | raw.xbrl_company_facts.form | — | — | — | None |
+| filed_date | DATE | No | SEC filing date | raw.xbrl_company_facts.filed_date | Filing Date | Date the filing was officially submitted to and accepted by the SEC | CDE-004 | None |
+| is_amendment | BOOLEAN | No | Form ends in "/A" | Computed: form.endswith("/A") | Amendment | Revised SEC filing that corrects or updates a prior submission | — | None |
+| is_superseded | BOOLEAN | No | Later filing exists for same supersession grain | Computed by _apply_supersession() | Supersession | Later filing replaces earlier one for same company/concept/period | — | None |
+| superseded_by | STRING | Yes | Accession number of superseding filing | Set by _apply_supersession() | Supersession | Later filing replaces earlier one for same company/concept/period | — | None |
+| promoted_at | TIMESTAMPTZ | No | When written to base zone | Generated at promote time | — | — | — | None |
 
 #### base.fiscal_calendar
 - **Grain:** One row per (cik, fiscal_year, fiscal_period)
 - **Partitioning:** None
 - **Estimated Row Count:** ~1,600 (20 companies x ~80 periods)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
-|--------|------------|----------|-------------|----------------|---------------|----------|
-| calendar_id | STRING | No | SHA-256 hash of (cik, fiscal_year, fiscal_period) | Computed | — | — |
-| cik | INTEGER | No | Company | raw.xbrl_company_facts.cik | Central Index Key (CIK) | Unique SEC-assigned numeric identifier for filing entities |
-| entity_id | STRING | No | FK to entity_mappings | Looked up by CIK | — | — |
-| fiscal_year | INTEGER | No | e.g., 2024 | raw.xbrl_company_facts.fiscal_year | Fiscal Period | Company reporting period identified by fiscal year and period type |
-| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | Fiscal Period | Company reporting period identified by fiscal year and period type |
-| fiscal_year_end | STRING | No | MMDD from entity_mappings | entity_mappings.fiscal_year_end | — | — |
-| period_start | DATE | Yes | Earliest start_date observed for this period | Computed: min(start_date) | — | — |
-| period_end | DATE | No | Latest end_date observed for this period | Computed: max(end_date) | — | — |
-| calendar_year | INTEGER | No | Calendar year of period_end | Computed: period_end.year | — | — |
-| calendar_quarter | INTEGER | No | Calendar quarter of period_end | Computed: (period_end.month - 1) / 3 + 1 | — | — |
-| duration_days | INTEGER | Yes | period_end - period_start in days | Computed (null if period_start is null) | — | — |
-| is_annual | BOOLEAN | No | True if fiscal_period == "FY" | Computed | — | — |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
+| calendar_id | STRING | No | SHA-256 hash of (cik, fiscal_year, fiscal_period) | Computed | — | — | — | None |
+| cik | INTEGER | No | Company | raw.xbrl_company_facts.cik | Central Index Key (CIK) | Unique SEC-assigned numeric identifier for filing entities | CDE-001 | None |
+| entity_id | STRING | No | FK to entity_mappings | Looked up by CIK | — | — | — | None |
+| fiscal_year | INTEGER | No | e.g., 2024 | raw.xbrl_company_facts.fiscal_year | Fiscal Period | Company reporting period identified by fiscal year and period type | CDE-005 | None |
+| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | Fiscal Period | Company reporting period identified by fiscal year and period type | CDE-006 | None |
+| fiscal_year_end | STRING | No | MMDD from entity_mappings | entity_mappings.fiscal_year_end | — | — | — | None |
+| period_start | DATE | Yes | Earliest start_date observed for this period | Computed: min(start_date) | — | — | — | None |
+| period_end | DATE | No | Latest end_date observed for this period | Computed: max(end_date) | — | — | — | None |
+| calendar_year | INTEGER | No | Calendar year of period_end | Computed: period_end.year | — | — | — | None |
+| calendar_quarter | INTEGER | No | Calendar quarter of period_end | Computed: (period_end.month - 1) / 3 + 1 | — | — | — | None |
+| duration_days | INTEGER | Yes | period_end - period_start in days | Computed (null if period_start is null) | — | — | — | None |
+| is_annual | BOOLEAN | No | True if fiscal_period == "FY" | Computed | — | — | — | None |
 
 #### base.amendment_tracking
 - **Grain:** One row per supersession pair (original filing → amending filing)
 - **Partitioning:** None
 - **Estimated Row Count:** Sparse (only amendments exist)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
-|--------|------------|----------|-------------|----------------|---------------|----------|
-| tracking_id | STRING | No | UUID primary key | Generated (uuid4) | — | — |
-| cik | INTEGER | No | Company | From financial_facts | Central Index Key (CIK) | Unique SEC-assigned numeric identifier for filing entities |
-| concept | STRING | No | XBRL concept amended | From financial_facts | XBRL Concept | Specific financial metric tag from an XBRL taxonomy |
-| unit | STRING | No | Measurement unit | From financial_facts | — | — |
-| start_date | DATE | Yes | Period start of amended fact | From financial_facts | — | — |
-| end_date | DATE | No | Period end of amended fact | From financial_facts | — | — |
-| original_accession | STRING | No | First filing (superseded) | From superseded fact | Accession Number | Unique identifier for each SEC EDGAR filing submission |
-| original_filed_date | DATE | No | When original was filed | From superseded fact | Filing Date | Date the filing was officially submitted to and accepted by the SEC |
-| original_val | DOUBLE | No | Original reported value | From superseded fact | — | — |
-| amendment_accession | STRING | No | Amending filing | From superseding fact | Accession Number | Unique identifier for each SEC EDGAR filing submission |
-| amendment_filed_date | DATE | No | When amendment was filed | From superseding fact | Filing Date | Date the filing was officially submitted to and accepted by the SEC |
-| amendment_val | DOUBLE | No | New reported value | From superseding fact | — | — |
-| val_change | DOUBLE | No | amendment_val - original_val | Computed | — | — |
-| val_change_pct | DOUBLE | Yes | Percentage change (null if original_val = 0) | Computed | — | — |
-| amendment_form | STRING | No | "10-K/A", "10-Q/A" | From superseding fact | Amendment | Revised SEC filing that corrects or updates a prior submission |
-| detected_at | TIMESTAMPTZ | No | When detected by pipeline | Generated at detection time | — | — |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
+| tracking_id | STRING | No | UUID primary key | Generated (uuid4) | — | — | — | None |
+| cik | INTEGER | No | Company | From financial_facts | Central Index Key (CIK) | Unique SEC-assigned numeric identifier for filing entities | CDE-001 | None |
+| concept | STRING | No | XBRL concept amended | From financial_facts | XBRL Concept | Specific financial metric tag from an XBRL taxonomy | — | None |
+| unit | STRING | No | Measurement unit | From financial_facts | — | — | — | None |
+| start_date | DATE | Yes | Period start of amended fact | From financial_facts | — | — | — | None |
+| end_date | DATE | No | Period end of amended fact | From financial_facts | — | — | — | None |
+| original_accession | STRING | No | First filing (superseded) | From superseded fact | Accession Number | Unique identifier for each SEC EDGAR filing submission | CDE-002 | None |
+| original_filed_date | DATE | No | When original was filed | From superseded fact | Filing Date | Date the filing was officially submitted to and accepted by the SEC | CDE-004 | None |
+| original_val | DOUBLE | No | Original reported value | From superseded fact | — | — | — | None |
+| amendment_accession | STRING | No | Amending filing | From superseding fact | Accession Number | Unique identifier for each SEC EDGAR filing submission | CDE-002 | None |
+| amendment_filed_date | DATE | No | When amendment was filed | From superseding fact | Filing Date | Date the filing was officially submitted to and accepted by the SEC | CDE-004 | None |
+| amendment_val | DOUBLE | No | New reported value | From superseding fact | — | — | — | None |
+| val_change | DOUBLE | No | amendment_val - original_val | Computed | — | — | — | None |
+| val_change_pct | DOUBLE | Yes | Percentage change (null if original_val = 0) | Computed | — | — | — | None |
+| amendment_form | STRING | No | "10-K/A", "10-Q/A" | From superseding fact | Amendment | Revised SEC filing that corrects or updates a prior submission | — | None |
+| detected_at | TIMESTAMPTZ | No | When detected by pipeline | Generated at detection time | — | — | — | None |
 
 ### Physical Design Decisions
 - **Denormalized financial_facts** — entity and concept metadata is duplicated into the fact table to avoid joins at query time. This is intentional: the fact table is the primary query surface, and 547K rows with 28 columns is trivially scannable.
