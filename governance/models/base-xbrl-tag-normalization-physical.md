@@ -11,28 +11,28 @@
 ```mermaid
 erDiagram
     base_concept_mappings {
-        STRING mapping_id PK
-        STRING concept
-        STRING canonical_cde
-        STRING cde_id
-        STRING financial_statement
-        STRING category
-        INTEGER tier
-        DOUBLE confidence
-        STRING mapping_method
-        STRING status
-        STRING mapped_by
-        TIMESTAMPTZ mapped_at
+        STRING mapping_id PK "Stable ID (TN-0001..) | ConceptMapping.mapping_id"
+        STRING concept "Raw XBRL concept name | ConceptMapping.concept"
+        STRING canonical_cde "CDE name or null | ConceptMapping.canonical_cde"
+        STRING cde_id "CDE-007..031 or null | ConceptMapping.cde_id"
+        STRING financial_statement "Statement classification | ConceptMapping.financial_statement"
+        STRING category "Subcategory | ConceptMapping.category"
+        INTEGER tier "Match quality 1/2/3 | ConceptMapping.tier"
+        DOUBLE confidence "1.0/0.7/0.6/0.0 by tier | ConceptMapping.confidence"
+        STRING mapping_method "How match was determined | ConceptMapping.mapping_method"
+        STRING status "approved or unmapped | ConceptMapping.status"
+        STRING mapped_by "Classifying agent | ConceptMapping.mapped_by"
+        TIMESTAMPTZ mapped_at "When classified | ConceptMapping.mapped_at"
     }
     base_tag_normalization_audit {
-        STRING audit_id PK
-        STRING mapping_id FK
-        STRING action
-        STRING actor
-        STRING reasoning
-        STRING evidence
-        DOUBLE confidence_at_action
-        TIMESTAMPTZ timestamp
+        STRING audit_id PK "UUID | TagNormalizationAudit.audit_id"
+        STRING mapping_id FK "FK to concept_mappings | TagNormalizationAudit.mapping_id"
+        STRING action "proposed/approved/rejected | TagNormalizationAudit.action"
+        STRING actor "Who performed action | TagNormalizationAudit.actor"
+        STRING reasoning "Classification rationale | TagNormalizationAudit.reasoning"
+        STRING evidence "JSON fact/company counts | TagNormalizationAudit.evidence"
+        DOUBLE confidence_at_action "Confidence at action time | TagNormalizationAudit.confidence_at_action"
+        TIMESTAMPTZ timestamp "When action occurred | TagNormalizationAudit.timestamp"
     }
     base_concept_mappings ||--o{ base_tag_normalization_audit : "tracked by"
 ```

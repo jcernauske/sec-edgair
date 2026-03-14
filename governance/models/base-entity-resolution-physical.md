@@ -11,30 +11,30 @@
 ```mermaid
 erDiagram
     base_entity_mappings {
-        STRING mapping_id PK
-        INTEGER cik
-        STRING canonical_name
-        STRING raw_entity_name
-        STRING ticker
-        STRING sic_code
-        STRING fiscal_year_end
-        DOUBLE confidence
-        STRING resolution_method
-        STRING status
-        STRING resolved_by
-        STRING approved_by
-        TIMESTAMPTZ resolved_at
-        TIMESTAMPTZ approved_at
+        STRING mapping_id PK "Stable ID (ER-001..) | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized display name | EntityMapping.canonical_name"
+        STRING raw_entity_name "Original from SEC EDGAR | EntityMapping.raw_entity_name"
+        STRING ticker "Stock ticker symbol | EntityMapping.ticker"
+        STRING sic_code "Industry classification | EntityMapping.sic_code"
+        STRING fiscal_year_end "MMDD format | EntityMapping.fiscal_year_end"
+        DOUBLE confidence "Resolution confidence 0-1 | EntityMapping.confidence"
+        STRING resolution_method "exact_cik_match or fuzzy | EntityMapping.resolution_method"
+        STRING status "Approval status | EntityMapping.status"
+        STRING resolved_by "Proposing agent | EntityMapping.resolved_by"
+        STRING approved_by "Human or auto approver | EntityMapping.approved_by"
+        TIMESTAMPTZ resolved_at "When proposed | EntityMapping.resolved_at"
+        TIMESTAMPTZ approved_at "When approved | EntityMapping.approved_at"
     }
     base_entity_resolution_audit {
-        STRING audit_id PK
-        STRING mapping_id FK
-        STRING action
-        STRING actor
-        STRING reasoning
-        STRING evidence
-        DOUBLE confidence_at_action
-        TIMESTAMPTZ timestamp
+        STRING audit_id PK "UUID | EntityResolutionAudit.audit_id"
+        STRING mapping_id FK "FK to entity_mappings | EntityResolutionAudit.mapping_id"
+        STRING action "proposed/approved/rejected | EntityResolutionAudit.action"
+        STRING actor "Who performed action | EntityResolutionAudit.actor"
+        STRING reasoning "Decision explanation | EntityResolutionAudit.reasoning"
+        STRING evidence "JSON supporting data | EntityResolutionAudit.evidence"
+        DOUBLE confidence_at_action "Confidence at action time | EntityResolutionAudit.confidence_at_action"
+        TIMESTAMPTZ timestamp "When action occurred | EntityResolutionAudit.timestamp"
     }
     base_entity_mappings ||--o{ base_entity_resolution_audit : "tracked by"
 ```

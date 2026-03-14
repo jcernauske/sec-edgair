@@ -73,16 +73,18 @@ erDiagram
 ```
 
 ### Physical Model Diagrams
-Use `erDiagram` with full column definitions (name + DuckDB type). Show all columns, keys, and relationships.
+Use `erDiagram` with full column definitions (name + DuckDB type). Every column MUST include a description string with two parts separated by `|`: a brief description and the logical attribute it maps to (`LogicalEntity.attribute`). This preserves semantic traceability from physical → logical.
+
+Format: `TYPE column_name [PK|FK] "description | LogicalEntity.attribute"`
 
 Example:
 ```mermaid
 erDiagram
     base_entity_mappings {
-        INTEGER cik PK
-        VARCHAR canonical_name
-        VARCHAR ticker
-        FLOAT confidence
+        STRING mapping_id PK "Stable ID (ER-001..) | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized display name | EntityMapping.canonical_name"
+        DOUBLE confidence "Resolution confidence 0-1 | EntityMapping.confidence"
     }
 ```
 
@@ -91,7 +93,7 @@ erDiagram
 - The diagram is the FIRST thing after the metadata header — humans see the picture before the text
 - Conceptual diagrams show relationships only (no attributes)
 - Logical diagrams show key attributes and domains
-- Physical diagrams show all columns with DuckDB types
+- Physical diagrams show all columns with DuckDB types, descriptions, AND logical attribute mappings
 - Keep diagrams readable — if a model has more than ~8 entities, split into focused sub-diagrams with a note explaining how they connect
 
 ## The 3-Stage Modeling Progression

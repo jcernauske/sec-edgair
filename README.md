@@ -130,30 +130,30 @@ erDiagram
 ```mermaid
 erDiagram
     base_entity_mappings {
-        STRING mapping_id PK
-        INTEGER cik
-        STRING canonical_name
-        STRING raw_entity_name
-        STRING ticker
-        STRING sic_code
-        STRING fiscal_year_end
-        DOUBLE confidence
-        STRING resolution_method
-        STRING status
-        STRING resolved_by
-        STRING approved_by
-        TIMESTAMPTZ resolved_at
-        TIMESTAMPTZ approved_at
+        STRING mapping_id PK "Stable ID (ER-001..) | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized display name | EntityMapping.canonical_name"
+        STRING raw_entity_name "Original from SEC EDGAR | EntityMapping.raw_entity_name"
+        STRING ticker "Stock ticker symbol | EntityMapping.ticker"
+        STRING sic_code "Industry classification | EntityMapping.sic_code"
+        STRING fiscal_year_end "MMDD format | EntityMapping.fiscal_year_end"
+        DOUBLE confidence "Resolution confidence 0-1 | EntityMapping.confidence"
+        STRING resolution_method "exact_cik_match or fuzzy | EntityMapping.resolution_method"
+        STRING status "Approval status | EntityMapping.status"
+        STRING resolved_by "Proposing agent | EntityMapping.resolved_by"
+        STRING approved_by "Human or auto approver | EntityMapping.approved_by"
+        TIMESTAMPTZ resolved_at "When proposed | EntityMapping.resolved_at"
+        TIMESTAMPTZ approved_at "When approved | EntityMapping.approved_at"
     }
     base_entity_resolution_audit {
-        STRING audit_id PK
-        STRING mapping_id FK
-        STRING action
-        STRING actor
-        STRING reasoning
-        STRING evidence
-        DOUBLE confidence_at_action
-        TIMESTAMPTZ timestamp
+        STRING audit_id PK "UUID | EntityResolutionAudit.audit_id"
+        STRING mapping_id FK "FK to entity_mappings | EntityResolutionAudit.mapping_id"
+        STRING action "proposed/approved/rejected | EntityResolutionAudit.action"
+        STRING actor "Who performed action | EntityResolutionAudit.actor"
+        STRING reasoning "Decision explanation | EntityResolutionAudit.reasoning"
+        STRING evidence "JSON supporting data | EntityResolutionAudit.evidence"
+        DOUBLE confidence_at_action "Confidence at action time | EntityResolutionAudit.confidence_at_action"
+        TIMESTAMPTZ timestamp "When action occurred | EntityResolutionAudit.timestamp"
     }
     base_entity_mappings ||--o{ base_entity_resolution_audit : "tracked by"
 ```
@@ -163,28 +163,28 @@ erDiagram
 ```mermaid
 erDiagram
     base_concept_mappings {
-        STRING mapping_id PK
-        STRING concept
-        STRING canonical_cde
-        STRING cde_id
-        STRING financial_statement
-        STRING category
-        INTEGER tier
-        DOUBLE confidence
-        STRING mapping_method
-        STRING status
-        STRING mapped_by
-        TIMESTAMPTZ mapped_at
+        STRING mapping_id PK "Stable ID (TN-0001..) | ConceptMapping.mapping_id"
+        STRING concept "Raw XBRL concept name | ConceptMapping.concept"
+        STRING canonical_cde "CDE name or null | ConceptMapping.canonical_cde"
+        STRING cde_id "CDE-007..031 or null | ConceptMapping.cde_id"
+        STRING financial_statement "Statement classification | ConceptMapping.financial_statement"
+        STRING category "Subcategory | ConceptMapping.category"
+        INTEGER tier "Match quality 1/2/3 | ConceptMapping.tier"
+        DOUBLE confidence "1.0/0.7/0.6/0.0 by tier | ConceptMapping.confidence"
+        STRING mapping_method "How match was determined | ConceptMapping.mapping_method"
+        STRING status "approved or unmapped | ConceptMapping.status"
+        STRING mapped_by "Classifying agent | ConceptMapping.mapped_by"
+        TIMESTAMPTZ mapped_at "When classified | ConceptMapping.mapped_at"
     }
     base_tag_normalization_audit {
-        STRING audit_id PK
-        STRING mapping_id FK
-        STRING action
-        STRING actor
-        STRING reasoning
-        STRING evidence
-        DOUBLE confidence_at_action
-        TIMESTAMPTZ timestamp
+        STRING audit_id PK "UUID | TagNormalizationAudit.audit_id"
+        STRING mapping_id FK "FK to concept_mappings | TagNormalizationAudit.mapping_id"
+        STRING action "proposed/approved/rejected | TagNormalizationAudit.action"
+        STRING actor "Who performed action | TagNormalizationAudit.actor"
+        STRING reasoning "Classification rationale | TagNormalizationAudit.reasoning"
+        STRING evidence "JSON fact/company counts | TagNormalizationAudit.evidence"
+        DOUBLE confidence_at_action "Confidence at action time | TagNormalizationAudit.confidence_at_action"
+        TIMESTAMPTZ timestamp "When action occurred | TagNormalizationAudit.timestamp"
     }
     base_concept_mappings ||--o{ base_tag_normalization_audit : "tracked by"
 ```
@@ -194,77 +194,77 @@ erDiagram
 ```mermaid
 erDiagram
     base_entity_mappings {
-        STRING mapping_id PK
-        INTEGER cik
-        STRING canonical_name
+        STRING mapping_id PK "Stable ID | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized name | EntityMapping.canonical_name"
     }
     base_concept_mappings {
-        STRING mapping_id PK
-        STRING concept
-        STRING cde_id
-        STRING canonical_cde
+        STRING mapping_id PK "Stable ID | ConceptMapping.mapping_id"
+        STRING concept "XBRL concept | ConceptMapping.concept"
+        STRING cde_id "CDE reference | ConceptMapping.cde_id"
+        STRING canonical_cde "CDE name | ConceptMapping.canonical_cde"
     }
     base_financial_facts {
-        STRING fact_id PK
-        STRING entity_id FK
-        INTEGER cik
-        STRING canonical_name
-        STRING ticker
-        STRING concept
-        STRING cde_id FK
-        STRING canonical_cde
-        STRING financial_statement
-        STRING category
-        INTEGER tier
-        STRING taxonomy
-        STRING unit
-        DOUBLE val
-        DATE start_date
-        DATE end_date
-        INTEGER fiscal_year
-        STRING fiscal_period
-        STRING fiscal_year_end
-        INTEGER calendar_year
-        INTEGER calendar_quarter
-        STRING accession_number
-        STRING form
-        DATE filed_date
-        BOOLEAN is_amendment
-        BOOLEAN is_superseded
-        STRING superseded_by
-        TIMESTAMPTZ promoted_at
+        STRING fact_id PK "SHA-256 of grain fields | FinancialFact.fact_id"
+        STRING entity_id FK "FK to entity_mappings | FinancialFact.entity_id"
+        INTEGER cik "SEC company ID (denorm) | FinancialFact.cik"
+        STRING canonical_name "Company name (denorm) | FinancialFact.canonical_name"
+        STRING ticker "Stock ticker (denorm) | FinancialFact.ticker"
+        STRING concept "XBRL concept name | FinancialFact.concept"
+        STRING cde_id FK "CDE reference (denorm) | FinancialFact.cde_id"
+        STRING canonical_cde "CDE name (denorm) | FinancialFact.canonical_cde"
+        STRING financial_statement "Statement type (denorm) | FinancialFact.financial_statement"
+        STRING category "Subcategory (denorm) | FinancialFact.category"
+        INTEGER tier "Match tier (denorm) | FinancialFact.tier"
+        STRING taxonomy "XBRL taxonomy source | FinancialFact.taxonomy"
+        STRING unit "USD/shares/USD-per-share | FinancialFact.unit"
+        DOUBLE val "Reported value | FinancialFact.val"
+        DATE start_date "Period start (null=instant) | FinancialFact.start_date"
+        DATE end_date "Period end | FinancialFact.end_date"
+        INTEGER fiscal_year "Fiscal year | FinancialFact.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3/Q4 | FinancialFact.fiscal_period"
+        STRING fiscal_year_end "MMDD (denorm) | FinancialFact.fiscal_year_end"
+        INTEGER calendar_year "Derived from end_date | FinancialFact.calendar_year"
+        INTEGER calendar_quarter "Derived from end_date | FinancialFact.calendar_quarter"
+        STRING accession_number "SEC filing ID | FinancialFact.accession_number"
+        STRING form "10-K/10-Q/10-K-A | FinancialFact.form"
+        DATE filed_date "SEC filing date | FinancialFact.filed_date"
+        BOOLEAN is_amendment "Form ends in /A (derived) | FinancialFact.is_amendment"
+        BOOLEAN is_superseded "Later filing exists (derived) | FinancialFact.is_superseded"
+        STRING superseded_by "Superseding accession | FinancialFact.superseded_by"
+        TIMESTAMPTZ promoted_at "When written to base | FinancialFact.promoted_at"
     }
     base_fiscal_calendar {
-        STRING calendar_id PK
-        INTEGER cik
-        STRING entity_id FK
-        INTEGER fiscal_year
-        STRING fiscal_period
-        STRING fiscal_year_end
-        DATE period_start
-        DATE period_end
-        INTEGER calendar_year
-        INTEGER calendar_quarter
-        INTEGER duration_days
-        BOOLEAN is_annual
+        STRING calendar_id PK "SHA-256 of grain | FiscalCalendar.calendar_id"
+        INTEGER cik "Company | FiscalCalendar.cik"
+        STRING entity_id FK "FK to entity_mappings | FiscalCalendar.entity_id"
+        INTEGER fiscal_year "e.g. 2024 | FiscalCalendar.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3/Q4 | FiscalCalendar.fiscal_period"
+        STRING fiscal_year_end "MMDD from entity | FiscalCalendar.fiscal_year_end"
+        DATE period_start "Earliest observed start | FiscalCalendar.period_start"
+        DATE period_end "Latest observed end | FiscalCalendar.period_end"
+        INTEGER calendar_year "Calendar year of end | FiscalCalendar.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter of end | FiscalCalendar.calendar_quarter"
+        INTEGER duration_days "Period length (derived) | FiscalCalendar.duration_days"
+        BOOLEAN is_annual "fiscal_period is FY | FiscalCalendar.is_annual"
     }
     base_amendment_tracking {
-        STRING tracking_id PK
-        INTEGER cik
-        STRING concept
-        STRING unit
-        DATE start_date
-        DATE end_date
-        STRING original_accession
-        DATE original_filed_date
-        DOUBLE original_val
-        STRING amendment_accession
-        DATE amendment_filed_date
-        DOUBLE amendment_val
-        DOUBLE val_change
-        DOUBLE val_change_pct
-        STRING amendment_form
-        TIMESTAMPTZ detected_at
+        STRING tracking_id PK "UUID | AmendmentTracking.tracking_id"
+        INTEGER cik "Company | AmendmentTracking.cik"
+        STRING concept "Amended XBRL concept | AmendmentTracking.concept"
+        STRING unit "Measurement unit | AmendmentTracking.unit"
+        DATE start_date "Period start | AmendmentTracking.start_date"
+        DATE end_date "Period end | AmendmentTracking.end_date"
+        STRING original_accession "Superseded filing | AmendmentTracking.original_accession"
+        DATE original_filed_date "When original filed | AmendmentTracking.original_filed_date"
+        DOUBLE original_val "Original value | AmendmentTracking.original_val"
+        STRING amendment_accession "Superseding filing | AmendmentTracking.amendment_accession"
+        DATE amendment_filed_date "When amendment filed | AmendmentTracking.amendment_filed_date"
+        DOUBLE amendment_val "Corrected value | AmendmentTracking.amendment_val"
+        DOUBLE val_change "Absolute change (derived) | AmendmentTracking.val_change"
+        DOUBLE val_change_pct "Pct change (derived) | AmendmentTracking.val_change_pct"
+        STRING amendment_form "10-K-A or 10-Q-A | AmendmentTracking.amendment_form"
+        TIMESTAMPTZ detected_at "When detected | AmendmentTracking.detected_at"
     }
     base_entity_mappings ||--o{ base_financial_facts : "entity_id"
     base_concept_mappings ||--o{ base_financial_facts : "concept"
