@@ -31,6 +31,13 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 8. @staff-engineer — Final quality review (LAST gate before completion)
 
 ### Base & Consumable Zone Pipeline (with data modeling gates)
+
+The pipeline auto-detects **greenfield** vs **backfill** mode:
+
+- **Greenfield** (tables don't exist yet): models are proposed BEFORE implementation
+- **Backfill** (tables already exist): models are reverse-engineered FROM existing tables/code
+
+#### Greenfield Mode (new tables)
 1. @governance-reviewer — Pre-implementation review (checks model gate below)
 2. @semantic-modeler — Propose **conceptual model** → **HUMAN APPROVAL GATE**
 3. @semantic-modeler — Propose **logical model** → **HUMAN APPROVAL GATE**
@@ -43,7 +50,20 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 10. @governance-reviewer — Post-implementation completeness check (verifies models match)
 11. @staff-engineer — Final quality review (LAST gate before completion)
 
-The human approval gates at steps 2-3 are controlled by `REQUIRE_HUMAN_APPROVAL` in `src/config.py`. When False (dev/demo mode), models auto-advance but all three artifacts are still produced in `governance/models/`.
+#### Backfill Mode (existing tables, missing models)
+1. @semantic-modeler — Reverse-engineer **physical model** from existing tables/code
+2. @semantic-modeler — Abstract **logical model** from physical → **HUMAN APPROVAL GATE**
+3. @semantic-modeler — Abstract **conceptual model** from logical → **HUMAN APPROVAL GATE**
+4. @governance-reviewer — Post-backfill completeness check (verifies models are consistent with existing implementation)
+5. @staff-engineer — Final review
+
+#### Mode Detection
+@semantic-modeler determines the mode automatically:
+- If the spec's target tables exist in the Iceberg catalog AND source code exists in `src/` → **backfill**
+- If the spec's target tables do not exist → **greenfield**
+- If a spec modifies existing tables (schema evolution) → **greenfield** for the new/changed parts
+
+The human approval gates are controlled by `REQUIRE_HUMAN_APPROVAL` in `src/config.py`. When False (dev/demo mode), models auto-advance but all three artifacts are still produced in `governance/models/`.
 
 Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md`, `[spec-name]-logical.md`, `[spec-name]-physical.md`.
 
