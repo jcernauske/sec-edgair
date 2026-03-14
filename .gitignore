@@ -45,3 +45,6 @@ data/ai_ready/
 
 # Entity resolution staging and runtime artifacts
 governance/entity-resolution/
+
+# DuckDB catalog database (runtime)
+data/catalog/
