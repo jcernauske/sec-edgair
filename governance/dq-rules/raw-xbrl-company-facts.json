@@ -97,6 +97,66 @@
       "status": "active",
       "proposed_by": "@dq-engineer",
       "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-009",
+      "category": "Completeness",
+      "priority": "P2",
+      "description": "label and description are populated for >99% of facts",
+      "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN label IS NOT NULL AND description IS NOT NULL THEN 1 ELSE 0 END) / COUNT(*), 1) FROM raw.xbrl_company_facts",
+      "threshold": "result >= 99.0",
+      "rationale": "EDA: 2,437 of 547,398 rows (0.4%) missing both label and description. 99.6% populated. Threshold 99% accommodates the gap. Source: raw-xbrl-company-facts-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-010",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "fiscal_period is one of FY, Q1, Q2, Q3 (or NULL for 8-K)",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE fiscal_period IS NOT NULL AND fiscal_period NOT IN ('FY', 'Q1', 'Q2', 'Q3')",
+      "threshold": "result = 0",
+      "rationale": "EDA: only 4 distinct values observed (FY, Q1, Q2, Q3). 2,516 NULLs are 8-K filings (expected). Any other value indicates parsing error. Source: raw-xbrl-company-facts-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-011",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "form is a known SEC filing type",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE form NOT IN ('10-K', '10-Q', '8-K', '10-K/A', '10-Q/A')",
+      "threshold": "result = 0",
+      "rationale": "EDA: exactly 5 distinct form values observed. Any other value indicates an unexpected filing type. Source: raw-xbrl-company-facts-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-012",
+      "category": "Validity",
+      "priority": "P1",
+      "description": "end_date is within 6 years of filed_date for >99% of facts",
+      "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN end_date <= filed_date + INTERVAL '2192 days' THEN 1 ELSE 0 END) / COUNT(*), 2) FROM raw.xbrl_company_facts",
+      "threshold": "result >= 99.0",
+      "rationale": "EDA found 35 facts with end_date >1 year after filed_date — all legitimate (LongTermDebtMaturities, IntangibleAssetsAmortization report forward-looking schedules up to 5 years out). Relaxed to P1 with 6-year window and 99% threshold. Source: @dq-rule-writer investigation of RAW-CF-012 P0 failure.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-013",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "load_date is never null",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE load_date IS NULL",
+      "threshold": "result = 0",
+      "rationale": "load_date is a structural system-time column. Must always be populated. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }

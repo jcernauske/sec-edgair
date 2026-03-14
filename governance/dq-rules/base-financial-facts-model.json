@@ -85,6 +85,54 @@
       "status": "active",
       "proposed_by": "@dq-engineer",
       "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-FM-008",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "load_date is never null across all 3 financial facts model tables",
+      "sql": "SELECT (SELECT COUNT(*) FROM base.financial_facts WHERE load_date IS NULL) + (SELECT COUNT(*) FROM base.fiscal_calendar WHERE load_date IS NULL) + (SELECT COUNT(*) FROM base.amendment_tracking WHERE load_date IS NULL)",
+      "threshold": "result = 0",
+      "rationale": "load_date is a structural system-time column. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-FM-009",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "fiscal_calendar duration_days is positive when period_start is not null",
+      "sql": "SELECT COUNT(*) FROM base.fiscal_calendar WHERE period_start IS NOT NULL AND (duration_days IS NULL OR duration_days <= 0)",
+      "threshold": "result = 0",
+      "rationale": "EDA: 0 negative/zero durations observed. When period_start exists, duration must be computable and positive. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-FM-010",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "is_amendment flag matches form suffix (/A)",
+      "sql": "SELECT COUNT(*) FROM base.financial_facts WHERE (is_amendment = true AND form NOT LIKE '%/A') OR (is_amendment = false AND form LIKE '%/A')",
+      "threshold": "result = 0",
+      "rationale": "is_amendment is derived from form ending in /A. They must agree. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-FM-011",
+      "category": "Validity",
+      "priority": "P1",
+      "description": "amendment_tracking val_change_pct is not null when original_val is non-zero",
+      "sql": "SELECT COUNT(*) FROM base.amendment_tracking WHERE original_val != 0 AND val_change_pct IS NULL",
+      "threshold": "result = 0",
+      "rationale": "EDA: 4,661 NULL val_change_pct rows all have original_val = 0 (div by zero). When denominator is non-zero, pct must be computable. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }

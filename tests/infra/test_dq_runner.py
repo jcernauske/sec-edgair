@@ -164,7 +164,7 @@ class TestLoadRules:
 
     def test_loads_all_rules(self):
         rules = load_rules()
-        assert len(rules) == 30
+        assert len(rules) >= 30  # grows as new rules are added
 
     def test_each_rule_has_spec(self):
         rules = load_rules()
@@ -180,7 +180,7 @@ class TestLoadRules:
 
     def test_filter_by_spec(self):
         rules = load_rules(spec="base-entity-resolution")
-        assert len(rules) == 5
+        assert len(rules) >= 5
         assert all(r["spec"] == "base-entity-resolution" for r in rules)
 
     def test_filter_nonexistent_spec(self):

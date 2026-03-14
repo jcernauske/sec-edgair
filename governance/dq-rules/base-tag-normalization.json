@@ -61,6 +61,30 @@
       "status": "active",
       "proposed_by": "@dq-engineer",
       "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-TN-006",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "Tier 3 concepts have NULL cde_id, Tier 1+2 have non-NULL cde_id",
+      "sql": "SELECT COUNT(*) FROM base.concept_mappings WHERE (tier = 3 AND cde_id IS NOT NULL) OR (tier IN (1, 2) AND status = 'approved' AND cde_id IS NULL)",
+      "threshold": "result = 0",
+      "rationale": "EDA: 89.6% Tier 3 with NULL cde_id, 10.4% Tier 1+2 with non-NULL. These must align exactly. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-TN-007",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "load_date is never null in concept_mappings and audit",
+      "sql": "SELECT (SELECT COUNT(*) FROM base.concept_mappings WHERE load_date IS NULL) + (SELECT COUNT(*) FROM base.tag_normalization_audit WHERE load_date IS NULL)",
+      "threshold": "result = 0",
+      "rationale": "load_date is a structural system-time column. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }

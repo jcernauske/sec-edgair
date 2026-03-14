@@ -1,7 +1,7 @@
 # SEC EDGAIR
 
 ![Tests](https://img.shields.io/badge/tests-229%20passing-brightgreen)
-![DQ Rules](https://img.shields.io/badge/DQ%20rules-30%2F30%20passing-brightgreen)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-42%2F42%20passing-brightgreen)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
 ![Companies](https://img.shields.io/badge/companies-20-blue)

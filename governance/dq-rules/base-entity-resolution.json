@@ -61,6 +61,18 @@
       "status": "active",
       "proposed_by": "@dq-engineer",
       "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "BASE-ER-006",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "load_date is never null in entity_mappings and audit",
+      "sql": "SELECT (SELECT COUNT(*) FROM base.entity_mappings WHERE load_date IS NULL) + (SELECT COUNT(*) FROM base.entity_resolution_audit WHERE load_date IS NULL)",
+      "threshold": "result = 0",
+      "rationale": "load_date is a structural system-time column. Must always be populated. Source: base-zone-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }
