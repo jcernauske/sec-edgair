@@ -108,18 +108,59 @@ Every transformation produces governance artifacts automatically:
 | base-bitemporal-schema | 5 | 5 | 0 | PASS |
 | **Total** | **30** | **30/30** | **0** | |
 
-### Results by Data Quality Dimension
+### Raw Zone — Did the data land correctly?
 
-| Dimension | Rules | Passing | What It Checks |
-|-----------|-------|---------|----------------|
-| Validity | 10 | 10/10 | Values within expected ranges/formats (dates, CIKs, accession format, NaN) |
-| Completeness | 7 | 7/7 | Required fields populated, no orphans, all CIKs present |
-| Referential Integrity | 5 | 5/5 | Cross-table references resolve |
-| Uniqueness | 3 | 3/3 | No unintended duplicates |
-| Consistency | 2 | 2/2 | Cross-field relationships hold |
-| Volume | 1 | 1/1 | Each CIK has sufficient facts (smoke test) |
-| Coverage | 1 | 1/1 | Mapped concepts cover sufficient facts |
-| Freshness | 1 | 1/1 | Latest data within expected recency window |
+| Rule | Dimension | P | Description | Result |
+|------|-----------|---|-------------|--------|
+| RAW-CF-001 | Completeness | P0 | All 20 expected CIKs present | PASS |
+| RAW-CF-002 | Completeness | P0 | No nulls in required fields (cik, concept, unit, end_date, val, accession, filed_date) | PASS |
+| RAW-CF-003 | Validity | P0 | CIK is a positive integer | PASS |
+| RAW-CF-004 | Validity | P0 | Accession numbers match SEC format (NNNNNNNNNN-NN-NNNNNN) | PASS |
+| RAW-CF-005 | Validity | P0 | No future filed_dates | PASS |
+| RAW-CF-006 | Validity | P1 | All values are finite (no NaN/Inf) | PASS |
+| RAW-CF-007 | Volume | P1 | Each CIK has ≥100 facts (fetch smoke test) | PASS |
+| RAW-CF-008 | Freshness | P2 | Latest filing within last 2 years | PASS |
+
+### Base Zone — Is the data correct?
+
+| Rule | Dimension | P | Description | Result |
+|------|-----------|---|-------------|--------|
+| BASE-ER-001 | Completeness | P0 | Every raw CIK has an approved entity mapping | PASS |
+| BASE-ER-002 | Uniqueness | P0 | No duplicate CIKs in approved mappings | PASS |
+| BASE-ER-003 | Validity | P0 | Confidence scores in [0, 1] | PASS |
+| BASE-ER-004 | Completeness | P0 | Approved mappings have approved_by and approved_at | PASS |
+| BASE-ER-005 | Ref. Integrity | P0 | Audit entries reference real mappings | PASS |
+| BASE-TN-001 | Completeness | P0 | Every Tier 1 concept has approved mapping with CDE | PASS |
+| BASE-TN-002 | Uniqueness | P0 | No concept maps to multiple CDEs | PASS |
+| BASE-TN-003 | Validity | P0 | Confidence scores in [0, 1] | PASS |
+| BASE-TN-004 | Coverage | P1 | Mapped concepts cover ≥25% of raw facts | PASS |
+| BASE-TN-005 | Ref. Integrity | P0 | Approved mappings have valid cde_id | PASS |
+| BASE-FM-001 | Ref. Integrity | P0 | Every fact has a non-null entity_id | PASS |
+| BASE-FM-002 | Uniqueness | P0 | fact_id is unique (no duplicate grain) | PASS |
+| BASE-FM-003 | Consistency | P0 | Superseded facts have superseded_by | PASS |
+| BASE-FM-004 | Completeness | P1 | Fiscal calendar covers all fact periods | PASS |
+| BASE-FM-005 | Validity | P0 | calendar_quarter is 1-4 | PASS |
+| BASE-FM-006 | Ref. Integrity | P0 | Amendment tracking references real accessions | PASS |
+| BASE-FM-007 | Completeness | P0 | Every fact's CIK has an entity mapping | PASS |
+| BASE-BT-001 | Validity | P0 | No future filed_dates | PASS |
+| BASE-BT-002 | Validity | P0 | start_date < end_date for period facts | PASS |
+| BASE-BT-003 | Consistency | P0 | Superseded facts filed before superseding facts | PASS |
+| BASE-BT-004 | Validity | P1 | filed_date ≥ end_date (99% threshold) | PASS |
+| BASE-BT-005 | Ref. Integrity | P0 | Every superseded_by accession exists | PASS |
+
+### Summary by Dimension
+
+| Dimension | Raw | Base | Total |
+|-----------|-----|------|-------|
+| Validity | 4/4 | 6/6 | 10/10 |
+| Completeness | 2/2 | 5/5 | 7/7 |
+| Ref. Integrity | — | 5/5 | 5/5 |
+| Uniqueness | — | 3/3 | 3/3 |
+| Consistency | — | 2/2 | 2/2 |
+| Volume | 1/1 | — | 1/1 |
+| Coverage | — | 1/1 | 1/1 |
+| Freshness | 1/1 | — | 1/1 |
+| **Total** | **8/8** | **22/22** | **30/30** |
 
 *All 30 rules are SQL-based and executed against real Iceberg data. Rules are defined as data (JSON), making the engine swappable.*
 
