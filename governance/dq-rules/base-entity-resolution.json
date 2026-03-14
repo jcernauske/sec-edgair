@@ -9,7 +9,10 @@
       "description": "Every CIK in raw.xbrl_company_facts has an approved mapping in base.entity_mappings",
       "sql": "SELECT COUNT(DISTINCT r.cik) as unmapped FROM raw.xbrl_company_facts r LEFT JOIN base.entity_mappings m ON r.cik = m.cik AND m.status = 'approved' WHERE m.cik IS NULL",
       "threshold": "result = 0",
-      "rationale": "No raw entity should be orphaned without a canonical mapping"
+      "rationale": "No raw entity should be orphaned without a canonical mapping",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-ER-002",
@@ -18,7 +21,10 @@
       "description": "No duplicate CIKs in approved mappings",
       "sql": "SELECT cik, COUNT(*) as cnt FROM base.entity_mappings WHERE status = 'approved' GROUP BY cik HAVING COUNT(*) > 1",
       "threshold": "result_count = 0",
-      "rationale": "Each CIK maps to exactly one canonical entity"
+      "rationale": "Each CIK maps to exactly one canonical entity",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-ER-003",
@@ -27,7 +33,10 @@
       "description": "All confidence scores between 0.0 and 1.0 inclusive",
       "sql": "SELECT COUNT(*) FROM base.entity_mappings WHERE confidence < 0.0 OR confidence > 1.0",
       "threshold": "result = 0",
-      "rationale": "Confidence is a probability — must be in [0, 1]"
+      "rationale": "Confidence is a probability — must be in [0, 1]",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-ER-004",
@@ -36,7 +45,10 @@
       "description": "Approved mappings have non-null approved_by and approved_at",
       "sql": "SELECT COUNT(*) FROM base.entity_mappings WHERE status = 'approved' AND (approved_by IS NULL OR approved_at IS NULL)",
       "threshold": "result = 0",
-      "rationale": "Every approval must be traceable to an actor and timestamp"
+      "rationale": "Every approval must be traceable to an actor and timestamp",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-ER-005",
@@ -45,7 +57,10 @@
       "description": "Every audit entry has a valid mapping_id that exists in entity_mappings",
       "sql": "SELECT COUNT(*) FROM base.entity_resolution_audit a LEFT JOIN base.entity_mappings m ON a.mapping_id = m.mapping_id WHERE m.mapping_id IS NULL",
       "threshold": "result = 0",
-      "rationale": "Audit entries must reference real mappings"
+      "rationale": "Audit entries must reference real mappings",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }

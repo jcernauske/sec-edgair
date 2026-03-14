@@ -1,5 +1,12 @@
 # SEC EDGAIR
 
+![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-16%2F17%20passing-yellow)
+![P0 Gate](https://img.shields.io/badge/P0%20gate-FAIL-red)
+![Data](https://img.shields.io/badge/facts-547%2C398-blue)
+![Companies](https://img.shields.io/badge/companies-20-blue)
+![CDEs](https://img.shields.io/badge/CDEs-25-blue)
+
 AI agent pipeline that takes raw SEC EDGAR XBRL data and delivers it as a clean, tested, governed, semantically meaningful, AI-ready data product.
 
 **Stack:** Python 3.11+, DuckDB + Apache Iceberg, Claude Code with specialized agents
@@ -81,10 +88,62 @@ Every transformation produces governance artifacts automatically:
 - **31 CDEs** defined in `governance/cde-catalog.json` (6 entity/filing + 25 financial)
 - **8 Iceberg tables** documented in `governance/data-dictionary.json`
 - **OpenLineage** events in `governance/lineage/`
-- **DQ rules** with scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
+- **22 DQ rules** with execution engine and scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
 - **Audit trails** capturing every design decision in `governance/audit-trail/`
 - **Business glossary** with 25 terms in `governance/business-glossary.json` (see below)
 - **PII:** None detected. All data is public SEC filings — no personal or sensitive information.
+
+## Data Quality
+
+22 DQ rules across 4 specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`.
+
+### Latest Results
+
+| Spec | Rules | Passed | Failed | P0 Gate |
+|------|-------|--------|--------|---------|
+| base-entity-resolution | 5 | 4 | 1 | FAIL |
+| base-financial-facts-model | 7 | 7 | 0 | PASS |
+| base-xbrl-tag-normalization | 5 | 5 | 0 | PASS |
+| base-bitemporal-schema | 5 | — | — | (test-validated) |
+| **Total** | **22** | **16/17** | **1** | |
+
+### Active Failures
+
+| Rule | Priority | Spec | Description | Finding |
+|------|----------|------|-------------|---------|
+| BASE-ER-002 | P0 | base-entity-resolution | No duplicate CIKs in approved mappings | 3 duplicate CIKs found |
+
+### Rule Lifecycle
+
+```
+PROPOSED → APPROVED → ACTIVE
+```
+
+Rules follow a lifecycle managed by `python -m src.infra.dq_runner`:
+
+```bash
+# View all rule statuses
+python -m src.infra.dq_runner status
+
+# Execute rules against real Iceberg data
+python -m src.infra.dq_runner run
+
+# View latest results
+python -m src.infra.dq_runner results
+
+# Generate scorecards from real execution
+python -m src.infra.dq_runner scorecard --spec base-entity-resolution
+
+# Approve proposed rules
+python -m src.infra.dq_runner approve RULE-ID
+
+# Acknowledge failures with reason
+python -m src.infra.dq_runner acknowledge --spec NAME --run RUN_ID --reason "..."
+```
+
+P0 failures **block** spec completion. P1 failures **warn**. P2/P3 are **informational**.
+
+Detailed scorecards per spec: [`governance/dq-scorecards/`](governance/dq-scorecards/)
 
 ## Business Glossary
 
@@ -546,8 +605,14 @@ erDiagram
 # Install
 uv sync
 
-# Run tests (175 tests)
+# Run tests (219 tests)
 uv run pytest
+
+# Data quality — execute rules against real Iceberg data
+uv run python -m src.infra.dq_runner status
+uv run python -m src.infra.dq_runner run
+uv run python -m src.infra.dq_runner results
+uv run python -m src.infra.dq_runner scorecard --spec base-entity-resolution
 
 # Run XBRL tag normalization
 uv run python -m src.base.xbrl_tag_normalization.cli normalize
@@ -586,12 +651,13 @@ governance/                     Governance artifacts
   data-dictionary.json          8 table schemas with field-level docs
   models/                       Data models (conceptual, logical, physical) with Mermaid diagrams
   lineage/                      OpenLineage events
-  dq-rules/                     Data quality rule definitions
-  dq-scorecards/                DQ validation results
+  dq-rules/                     Data quality rule definitions (22 rules, JSON + SQL)
+  dq-results/                   Timestamped DQ execution results
+  dq-scorecards/                DQ scorecards from real data execution
   audit-trail/                  Design decision logs
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (175 passing)
+tests/                          Tests organized by zone (219 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```

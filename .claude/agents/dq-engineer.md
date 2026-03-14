@@ -108,12 +108,27 @@ Log all DQ decisions to `governance/audit-trail/`. Include:
 - Test suite execution results summary
 - Timestamp and spec reference
 
+## DQ Execution
+
+After defining rules, execute them against real Iceberg data:
+
+1. **Define rules** in `governance/dq-rules/{spec}.json` with SQL, threshold, and `"status": "proposed"`
+2. **Execute rules** via `python -m src.infra.dq_runner run --spec {spec}` — runs all approved/active SQL rules against real Iceberg tables
+3. **Generate scorecards** via `python -m src.infra.dq_runner scorecard --spec {spec}` — overwrites scorecard with real execution results
+4. **Review results** — P0 failures block the pipeline, P1 warn, P2/P3 informational
+
+Rule lifecycle: `PROPOSED → APPROVED → ACTIVE` (ACTIVE set automatically on first successful execution)
+
+When `REQUIRE_HUMAN_APPROVAL = False`, proposed rules auto-advance to approved.
+
 ## Key Paths
 
 | Path | Purpose |
 |------|---------|
 | `docs/specs/` | Read — understand what was built and what needs rules |
 | `tests/` | Write — DQ rule test files, organized by zone |
+| `governance/dq-rules/` | Write — rule definitions (JSON with SQL + thresholds) |
+| `governance/dq-results/` | Read — timestamped execution results |
 | `governance/dq-scorecards/` | Write — per-table scorecards |
 | `governance/audit-trail/` | Write — decision logs |
 | `data/` | Read — validate against real data |

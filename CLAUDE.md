@@ -11,9 +11,13 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 
 ## Key Paths
 - Source code: `src/` (organized by zone: raw, base, consumable, ai_ready)
+- Infrastructure: `src/infra/` (cross-cutting: iceberg_setup, dq_runner, dq_scorecard)
 - Data: `data/` (gitignored, organized by zone)
 - Governance artifacts: `governance/`
 - Data models: `governance/models/` (conceptual, logical, physical)
+- DQ rules: `governance/dq-rules/` (JSON rule definitions with SQL + thresholds)
+- DQ results: `governance/dq-results/` (timestamped execution results)
+- DQ scorecards: `governance/dq-scorecards/` (markdown scorecards from real execution)
 - Business glossary: `governance/business-glossary.json`
 - Specs: `docs/specs/`
 - Tests: `tests/` (organized by zone)
@@ -86,6 +90,10 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 - When `governance/business-glossary.json` is modified, update the "Business Glossary" section of `README.md` (term counts, key terms tables)
 - Data models store governance metadata as **IDs only** (`BT-XXX`, `CDE-XXX`, PII flag) — never inline definitions. Authoritative sources: `governance/business-glossary.json` (terms), `governance/cde-catalog.json` (CDEs), `governance/policies/` (PII). Documentation (README) dereferences IDs into human-readable names.
 - All model levels include `Business Term`, `CDE`, `PII` columns: conceptual on entity tables, logical on attribute tables, physical on column tables
+- DQ rules follow a lifecycle: `PROPOSED → APPROVED → ACTIVE`. Rules must be executed against real Iceberg data via `python -m src.infra.dq_runner run`. P0 failures block spec completion.
+- DQ rule approval respects `REQUIRE_HUMAN_APPROVAL` — when False, proposed rules auto-advance to approved
+- DQ scorecards must be generated from real execution results (`python -m src.infra.dq_runner scorecard`), not test results
+- @governance-reviewer post-implementation check verifies: DQ rules exist, rules have been executed (results file exists), no P0 failures in latest results
 
 # Session Logging
 

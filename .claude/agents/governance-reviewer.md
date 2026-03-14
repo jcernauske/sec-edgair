@@ -69,8 +69,10 @@ If `REQUIRE_HUMAN_APPROVAL = False` in `src/config.py`, models may be AUTO-APPRO
 After implementation, verify every applicable item:
 
 - [ ] **Lineage:** OpenLineage events exist in `governance/lineage/` for every transformation in this spec
-- [ ] **DQ Rules:** Data quality rules exist in `tests/` for every new or modified table
-- [ ] **DQ Scorecard:** Scorecard produced showing pass/fail rates per table
+- [ ] **DQ Rules:** Data quality rules exist in `governance/dq-rules/` for every new or modified table
+- [ ] **DQ Execution:** Rules have been executed against real Iceberg data (`governance/dq-results/` has results for this spec)
+- [ ] **DQ P0 Gate:** No P0 failures in latest execution results (check `p0_passed` in results JSON)
+- [ ] **DQ Scorecard:** Scorecard produced from real execution results (not test-based) in `governance/dq-scorecards/`
 - [ ] **CDE Tags:** New or modified fields are tagged in `governance/cde-catalog.json`
 - [ ] **Data Dictionary:** New or modified fields have entries in `governance/data-dictionary.json`
 - [ ] **Data Contracts:** Consumable zone tables have data contracts

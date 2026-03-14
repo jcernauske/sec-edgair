@@ -9,7 +9,10 @@
       "description": "No facts with filed_date in the future",
       "implementation": "validate_no_future_filed_dates(facts)",
       "threshold": "100% — zero violations",
-      "rationale": "Future filed_dates indicate data corruption or incorrect date parsing — SEC filings are always historical"
+      "rationale": "Future filed_dates indicate data corruption or incorrect date parsing — SEC filings are always historical",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-BT-002",
@@ -18,7 +21,10 @@
       "description": "start_date < end_date for all period facts",
       "implementation": "validate_start_before_end(facts)",
       "threshold": "100% — zero violations",
-      "rationale": "A period where start >= end is logically impossible — indicates date parsing or mapping error"
+      "rationale": "A period where start >= end is logically impossible — indicates date parsing or mapping error",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-BT-003",
@@ -27,7 +33,10 @@
       "description": "Superseded facts have filed_date <= superseding fact's filed_date",
       "implementation": "validate_supersession_order(facts)",
       "threshold": "100% — zero violations",
-      "rationale": "Supersession is defined by filing order — if a 'superseded' fact was filed AFTER its superseder, the supersession logic is broken"
+      "rationale": "Supersession is defined by filing order — if a 'superseded' fact was filed AFTER its superseder, the supersession logic is broken",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-BT-004",
@@ -36,7 +45,10 @@
       "description": "filed_date >= end_date (filings come after period ends)",
       "implementation": "validate_filed_after_period(facts)",
       "threshold": "99% — allows edge cases (NT filings, preliminary filings)",
-      "rationale": "Filings should be submitted after the period they cover. Some edge cases exist (NT filings, pre-release), so 99% threshold avoids false failures while catching systemic issues"
+      "rationale": "Filings should be submitted after the period they cover. Some edge cases exist (NT filings, pre-release), so 99% threshold avoids false failures while catching systemic issues",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-BT-005",
@@ -45,7 +57,10 @@
       "description": "Every superseded_by accession number exists in facts",
       "implementation": "validate_superseded_by_exists(facts)",
       "threshold": "100% — zero violations",
-      "rationale": "A superseded_by reference to a non-existent accession indicates orphaned supersession — the superseding filing is missing from the dataset"
+      "rationale": "A superseded_by reference to a non-existent accession indicates orphaned supersession — the superseding filing is missing from the dataset",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }

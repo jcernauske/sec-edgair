@@ -9,7 +9,10 @@
       "description": "Every Tier 1 concept has an approved mapping with valid CDE",
       "sql": "SELECT COUNT(*) FROM base.concept_mappings WHERE tier = 1 AND (status != 'approved' OR cde_id IS NULL)",
       "threshold": "result = 0",
-      "rationale": "Exact-match concepts are curated and must all be approved with a CDE assignment"
+      "rationale": "Exact-match concepts are curated and must all be approved with a CDE assignment",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-TN-002",
@@ -18,7 +21,10 @@
       "description": "No concept maps to multiple CDEs",
       "sql": "SELECT concept, COUNT(DISTINCT cde_id) as cde_count FROM base.concept_mappings WHERE cde_id IS NOT NULL GROUP BY concept HAVING COUNT(DISTINCT cde_id) > 1",
       "threshold": "result_count = 0",
-      "rationale": "Each XBRL concept maps to exactly one canonical CDE"
+      "rationale": "Each XBRL concept maps to exactly one canonical CDE",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-TN-003",
@@ -27,7 +33,10 @@
       "description": "All confidence scores between 0.0 and 1.0 inclusive",
       "sql": "SELECT COUNT(*) FROM base.concept_mappings WHERE confidence < 0.0 OR confidence > 1.0",
       "threshold": "result = 0",
-      "rationale": "Confidence is a probability — must be in [0, 1]"
+      "rationale": "Confidence is a probability — must be in [0, 1]",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-TN-004",
@@ -36,7 +45,10 @@
       "description": "Mapped concepts (Tier 1+2) cover >= 25% of raw fact instances",
       "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN m.tier IN (1, 2) THEN 1 ELSE 0 END) / COUNT(*), 1) as coverage_pct FROM raw.xbrl_company_facts r LEFT JOIN base.concept_mappings m ON r.concept = m.concept WHERE r.taxonomy = 'us-gaap'",
       "threshold": "result >= 25.0",
-      "rationale": "25 canonical CDEs cover core financial statement line items. The long tail of 3,000+ XBRL concepts (deferred taxes, lease details, stock compensation, etc.) are valid but not canonical CDE material at the Base zone. Actual coverage: 30.0% (163,899 of 545,421 facts). Coverage expands in Consumable zone."
+      "rationale": "25 canonical CDEs cover core financial statement line items. The long tail of 3,000+ XBRL concepts (deferred taxes, lease details, stock compensation, etc.) are valid but not canonical CDE material at the Base zone. Actual coverage: 30.0% (163,899 of 545,421 facts). Coverage expands in Consumable zone.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     },
     {
       "rule_id": "BASE-TN-005",
@@ -45,7 +57,10 @@
       "description": "Approved mappings have valid cde_id referencing CDE catalog",
       "sql": "SELECT COUNT(*) FROM base.concept_mappings WHERE status = 'approved' AND cde_id IS NULL",
       "threshold": "result = 0",
-      "rationale": "Every approved mapping must point to a real CDE"
+      "rationale": "Every approved mapping must point to a real CDE",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
     }
   ]
 }
