@@ -48,3 +48,4 @@ governance/entity-resolution/
 
 # DuckDB catalog database (runtime)
 data/catalog/
+data/catalog.db
