@@ -1,0 +1,102 @@
+{
+  "spec": "raw-ingest-xbrl-company-facts",
+  "tables": ["raw.xbrl_company_facts"],
+  "rules": [
+    {
+      "rule_id": "RAW-CF-001",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 20 expected CIKs are present in the raw table",
+      "sql": "SELECT 20 - COUNT(DISTINCT cik) FROM raw.xbrl_company_facts",
+      "threshold": "result = 0",
+      "rationale": "The pipeline ingests 20 specific companies. If any CIK is missing, a fetch failed silently.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-002",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No null values in required fields",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE cik IS NULL OR concept IS NULL OR unit IS NULL OR end_date IS NULL OR val IS NULL OR accession_number IS NULL OR filed_date IS NULL",
+      "threshold": "result = 0",
+      "rationale": "These 7 fields define the fact grain and value — nulls indicate a parsing or flattening bug",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-003",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "CIK is a positive integer",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE cik <= 0",
+      "threshold": "result = 0",
+      "rationale": "SEC CIKs are positive integers. Zero or negative indicates data corruption.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-004",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "Accession numbers match SEC format (NNNNNNNNNN-NN-NNNNNN)",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE accession_number NOT SIMILAR TO '[0-9]{10}-[0-9]{2}-[0-9]{6}'",
+      "threshold": "result = 0",
+      "rationale": "SEC accession numbers follow a strict format. Non-matching values indicate a parsing error or corrupted source data.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-005",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "No facts with filed_date in the future",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE filed_date > CURRENT_DATE",
+      "threshold": "result = 0",
+      "rationale": "SEC filings are always historical. Future dates indicate data corruption or clock skew.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-006",
+      "category": "Validity",
+      "priority": "P1",
+      "description": "All val values are finite (no NaN or Inf)",
+      "sql": "SELECT COUNT(*) FROM raw.xbrl_company_facts WHERE isnan(val) OR isinf(val)",
+      "threshold": "result = 0",
+      "rationale": "NaN/Inf values break downstream calculations. Should be caught at ingest.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-007",
+      "category": "Volume",
+      "priority": "P1",
+      "description": "Each CIK has at least 100 facts",
+      "sql": "SELECT COUNT(*) FROM (SELECT cik, COUNT(*) as cnt FROM raw.xbrl_company_facts GROUP BY cik HAVING COUNT(*) < 100) sub",
+      "threshold": "result = 0",
+      "rationale": "Every public company has hundreds of XBRL facts. Fewer than 100 suggests a truncated or failed fetch.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "RAW-CF-008",
+      "category": "Freshness",
+      "priority": "P2",
+      "description": "Latest filed_date is within last 2 years",
+      "sql": "SELECT CASE WHEN MAX(filed_date) >= CURRENT_DATE - INTERVAL '2 years' THEN 0 ELSE 1 END FROM raw.xbrl_company_facts",
+      "threshold": "result = 0",
+      "rationale": "If the most recent filing is older than 2 years, the data source may be stale or the fetch is pulling outdated snapshots.",
+      "status": "active",
+      "proposed_by": "@dq-engineer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    }
+  ]
+}

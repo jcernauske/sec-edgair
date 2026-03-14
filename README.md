@@ -1,7 +1,7 @@
 # SEC EDGAIR
 
-![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)
-![DQ Rules](https://img.shields.io/badge/DQ%20rules-22%2F22%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-229%20passing-brightgreen)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-30%2F30%20passing-brightgreen)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
 ![Companies](https://img.shields.io/badge/companies-20-blue)
@@ -88,37 +88,40 @@ Every transformation produces governance artifacts automatically:
 - **31 CDEs** defined in `governance/cde-catalog.json` (6 entity/filing + 25 financial)
 - **8 Iceberg tables** documented in `governance/data-dictionary.json`
 - **OpenLineage** events in `governance/lineage/`
-- **22 DQ rules** with execution engine and scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
+- **30 DQ rules** with execution engine and scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
 - **Audit trails** capturing every design decision in `governance/audit-trail/`
 - **Business glossary** with 25 terms in `governance/business-glossary.json` (see below)
 - **PII:** None detected. All data is public SEC filings — no personal or sensitive information.
 
 ## Data Quality
 
-22 SQL-based DQ rules across 4 specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`. Rules are defined as data (JSON + SQL), not code — engine-swappable to Soda Core or Great Expectations.
+30 SQL-based DQ rules across 5 specs (raw + base), executed against real Iceberg tables via `python -m src.infra.dq_runner run`. Rules are defined as data (JSON + SQL), not code — engine-swappable to Soda Core or Great Expectations.
 
 ### Latest Results
 
 | Spec | Rules | Passed | Failed | P0 Gate |
 |------|-------|--------|--------|---------|
+| raw-ingest-xbrl-company-facts | 8 | 8 | 0 | PASS |
 | base-entity-resolution | 5 | 5 | 0 | PASS |
 | base-financial-facts-model | 7 | 7 | 0 | PASS |
 | base-xbrl-tag-normalization | 5 | 5 | 0 | PASS |
 | base-bitemporal-schema | 5 | 5 | 0 | PASS |
-| **Total** | **22** | **22/22** | **0** | |
+| **Total** | **30** | **30/30** | **0** | |
 
 ### Results by Data Quality Dimension
 
 | Dimension | Rules | Passing | What It Checks |
 |-----------|-------|---------|----------------|
-| Validity | 6 | 6/6 | Values within expected ranges/formats |
-| Completeness | 5 | 5/5 | Required fields populated, no orphans |
+| Validity | 10 | 10/10 | Values within expected ranges/formats (dates, CIKs, accession format, NaN) |
+| Completeness | 7 | 7/7 | Required fields populated, no orphans, all CIKs present |
 | Referential Integrity | 5 | 5/5 | Cross-table references resolve |
 | Uniqueness | 3 | 3/3 | No unintended duplicates |
 | Consistency | 2 | 2/2 | Cross-field relationships hold |
+| Volume | 1 | 1/1 | Each CIK has sufficient facts (smoke test) |
 | Coverage | 1 | 1/1 | Mapped concepts cover sufficient facts |
+| Freshness | 1 | 1/1 | Latest data within expected recency window |
 
-*All 22 rules are SQL-based and executed against real Iceberg data. Rules are defined as data (JSON), making the engine swappable.*
+*All 30 rules are SQL-based and executed against real Iceberg data. Rules are defined as data (JSON), making the engine swappable.*
 
 ### Rule Lifecycle
 

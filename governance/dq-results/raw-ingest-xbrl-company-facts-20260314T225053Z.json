@@ -1,0 +1,108 @@
+{
+  "run_id": "6d2ec99b",
+  "spec": "raw-ingest-xbrl-company-facts",
+  "executed_at": "2026-03-14T22:50:53.539354+00:00",
+  "rules_total": 8,
+  "rules_passed": 8,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "RAW-CF-001",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.520902+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-002",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 2,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.523047+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-003",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.523979+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-004",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 8,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.532215+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-005",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.532936+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-006",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.533802+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-007",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.535514+00:00"
+    },
+    {
+      "rule_id": "RAW-CF-008",
+      "spec": "raw-ingest-xbrl-company-facts",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-14T22:50:53.536772+00:00"
+    }
+  ]
+}
