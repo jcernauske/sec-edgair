@@ -29,7 +29,7 @@ This project takes that raw XBRL data and pipes it through a 4-zone pipeline (Ra
 Raw → Base → Consumable → AI-Ready
 ```
 
-Each zone is governed by AI agents that produce lineage, data quality rules, CDE mappings, and audit trails as a byproduct of the transformation work. Every spec follows a mandatory 8-agent pipeline ending with @staff-engineer review.
+Each zone is governed by AI agents that produce lineage, data quality rules, CDE mappings, and audit trails as a byproduct of the transformation work. Every spec follows a mandatory agent pipeline: @data-analyst (EDA) → @dq-rule-writer (rules from evidence) → @dq-engineer (execute + gate) → @staff-engineer (final review).
 
 ## What's Built
 
@@ -42,6 +42,7 @@ Each zone is governed by AI agents that produce lineage, data quality rules, CDE
 | `infra-fix-agent-definitions` | Complete | Post-validation remediation |
 | `infra-create-staff-engineer-agent` | Complete | Added @staff-engineer as the final quality gate in every spec pipeline |
 | `infra-setup-duckdb-iceberg` | Complete | DuckDB + Apache Iceberg local read/write with PyIceberg SqlCatalog (SQLite-backed). Shared catalog at `data/catalog/catalog.db`, zone-separated warehouses. Time-travel via PyIceberg scan (DuckDB's native iceberg_scan doesn't reliably support snapshots). |
+| `infra-dq-execution-framework` | Complete | DQ execution engine: 42 SQL rules across 8 dimensions, executed against real Iceberg tables. P0 gating, automatic triggers after every promote, `load_date` tracking on all tables, dedup guards on every write path. Rules are data (JSON+SQL), engine-swappable. |
 
 ### Phase 1: Raw Zone
 
@@ -656,7 +657,7 @@ erDiagram
 # Install
 uv sync
 
-# Run tests (219 tests)
+# Run tests (229 tests)
 uv run pytest
 
 # Data quality — execute rules against real Iceberg data
@@ -688,7 +689,7 @@ uv run python -m src.base.bitemporal.cli validate
 
 ```
 src/                            Source code organized by zone
-  infra/                        DuckDB + Iceberg utilities
+  infra/                        DuckDB + Iceberg utilities, DQ engine, scorecard generator
   raw/                          Raw zone ingestion + profiling
   base/                         Base zone normalization
     entity_resolution/           CIK → canonical company identity
@@ -702,13 +703,14 @@ governance/                     Governance artifacts
   data-dictionary.json          8 table schemas with field-level docs
   models/                       Data models (conceptual, logical, physical) with Mermaid diagrams
   lineage/                      OpenLineage events
-  dq-rules/                     Data quality rule definitions (22 rules, JSON + SQL)
+  eda/                          EDA reports from @data-analyst
+  dq-rules/                     Data quality rule definitions (42 rules, JSON + SQL)
   dq-results/                   Timestamped DQ execution results
   dq-scorecards/                DQ scorecards from real data execution
   audit-trail/                  Design decision logs
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (219 passing)
+tests/                          Tests organized by zone (229 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```
