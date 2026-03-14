@@ -150,7 +150,7 @@ Full glossary: [`governance/business-glossary.json`](governance/business-glossar
 
 ## Data Models
 
-Full model documentation (conceptual, logical, physical) lives in [`governance/models/`](governance/models/).
+Full model documentation (conceptual, logical, physical) lives in [`governance/models/`](governance/models/). All models cross-reference the [business glossary](governance/business-glossary.json) — entities marked with **†** have a matching glossary term.
 
 ### Conceptual: Entity Resolution
 
@@ -161,6 +161,13 @@ erDiagram
     HUMAN_REVIEWER ||--o{ RESOLUTION_DECISION : "approves or rejects"
 ```
 
+| Entity | Glossary Ref |
+|--------|-------------|
+| RAW_ENTITY **†** | BT-003: Legal Entity Name |
+| CANONICAL_COMPANY **†** | BT-005: Canonical Company Identity |
+| RESOLUTION_DECISION **†** | BT-008: Entity Resolution |
+| HUMAN_REVIEWER **†** | BT-016: Human Approval Gate |
+
 ### Conceptual: XBRL Tag Normalization
 
 ```mermaid
@@ -170,6 +177,14 @@ erDiagram
     CANONICAL_CDE ||--|{ FINANCIAL_STATEMENT : "belongs to"
     HUMAN_REVIEWER ||--o{ CLASSIFICATION_DECISION : "approves or rejects"
 ```
+
+| Entity | Glossary Ref |
+|--------|-------------|
+| XBRL_CONCEPT **†** | BT-009: XBRL Concept |
+| CANONICAL_CDE **†** | BT-013: Canonical CDE |
+| FINANCIAL_STATEMENT **†** | BT-021: Financial Statement |
+| CLASSIFICATION_DECISION **†** | BT-011: Tag Normalization |
+| HUMAN_REVIEWER **†** | BT-016: Human Approval Gate |
 
 ### Conceptual: Financial Facts Model
 
@@ -182,6 +197,15 @@ erDiagram
     FISCAL_PERIOD ||--o{ FINANCIAL_FACT : "contains"
     SEC_FILING ||--o{ FINANCIAL_FACT : "source of"
 ```
+
+| Entity | Glossary Ref |
+|--------|-------------|
+| COMPANY **†** | BT-005: Canonical Company Identity |
+| FINANCIAL_FACT **†** | BT-017: Financial Fact |
+| FINANCIAL_CONCEPT **†** | BT-009: XBRL Concept |
+| FISCAL_PERIOD **†** | BT-018: Fiscal Period |
+| SEC_FILING **†** | BT-004: SEC Filing |
+| AMENDMENT **†** | BT-007: Amendment |
 
 ### Logical: Entity Resolution
 
@@ -215,6 +239,8 @@ erDiagram
     }
     EntityMapping ||--o{ EntityResolutionAudit : "has audit trail"
 ```
+
+> Key glossary refs: `cik` → BT-001: CIK, `canonical_name` → BT-005: Canonical Company Identity, `raw_entity_name` → BT-003: Legal Entity Name, `sic_code` → BT-025: SIC Code, `confidence` → BT-010: Confidence Score. Full attribute-level mappings in [governance/models/](governance/models/).
 
 ### Logical: XBRL Tag Normalization
 
@@ -254,6 +280,8 @@ erDiagram
     ConceptMapping }o--o| CanonicalCDE : "maps to"
     ConceptMapping ||--o{ TagNormalizationAudit : "has audit trail"
 ```
+
+> Key glossary refs: `concept` → BT-009: XBRL Concept, `canonical_cde`/`cde_id` → BT-013: Canonical CDE, `financial_statement` → BT-021: Financial Statement, `tier` → BT-015: Tier, `confidence` → BT-010: Confidence Score. Full attribute-level mappings in [governance/models/](governance/models/).
 
 ### Logical: Financial Facts Model
 
@@ -326,6 +354,8 @@ erDiagram
     FinancialFact ||--o{ AmendmentTracking : "superseded by"
 ```
 
+> Key glossary refs: `cik` → BT-001: CIK, `concept` → BT-009: XBRL Concept, `accession_number` → BT-002: Accession Number, `filed_date` → BT-006: Filing Date, `is_amendment` → BT-007: Amendment, `is_superseded`/`superseded_by` → BT-012: Supersession, `fiscal_year`/`fiscal_period` → BT-018: Fiscal Period, `taxonomy` → BT-020: XBRL Taxonomy. Full attribute-level mappings in [governance/models/](governance/models/).
+
 ### Physical: Entity Resolution
 
 ```mermaid
@@ -359,6 +389,8 @@ erDiagram
     base_entity_mappings ||--o{ base_entity_resolution_audit : "tracked by"
 ```
 
+> Column-level business terms and definitions in [base-entity-resolution-physical.md](governance/models/base-entity-resolution-physical.md).
+
 ### Physical: XBRL Tag Normalization
 
 ```mermaid
@@ -389,6 +421,8 @@ erDiagram
     }
     base_concept_mappings ||--o{ base_tag_normalization_audit : "tracked by"
 ```
+
+> Column-level business terms and definitions in [base-xbrl-tag-normalization-physical.md](governance/models/base-xbrl-tag-normalization-physical.md).
 
 ### Physical: Financial Facts Model
 
@@ -472,6 +506,8 @@ erDiagram
     base_financial_facts }o--|| base_fiscal_calendar : "cik + fiscal_year + fiscal_period"
     base_financial_facts ||--o{ base_amendment_tracking : "supersession pairs"
 ```
+
+> Column-level business terms and definitions in [base-financial-facts-model-physical.md](governance/models/base-financial-facts-model-physical.md).
 
 ## Quick Start
 
