@@ -1,0 +1,48 @@
+{
+  "spec": "base-financial-facts-model",
+  "date": "2026-03-14",
+  "decisions": [
+    {
+      "decision": "Grain includes accession_number — preserves all filing versions",
+      "agent": "@financial-facts-model",
+      "rationale": "Amendments produce separate rows with their own accession_number. Deduplication to 'latest value' is a consumable zone concern. Base zone preserves the full filing history for auditability.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Denormalize entity + concept fields into financial_facts",
+      "agent": "@financial-facts-model",
+      "rationale": "Avoids JOINs for common queries. ~547K rows x ~28 cols is small enough that denormalization has negligible storage cost. Every fact carries its entity name, ticker, CDE mapping, and tier without needing to join back to dimension tables.",
+      "confidence": "high"
+    },
+    {
+      "decision": "No staging/approval gate — join is deterministic",
+      "agent": "@financial-facts-model",
+      "rationale": "Unlike entity resolution and tag normalization which require human judgment, the financial facts join is purely mechanical: CIK → entity_mappings, concept → concept_mappings. Both upstream tables are already approved. No human decision needed.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Fiscal calendar built from observed data, not computed from fiscal_year_end",
+      "agent": "@financial-facts-model",
+      "rationale": "Don't guess period boundaries — extract actual (start_date, end_date) ranges from filings. Companies with fiscal year changes, short periods, or transition quarters are captured correctly because we observe what was actually filed.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Keep all taxonomies (us-gaap, dei, invest, srt), not just us-gaap",
+      "agent": "@financial-facts-model",
+      "rationale": "dei/invest/srt facts are small (~2K) but may be useful downstream for entity metadata enrichment or investment-specific metrics. Filtering is trivial; excluding data is irreversible.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Supersession by filed_date, not form type",
+      "agent": "@financial-facts-model",
+      "rationale": "A 10-K/A supersedes a 10-K, but also a later 10-K can report the same fact with a different value. filed_date is the universal authority for 'which filing is newer'. Form type is used only for is_amendment flag.",
+      "confidence": "high"
+    },
+    {
+      "decision": "Unmapped concepts get tier=3, financial_statement=other, category=uncategorized",
+      "agent": "@financial-facts-model",
+      "rationale": "Facts for concepts not in concept_mappings still need category/tier values for downstream filtering. Using explicit defaults makes these queryable without NULL handling. Consistent with tag normalization's tier 3 treatment.",
+      "confidence": "high"
+    }
+  ]
+}

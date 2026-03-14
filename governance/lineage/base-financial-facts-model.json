@@ -1,0 +1,192 @@
+[
+  {
+    "eventType": "COMPLETE",
+    "eventTime": "2026-03-14T15:00:00Z",
+    "run": {
+      "runId": "base-ffm-001",
+      "facets": {
+        "secEdgair_specReference": {
+          "specFile": "docs/specs/base-financial-facts-model.md",
+          "specVersion": "1.0"
+        },
+        "secEdgair_agentAttribution": {
+          "agentId": "@financial-facts-model",
+          "reasoning": "Join raw XBRL facts with entity_mappings and concept_mappings to produce dimensional financial_facts table, fiscal_calendar dimension, and amendment_tracking audit trail"
+        }
+      }
+    },
+    "job": {
+      "namespace": "sec-edgair",
+      "name": "base.financial_facts_model",
+      "facets": {
+        "documentation": {
+          "description": "Reads raw.xbrl_company_facts, base.entity_mappings, and base.concept_mappings. Joins on CIK (entity) and concept name (concept mappings). Computes derived fields: calendar_year, calendar_quarter, is_amendment, is_superseded, superseded_by, fact_id. Writes to base.financial_facts, base.fiscal_calendar, and base.amendment_tracking."
+        },
+        "sourceCode": {
+          "sourceCodeLocation": "src/base/financial_facts_model/model.py"
+        }
+      }
+    },
+    "inputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "raw.xbrl_company_facts",
+        "facets": {
+          "description": "Raw XBRL fact observations from SEC EDGAR",
+          "schema": {
+            "fields": [
+              {"name": "cik", "type": "INTEGER"},
+              {"name": "concept", "type": "STRING"},
+              {"name": "unit", "type": "STRING"},
+              {"name": "val", "type": "DOUBLE"},
+              {"name": "start_date", "type": "DATE"},
+              {"name": "end_date", "type": "DATE"},
+              {"name": "accession_number", "type": "STRING"},
+              {"name": "form", "type": "STRING"},
+              {"name": "filed_date", "type": "DATE"},
+              {"name": "fiscal_year", "type": "INTEGER"},
+              {"name": "fiscal_period", "type": "STRING"},
+              {"name": "taxonomy", "type": "STRING"}
+            ]
+          }
+        }
+      },
+      {
+        "namespace": "sec-edgair",
+        "name": "base.entity_mappings",
+        "facets": {
+          "description": "Canonical entity identities with CIK, ticker, fiscal_year_end",
+          "schema": {
+            "fields": [
+              {"name": "mapping_id", "type": "STRING"},
+              {"name": "cik", "type": "INTEGER"},
+              {"name": "canonical_name", "type": "STRING"},
+              {"name": "ticker", "type": "STRING"},
+              {"name": "fiscal_year_end", "type": "STRING"}
+            ]
+          }
+        }
+      },
+      {
+        "namespace": "sec-edgair",
+        "name": "base.concept_mappings",
+        "facets": {
+          "description": "XBRL concept to CDE mappings with tier classification",
+          "schema": {
+            "fields": [
+              {"name": "concept", "type": "STRING"},
+              {"name": "cde_id", "type": "STRING"},
+              {"name": "canonical_cde", "type": "STRING"},
+              {"name": "financial_statement", "type": "STRING"},
+              {"name": "category", "type": "STRING"},
+              {"name": "tier", "type": "INTEGER"}
+            ]
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "namespace": "sec-edgair",
+        "name": "base.financial_facts",
+        "facets": {
+          "schema": {
+            "fields": [
+              {"name": "fact_id", "type": "STRING"},
+              {"name": "entity_id", "type": "STRING"},
+              {"name": "cik", "type": "INTEGER"},
+              {"name": "canonical_name", "type": "STRING"},
+              {"name": "ticker", "type": "STRING"},
+              {"name": "concept", "type": "STRING"},
+              {"name": "cde_id", "type": "STRING"},
+              {"name": "canonical_cde", "type": "STRING"},
+              {"name": "financial_statement", "type": "STRING"},
+              {"name": "category", "type": "STRING"},
+              {"name": "tier", "type": "INTEGER"},
+              {"name": "taxonomy", "type": "STRING"},
+              {"name": "unit", "type": "STRING"},
+              {"name": "val", "type": "DOUBLE"},
+              {"name": "start_date", "type": "DATE"},
+              {"name": "end_date", "type": "DATE"},
+              {"name": "fiscal_year", "type": "INTEGER"},
+              {"name": "fiscal_period", "type": "STRING"},
+              {"name": "fiscal_year_end", "type": "STRING"},
+              {"name": "calendar_year", "type": "INTEGER"},
+              {"name": "calendar_quarter", "type": "INTEGER"},
+              {"name": "accession_number", "type": "STRING"},
+              {"name": "form", "type": "STRING"},
+              {"name": "filed_date", "type": "DATE"},
+              {"name": "is_amendment", "type": "BOOLEAN"},
+              {"name": "is_superseded", "type": "BOOLEAN"},
+              {"name": "superseded_by", "type": "STRING"},
+              {"name": "promoted_at", "type": "TIMESTAMPTZ"}
+            ]
+          },
+          "columnLineage": {
+            "fields": {
+              "entity_id": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.entity_mappings", "field": "mapping_id"}],
+                "transformationType": "DIRECT"
+              },
+              "canonical_name": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.entity_mappings", "field": "canonical_name"}],
+                "transformationType": "DIRECT"
+              },
+              "cde_id": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.concept_mappings", "field": "cde_id"}],
+                "transformationType": "DIRECT"
+              },
+              "fact_id": {
+                "inputFields": [],
+                "transformationDescription": "SHA-256 hash of (cik, concept, unit, start_date, end_date, accession_number), truncated to 16 chars",
+                "transformationType": "DERIVED"
+              },
+              "calendar_year": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "end_date"}],
+                "transformationDescription": "Year component of end_date",
+                "transformationType": "DERIVED"
+              },
+              "calendar_quarter": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "end_date"}],
+                "transformationDescription": "Quarter (1-4) derived from month of end_date",
+                "transformationType": "DERIVED"
+              },
+              "is_amendment": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "form"}],
+                "transformationDescription": "True if form ends with '/A'",
+                "transformationType": "DERIVED"
+              },
+              "is_superseded": {
+                "inputFields": [],
+                "transformationDescription": "True if a later filing exists for the same (cik, concept, unit, start_date, end_date) grain",
+                "transformationType": "DERIVED"
+              }
+            }
+          },
+          "storage": {
+            "format": "Apache Iceberg",
+            "catalog_type": "SqlCatalog (SQLite)",
+            "warehouse_path": "data/base/iceberg_warehouse",
+            "catalog_path": "data/catalog/catalog.db",
+            "namespace": "base"
+          }
+        }
+      },
+      {
+        "namespace": "sec-edgair",
+        "name": "base.fiscal_calendar",
+        "facets": {
+          "description": "Fiscal calendar dimension built from observed periods in raw facts, enriched with entity fiscal_year_end"
+        }
+      },
+      {
+        "namespace": "sec-edgair",
+        "name": "base.amendment_tracking",
+        "facets": {
+          "description": "Audit trail of supersession pairs: original filing vs. amendment with value changes"
+        }
+      }
+    ],
+    "producer": "sec_edgair/src/base/financial_facts_model/model.py"
+  }
+]

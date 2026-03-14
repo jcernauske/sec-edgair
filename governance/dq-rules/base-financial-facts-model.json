@@ -1,0 +1,69 @@
+{
+  "spec": "base-financial-facts-model",
+  "tables": ["base.financial_facts", "base.fiscal_calendar", "base.amendment_tracking"],
+  "rules": [
+    {
+      "rule_id": "BASE-FM-001",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every fact has a valid entity_id (joins to entity_mappings)",
+      "sql": "SELECT COUNT(*) FROM base.financial_facts WHERE entity_id IS NULL OR entity_id = ''",
+      "threshold": "result = 0",
+      "rationale": "Facts without entity resolution are orphans — every fact must trace to a canonical entity"
+    },
+    {
+      "rule_id": "BASE-FM-002",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "fact_id is unique (no duplicate grain)",
+      "sql": "SELECT fact_id, COUNT(*) FROM base.financial_facts GROUP BY fact_id HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "fact_id is a deterministic hash of the grain (cik, concept, unit, start_date, end_date, accession_number) — duplicates indicate a join or hash bug"
+    },
+    {
+      "rule_id": "BASE-FM-003",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "is_superseded=True facts have non-null superseded_by",
+      "sql": "SELECT COUNT(*) FROM base.financial_facts WHERE is_superseded = true AND superseded_by IS NULL",
+      "threshold": "result = 0",
+      "rationale": "Superseded facts must point to the filing that superseded them for audit traceability"
+    },
+    {
+      "rule_id": "BASE-FM-004",
+      "category": "Completeness",
+      "priority": "P1",
+      "description": "Fiscal calendar covers all (entity, fiscal_year, fiscal_period) combinations in facts",
+      "sql": "SELECT COUNT(DISTINCT f.cik || '-' || f.fiscal_year || '-' || f.fiscal_period) - COUNT(DISTINCT c.cik || '-' || c.fiscal_year || '-' || c.fiscal_period) FROM base.financial_facts f LEFT JOIN base.fiscal_calendar c ON f.cik = c.cik AND f.fiscal_year = c.fiscal_year AND f.fiscal_period = c.fiscal_period",
+      "threshold": "result = 0",
+      "rationale": "Every (entity, year, period) in facts should have a corresponding fiscal calendar entry for temporal alignment"
+    },
+    {
+      "rule_id": "BASE-FM-005",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "calendar_quarter is 1-4",
+      "sql": "SELECT COUNT(*) FROM base.financial_facts WHERE calendar_quarter < 1 OR calendar_quarter > 4",
+      "threshold": "result = 0",
+      "rationale": "Calendar quarter must be a valid quarter number"
+    },
+    {
+      "rule_id": "BASE-FM-006",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Amendment tracking entries reference valid accession_numbers",
+      "sql": "SELECT COUNT(*) FROM base.amendment_tracking a WHERE NOT EXISTS (SELECT 1 FROM base.financial_facts f WHERE f.accession_number = a.original_accession) OR NOT EXISTS (SELECT 1 FROM base.financial_facts f WHERE f.accession_number = a.amendment_accession)",
+      "threshold": "result = 0",
+      "rationale": "Every amendment tracking entry must reference real filings in financial_facts"
+    },
+    {
+      "rule_id": "BASE-FM-007",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No orphan facts (every cik has entity_mapping)",
+      "sql": "SELECT COUNT(DISTINCT f.cik) FROM base.financial_facts f WHERE NOT EXISTS (SELECT 1 FROM base.entity_mappings e WHERE e.cik = f.cik)",
+      "threshold": "result = 0",
+      "rationale": "The model join filters out unknown CIKs, so any fact in the table must have a corresponding entity mapping"
+    }
+  ]
+}
