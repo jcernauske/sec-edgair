@@ -1,6 +1,6 @@
 # Verify DuckDB + Iceberg Local Read/Write
 
-## Status: 🟡 DRAFT
+## Status: 🟢 COMPLETE
 
 | Status | Meaning |
 |--------|---------|

@@ -1,0 +1,41 @@
+{
+  "eventType": "COMPLETE",
+  "eventTime": "2026-03-14T00:00:00Z",
+  "job": {
+    "namespace": "sec_edgair",
+    "name": "infra.verify_iceberg_setup"
+  },
+  "inputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "synthetic_test_data",
+      "facets": {
+        "description": "Manually defined synthetic financial data for infrastructure verification. 3 batches: 3 original filings, 2 amendments, 1 new filing."
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "data/base/iceberg_warehouse/test_db/financial_facts_test",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "company_id", "type": "STRING"},
+            {"name": "metric_name", "type": "STRING"},
+            {"name": "value", "type": "DOUBLE"},
+            {"name": "reporting_period", "type": "STRING"},
+            {"name": "filed_date", "type": "DATE"}
+          ]
+        },
+        "storage": {
+          "format": "Apache Iceberg",
+          "catalog_type": "SqlCatalog (SQLite)",
+          "warehouse_path": "data/base/iceberg_warehouse",
+          "catalog_path": "data/catalog/catalog.db"
+        }
+      }
+    }
+  ],
+  "producer": "sec_edgair/infra/iceberg_setup.py"
+}

@@ -1,0 +1,45 @@
+{
+  "spec": "infra-setup-duckdb-iceberg",
+  "date": "2026-03-14",
+  "decisions": [
+    {
+      "decision": "Use PyIceberg SqlCatalog with SQLite backend",
+      "agent": "@temporal-modeler",
+      "rationale": "Zero infrastructure requirement. SQLite is file-based, works everywhere, survives process restarts. No catalog server needed.",
+      "confidence": "high",
+      "alternatives_considered": ["REST catalog (needs a server)", "Hive Metastore (too heavy)", "In-memory (doesn't persist)"]
+    },
+    {
+      "decision": "Use PyIceberg for writes, DuckDB for analytical reads",
+      "agent": "@temporal-modeler",
+      "rationale": "DuckDB Iceberg extension is read-only as of v1.5.0. PyIceberg is the standard write path for the ecosystem.",
+      "confidence": "high",
+      "alternatives_considered": ["DuckDB Iceberg extension alone (can't write)", "Spark (too heavy, violates zero-infra)"]
+    },
+    {
+      "decision": "Arrow bridge pattern for time travel reads (PyIceberg scan → Arrow → DuckDB)",
+      "agent": "@temporal-modeler",
+      "rationale": "DuckDB's native iceberg_scan with version parameter silently ignores the snapshot version and returns the latest state. Tested on DuckDB 1.5.0 + PyIceberg 0.11.1. PyIceberg scan correctly filters by snapshot_id, and the Arrow bridge to DuckDB works flawlessly.",
+      "confidence": "high",
+      "discovery": "iceberg_scan(path, version := snap_id) does NOT provide snapshot isolation. This is a critical finding — the project MUST use PyIceberg scan for all time travel queries.",
+      "alternatives_considered": ["DuckDB iceberg_scan with version parameter (tested, does not work for time travel)"]
+    },
+    {
+      "decision": "DuckDB iceberg_scan retained for current-state reads only",
+      "agent": "@temporal-modeler",
+      "rationale": "iceberg_scan works correctly for reading the latest state of an Iceberg table. Useful as an alternative read path when time travel is not needed.",
+      "confidence": "high"
+    }
+  ],
+  "versions_tested": {
+    "duckdb": "1.5.0",
+    "pyiceberg": "0.11.1",
+    "pyarrow": "23.0.1",
+    "python": "3.14.3"
+  },
+  "known_limitations": [
+    "DuckDB iceberg_scan does not support snapshot-based time travel (version parameter is unreliable)",
+    "PyIceberg SQLite catalog is single-user — no concurrent write support",
+    "DuckDB Iceberg extension is read-only — all writes must go through PyIceberg"
+  ]
+}

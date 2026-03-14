@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "duckdb>=1.0",
     "pyarrow>=17.0",
-    "pyiceberg>=0.7",
+    "pyiceberg[sql-sqlite]>=0.7",
 ]
 
 [dependency-groups]
@@ -22,3 +22,4 @@ line-length = 120
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
