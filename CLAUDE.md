@@ -26,6 +26,7 @@ Every spec follows this mandatory pipeline:
 5. @cde-tagger — CDE mapping update
 6. @doc-generator — Dictionary + contracts update
 7. @governance-reviewer — Post-implementation completeness check
+8. @staff-engineer — Final quality review (LAST gate before completion)
 
 ## Rules
 - Specs are the source of truth — if it's not in the spec, it doesn't get built
@@ -33,6 +34,9 @@ Every spec follows this mandatory pipeline:
 - DQ rules validate real data, never placeholders
 - Every agent logs its reasoning, not just outputs
 - No changes to data schemas without a spec
+- @staff-engineer reviews last — no spec is marked complete until he approves
+- @staff-engineer can send work back to any agent for fixes
+- Test theater (tests that don't validate real behavior) is a rejection
 
 # Session Logging
 
