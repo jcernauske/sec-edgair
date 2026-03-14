@@ -84,6 +84,7 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 - Test theater (tests that don't validate real behavior) is a rejection
 - When model files in `governance/models/` are created or modified, update the corresponding Mermaid diagrams in the "Data Models" section of `README.md` (all three levels: conceptual, logical, AND physical — full details live in governance/models/)
 - When `governance/business-glossary.json` is modified, update the "Business Glossary" section of `README.md` (term counts, key terms tables)
+- Data models must cross-reference business glossary terms: conceptual entities get `Glossary Ref` column + `†` marker, logical attributes get `Glossary Ref` column, physical columns get `Business Term` + `Term Def` columns
 
 # Session Logging
 

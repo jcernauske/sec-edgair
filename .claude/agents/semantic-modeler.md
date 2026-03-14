@@ -96,6 +96,25 @@ erDiagram
 - Physical diagrams show all columns with DuckDB types, descriptions, AND logical attribute mappings
 - Keep diagrams readable — if a model has more than ~8 entities, split into focused sub-diagrams with a note explaining how they connect
 
+### Business Glossary Cross-References
+
+Every model level must cross-reference business glossary terms from `governance/business-glossary.json`. This makes the glossary a living part of the data models, not a separate document.
+
+**Convention by level:**
+
+| Level | What to add | Format |
+|-------|-------------|--------|
+| Conceptual | `Glossary Ref` column on Entities table | `BT-XXX: Term Name` — mark entity name with `†` suffix |
+| Logical | `Glossary Ref` column on each attribute table | `BT-XXX` — use `—` for unmapped attributes |
+| Physical | `Business Term` + `Term Def` columns on each column table | Full term name + abbreviated definition (~10-15 words) |
+
+After each Mermaid diagram, add this legend line:
+```
+> **†** Entities marked with † have a matching business glossary term
+```
+
+Do NOT modify entity/column names in Mermaid diagrams — the glossary cross-references live in the markdown tables only.
+
 ## The 3-Stage Modeling Progression
 
 ### Stage 1: Conceptual Model
@@ -164,8 +183,8 @@ Output format:
 - **Primary Key:** [key field(s)]
 - **Description:** [from conceptual model]
 
-| Attribute | Domain | Nullable | Description | CDE Reference |
-|-----------|--------|----------|-------------|---------------|
+| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+|-----------|--------|----------|-------------|---------------|--------------|
 
 ### Relationships
 | Parent Entity | Child Entity | FK Field | Cardinality | On Delete |
@@ -211,8 +230,8 @@ Output format:
 - **Partitioning:** [strategy or none]
 - **Estimated Row Count:** N
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping |
-|--------|------------|----------|-------------|----------------|
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
+|--------|------------|----------|-------------|----------------|---------------|----------|
 
 ### DDL
 \```sql

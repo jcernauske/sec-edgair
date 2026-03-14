@@ -44,36 +44,36 @@ erDiagram
 - **Partitioning:** None
 - **Row Count:** 3,285
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping |
-|--------|------------|----------|-------------|----------------|
-| mapping_id | STRING | No | Stable ID (TN-0001...) | Generated sequentially |
-| concept | STRING | No | Raw us-gaap XBRL concept name | raw.xbrl_company_facts distinct concepts (us-gaap taxonomy only) |
-| canonical_cde | STRING | Yes | Mapped CDE name (null for Tier 3) | CDE_DEFINITIONS lookup via tier matching |
-| cde_id | STRING | Yes | CDE catalog reference CDE-007..CDE-031 (null for Tier 3) | From EXACT_MAPPINGS, PREFIX_RULES, or PATTERN_RULES |
-| financial_statement | STRING | No | balance_sheet, income_statement, cash_flow, per_share, other | From matching rule or HEURISTIC_CATEGORIES |
-| category | STRING | No | Subcategory (revenue, assets, eps, tax...) | From matching rule or HEURISTIC_CATEGORIES |
-| tier | INTEGER | No | 1 (exact), 2 (prefix/pattern), 3 (unmapped) | Determined by matching engine |
-| confidence | DOUBLE | No | 1.0 / 0.7 / 0.6 / 0.0 by tier | Fixed per tier level |
-| mapping_method | STRING | No | exact_match, prefix_match, pattern_match, unmapped | From matching engine |
-| status | STRING | No | "approved" (Tier 1+2), "unmapped" (Tier 3) | Set by approval gate |
-| mapped_by | STRING | No | "@tag-normalizer" | Fixed |
-| mapped_at | TIMESTAMPTZ | No | When mapping was proposed | Generated at normalize time |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
+|--------|------------|----------|-------------|----------------|---------------|----------|
+| mapping_id | STRING | No | Stable ID (TN-0001...) | Generated sequentially | — | — |
+| concept | STRING | No | Raw us-gaap XBRL concept name | raw.xbrl_company_facts distinct concepts (us-gaap taxonomy only) | XBRL Concept | A tagged financial metric from the XBRL taxonomy |
+| canonical_cde | STRING | Yes | Mapped CDE name (null for Tier 3) | CDE_DEFINITIONS lookup via tier matching | Canonical CDE | Standardized financial data element for cross-company comparison |
+| cde_id | STRING | Yes | CDE catalog reference CDE-007..CDE-031 (null for Tier 3) | From EXACT_MAPPINGS, PREFIX_RULES, or PATTERN_RULES | Canonical CDE | Standardized financial data element for cross-company comparison |
+| financial_statement | STRING | No | balance_sheet, income_statement, cash_flow, per_share, other | From matching rule or HEURISTIC_CATEGORIES | Financial Statement | A formal accounting report (balance sheet, income, cash flow) |
+| category | STRING | No | Subcategory (revenue, assets, eps, tax...) | From matching rule or HEURISTIC_CATEGORIES | — | — |
+| tier | INTEGER | No | 1 (exact), 2 (prefix/pattern), 3 (unmapped) | Determined by matching engine | Tier | Classification level indicating match quality (1=exact, 2=pattern, 3=unmapped) |
+| confidence | DOUBLE | No | 1.0 / 0.7 / 0.6 / 0.0 by tier | Fixed per tier level | Confidence Score | Numeric score expressing certainty of a mapping or classification |
+| mapping_method | STRING | No | exact_match, prefix_match, pattern_match, unmapped | From matching engine | — | — |
+| status | STRING | No | "approved" (Tier 1+2), "unmapped" (Tier 3) | Set by approval gate | — | — |
+| mapped_by | STRING | No | "@tag-normalizer" | Fixed | — | — |
+| mapped_at | TIMESTAMPTZ | No | When mapping was proposed | Generated at normalize time | — | — |
 
 #### base.tag_normalization_audit
 - **Grain:** One audit event per action on a concept mapping (append-only log)
 - **Partitioning:** None
 - **Row Count:** ~6,500 (2 events per mapping: proposed + approved/classified)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping |
-|--------|------------|----------|-------------|----------------|
-| audit_id | STRING | No | UUID primary key | Generated (uuid4) |
-| mapping_id | STRING | No | FK to concept_mappings | From proposal |
-| action | STRING | No | "proposed", "approved", "rejected", "classified_unmapped" | Pipeline stage |
-| actor | STRING | No | Who performed action | "@tag-normalizer", "human:jeff", "auto" |
-| reasoning | STRING | No | Why decision was made | Generated explanation with match details |
-| evidence | STRING | No | JSON string (fact_count, company_count) | Serialized from raw data analysis |
-| confidence_at_action | DOUBLE | No | Confidence at time of action | From proposal |
-| timestamp | TIMESTAMPTZ | No | When action occurred | Generated at action time |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def |
+|--------|------------|----------|-------------|----------------|---------------|----------|
+| audit_id | STRING | No | UUID primary key | Generated (uuid4) | — | — |
+| mapping_id | STRING | No | FK to concept_mappings | From proposal | — | — |
+| action | STRING | No | "proposed", "approved", "rejected", "classified_unmapped" | Pipeline stage | — | — |
+| actor | STRING | No | Who performed action | "@tag-normalizer", "human:jeff", "auto" | — | — |
+| reasoning | STRING | No | Why decision was made | Generated explanation with match details | — | — |
+| evidence | STRING | No | JSON string (fact_count, company_count) | Serialized from raw data analysis | — | — |
+| confidence_at_action | DOUBLE | No | Confidence at time of action | From proposal | Confidence Score | Numeric score expressing certainty of a mapping or classification |
+| timestamp | TIMESTAMPTZ | No | When action occurred | Generated at action time | — | — |
 
 ### Physical Design Decisions
 - **No partitioning** — 3,285 rows scans instantly.
