@@ -213,17 +213,17 @@ erDiagram
 erDiagram
     EntityMapping {
         identifier mapping_id PK
-        identifier cik
-        text canonical_name
-        text raw_entity_name
+        identifier cik "BT-001 Central Index Key"
+        text canonical_name "BT-005 Canonical Company Identity"
+        text raw_entity_name "BT-003 Legal Entity Name"
         text ticker
-        text sic_code
+        text sic_code "BT-025 SIC Code"
         text fiscal_year_end
-        number confidence
+        number confidence "BT-010 Confidence Score"
         text resolution_method
         text status
         text resolved_by
-        text approved_by
+        text approved_by "BT-016 Human Approval Gate"
         timestamp resolved_at
         timestamp approved_at
     }
@@ -234,13 +234,11 @@ erDiagram
         text actor
         text reasoning
         text evidence
-        number confidence_at_action
+        number confidence_at_action "BT-010 Confidence Score"
         timestamp timestamp
     }
     EntityMapping ||--o{ EntityResolutionAudit : "has audit trail"
 ```
-
-> Key glossary refs: `cik` → BT-001: CIK, `canonical_name` → BT-005: Canonical Company Identity, `raw_entity_name` → BT-003: Legal Entity Name, `sic_code` → BT-025: SIC Code, `confidence` → BT-010: Confidence Score. Full attribute-level mappings in [governance/models/](governance/models/).
 
 ### Logical: XBRL Tag Normalization
 
@@ -248,13 +246,13 @@ erDiagram
 erDiagram
     ConceptMapping {
         identifier mapping_id PK
-        text concept
-        text canonical_cde
-        identifier cde_id
-        text financial_statement
+        text concept "BT-009 XBRL Concept"
+        text canonical_cde "BT-013 Canonical CDE"
+        identifier cde_id "BT-013 Canonical CDE"
+        text financial_statement "BT-021 Financial Statement"
         text category
-        number tier
-        number confidence
+        number tier "BT-015 Tier"
+        number confidence "BT-010 Confidence Score"
         text mapping_method
         text status
         text mapped_by
@@ -267,11 +265,11 @@ erDiagram
         text actor
         text reasoning
         text evidence
-        number confidence_at_action
+        number confidence_at_action "BT-010 Confidence Score"
         timestamp timestamp
     }
     CanonicalCDE {
-        identifier cde_id PK
+        identifier cde_id PK "BT-013 Canonical CDE"
         text name
         text category
         text subcategory
@@ -281,55 +279,53 @@ erDiagram
     ConceptMapping ||--o{ TagNormalizationAudit : "has audit trail"
 ```
 
-> Key glossary refs: `concept` → BT-009: XBRL Concept, `canonical_cde`/`cde_id` → BT-013: Canonical CDE, `financial_statement` → BT-021: Financial Statement, `tier` → BT-015: Tier, `confidence` → BT-010: Confidence Score. Full attribute-level mappings in [governance/models/](governance/models/).
-
 ### Logical: Financial Facts Model
 
 ```mermaid
 erDiagram
     Entity {
         identifier entity_id PK
-        identifier cik
-        text canonical_name
+        identifier cik "BT-001 Central Index Key"
+        text canonical_name "BT-005 Canonical Company Identity"
         text ticker
-        text sic_code
+        text sic_code "BT-025 SIC Code"
         text fiscal_year_end
     }
     Concept {
         identifier mapping_id PK
-        text concept
-        identifier cde_id
-        text canonical_cde
-        text financial_statement
+        text concept "BT-009 XBRL Concept"
+        identifier cde_id "BT-013 Canonical CDE"
+        text canonical_cde "BT-013 Canonical CDE"
+        text financial_statement "BT-021 Financial Statement"
         text category
-        number tier
+        number tier "BT-015 Tier"
     }
     FinancialFact {
         identifier fact_id PK
         identifier entity_id FK
-        text concept FK
-        text taxonomy
+        text concept FK "BT-009 XBRL Concept"
+        text taxonomy "BT-020 XBRL Taxonomy"
         text unit
         number val
         date start_date
         date end_date
-        number fiscal_year
-        text fiscal_period
+        number fiscal_year "BT-018 Fiscal Period"
+        text fiscal_period "BT-018 Fiscal Period"
         number calendar_year
         number calendar_quarter
-        identifier accession_number
+        identifier accession_number "BT-002 Accession Number"
         text form
-        date filed_date
-        boolean is_amendment
-        boolean is_superseded
-        identifier superseded_by
+        date filed_date "BT-006 Filing Date"
+        boolean is_amendment "BT-007 Amendment"
+        boolean is_superseded "BT-012 Supersession"
+        identifier superseded_by "BT-012 Supersession"
     }
     FiscalCalendar {
         identifier calendar_id PK
-        identifier cik FK
+        identifier cik FK "BT-001 Central Index Key"
         identifier entity_id FK
-        number fiscal_year
-        text fiscal_period
+        number fiscal_year "BT-018 Fiscal Period"
+        text fiscal_period "BT-018 Fiscal Period"
         date period_start
         date period_end
         number duration_days
@@ -337,13 +333,13 @@ erDiagram
     }
     AmendmentTracking {
         identifier tracking_id PK
-        identifier cik
-        text concept
+        identifier cik "BT-001 Central Index Key"
+        text concept "BT-009 XBRL Concept"
         text unit
         date end_date
-        identifier original_accession
+        identifier original_accession "BT-002 Accession Number"
         number original_val
-        identifier amendment_accession
+        identifier amendment_accession "BT-002 Accession Number"
         number amendment_val
         number val_change
         number val_change_pct
@@ -353,8 +349,6 @@ erDiagram
     Entity ||--o{ FiscalCalendar : "has periods"
     FinancialFact ||--o{ AmendmentTracking : "superseded by"
 ```
-
-> Key glossary refs: `cik` → BT-001: CIK, `concept` → BT-009: XBRL Concept, `accession_number` → BT-002: Accession Number, `filed_date` → BT-006: Filing Date, `is_amendment` → BT-007: Amendment, `is_superseded`/`superseded_by` → BT-012: Supersession, `fiscal_year`/`fiscal_period` → BT-018: Fiscal Period, `taxonomy` → BT-020: XBRL Taxonomy. Full attribute-level mappings in [governance/models/](governance/models/).
 
 ### Physical: Entity Resolution
 
