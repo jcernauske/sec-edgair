@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+from src.infra.dq_runner import validate_after_write
 from src.infra.iceberg_setup import append_data, create_test_table, get_catalog, read_with_duckdb
 
 from .schema import ENTITY_MAPPINGS_SCHEMA, ENTITY_RESOLUTION_AUDIT_SCHEMA
@@ -52,6 +53,7 @@ def promote_approved(
     audit_table = create_test_table(catalog, "base", "entity_resolution_audit", ENTITY_RESOLUTION_AUDIT_SCHEMA)
 
     now = datetime.now(timezone.utc)
+    today = now.date()
 
     # Build mapping records (strip extra fields like reasoning/evidence)
     # Uniqueness check: skip CIKs that already have approved mappings
@@ -91,6 +93,7 @@ def promote_approved(
             "approved_by": p.get("approved_by", "auto"),
             "resolved_at": _parse_ts(p["resolved_at"]),
             "approved_at": _parse_ts(p.get("approved_at")) or now,
+            "load_date": today,
         })
 
         # Proposal audit entry
@@ -103,6 +106,7 @@ def promote_approved(
             "evidence": p.get("evidence", "{}"),
             "confidence_at_action": p["confidence"],
             "timestamp": _parse_ts(p["resolved_at"]),
+            "load_date": today,
         })
 
         # Approval audit entry
@@ -118,6 +122,7 @@ def promote_approved(
             }),
             "confidence_at_action": p["confidence"],
             "timestamp": _parse_ts(p.get("approved_at")) or now,
+            "load_date": today,
         })
 
     mappings_snap = append_data(mappings_table, mapping_records)
@@ -131,10 +136,16 @@ def promote_approved(
         if not still_pending:
             archived = archive_staging(staging_path, archive_dir)
 
+    # Post-write DQ validation — P0 failures raise DQValidationError
+    dq_result = validate_after_write("base-entity-resolution", catalog=catalog)
+
     return {
         "promoted": len(approved),
         "mappings_snapshot_id": mappings_snap,
         "audit_snapshot_id": audit_snap,
         "audit_entries": len(audit_records),
         "archived_to": str(archived) if archived else None,
+        "dq_run_id": dq_result["run_id"],
+        "dq_passed": dq_result["rules_passed"],
+        "dq_total": dq_result["rules_total"],
     }

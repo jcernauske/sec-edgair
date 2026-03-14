@@ -103,13 +103,22 @@ def cmd_status(args: argparse.Namespace) -> None:
 
 
 def cmd_all(args: argparse.Namespace) -> None:
-    """Run all steps: model, calendar, amendments."""
+    """Run all steps: model, calendar, amendments, then DQ validation."""
     cmd_model(args)
     print()
     cmd_calendar(args)
     print()
     cmd_amendments(args)
     print()
+
+    # Post-write DQ validation — runs once after all 3 tables are written
+    from src.infra.dq_runner import validate_after_write
+    print("Running DQ validation...")
+    dq_result = validate_after_write("base-financial-facts-model")
+    print(f"  DQ: {dq_result['rules_passed']}/{dq_result['rules_total']} rules passing")
+    print(f"  P0 gate: {'PASS' if dq_result['p0_passed'] else 'FAIL'}")
+    print()
+
     cmd_status(args)
 
 

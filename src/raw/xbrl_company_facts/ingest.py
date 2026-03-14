@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pyiceberg.exceptions import NamespaceAlreadyExistsError, TableAlreadyExistsError
 
-from src.infra.iceberg_setup import append_data, get_catalog
+from src.infra.iceberg_setup import append_data, get_catalog, read_with_duckdb
 from src.raw.xbrl_company_facts.config import (
     API_URL_TEMPLATE,
     BULK_ZIP_URL,
@@ -74,6 +74,19 @@ def ingest_company_facts(
 
     table = _get_or_create_table(warehouse_path, catalog_path)
 
+    # Build set of existing fact grains for dedup
+    # Dedup on (cik, accession_number, concept, unit, end_date) — NOT on CIK alone,
+    # because new filings for existing CIKs must flow through in incremental loads
+    existing_grains = set()
+    try:
+        existing = read_with_duckdb(table)
+        existing_grains = {
+            (r["cik"], r["accession_number"], r["concept"], r["unit"], str(r.get("end_date", "")))
+            for r in existing
+        }
+    except Exception:
+        pass
+
     # Fetch raw JSON
     if method == "api":
         raw_data = {
@@ -96,12 +109,35 @@ def ingest_company_facts(
         else:
             source_url = BULK_ZIP_URL
 
+        load_date = ingested_at.date()
         for row in flat_rows:
             row["ingested_at"] = ingested_at
             row["source_url"] = source_url
             row["source_method"] = method
+            row["load_date"] = load_date
+
+        # Dedup: skip facts already in the table
+        original_count = len(flat_rows)
+        flat_rows = [
+            r for r in flat_rows
+            if (r["cik"], r["accession_number"], r["concept"], r["unit"], str(r.get("end_date", "")))
+            not in existing_grains
+        ]
+        skipped = original_count - len(flat_rows)
+
+        if not flat_rows:
+            results[cik] = {"rows": 0, "skipped": skipped}
+            continue
+
+        if skipped:
+            print(f"  CIK {cik}: {skipped} existing facts skipped, {len(flat_rows)} new facts")
 
         snapshot_id = append_data(table, flat_rows)
-        results[cik] = {"rows": len(flat_rows), "snapshot_id": snapshot_id}
+        results[cik] = {"rows": len(flat_rows), "snapshot_id": snapshot_id, "skipped": skipped}
+
+    total_skipped = sum(r.get("skipped", 0) for r in results.values())
+    total_new = sum(r.get("rows", 0) for r in results.values())
+    if total_skipped:
+        print(f"Dedup summary: {total_new} new facts ingested, {total_skipped} duplicates skipped")
 
     return results

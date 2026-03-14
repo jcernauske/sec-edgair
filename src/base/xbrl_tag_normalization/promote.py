@@ -13,7 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.base.entity_resolution.staging import archive_staging, read_staging
-from src.infra.iceberg_setup import append_data, create_test_table, get_catalog
+from src.infra.dq_runner import validate_after_write
+from src.infra.iceberg_setup import append_data, create_test_table, get_catalog, read_with_duckdb
 
 from .schema import CONCEPT_MAPPINGS_SCHEMA, TAG_NORMALIZATION_AUDIT_SCHEMA
 
@@ -54,6 +55,24 @@ def promote_approved(
     audit_table = create_test_table(catalog, "base", "tag_normalization_audit", TAG_NORMALIZATION_AUDIT_SCHEMA)
 
     now = datetime.now(timezone.utc)
+    today = now.date()
+
+    # Uniqueness check: skip concepts that already have mappings
+    existing_concepts = set()
+    try:
+        existing = read_with_duckdb(mappings_table)
+        existing_concepts = {r["concept"] for r in existing}
+    except Exception:
+        pass  # Empty table or first run
+
+    duplicates = [p for p in promotable if p["concept"] in existing_concepts]
+    promotable = [p for p in promotable if p["concept"] not in existing_concepts]
+
+    if duplicates:
+        print(f"Skipping {len(duplicates)} concept(s) already in concept_mappings")
+
+    if not promotable:
+        return {"promoted": 0, "skipped_duplicates": len(duplicates), "message": "All mappings already exist"}
 
     mapping_records = []
     audit_records = []
@@ -72,6 +91,7 @@ def promote_approved(
             "status": p["status"],
             "mapped_by": p["mapped_by"],
             "mapped_at": _parse_ts(p["mapped_at"]),
+            "load_date": today,
         })
 
         action = "proposed" if p["status"] == "approved" else "classified_unmapped"
@@ -84,6 +104,7 @@ def promote_approved(
             "evidence": p.get("evidence", "{}"),
             "confidence_at_action": p["confidence"],
             "timestamp": _parse_ts(p["mapped_at"]),
+            "load_date": today,
         })
 
         if p["status"] == "approved":
@@ -100,6 +121,7 @@ def promote_approved(
                 }),
                 "confidence_at_action": p["confidence"],
                 "timestamp": _parse_ts(p.get("approved_at")) or now,
+                "load_date": today,
             })
 
     mappings_snap = append_data(mappings_table, mapping_records)
@@ -112,6 +134,9 @@ def promote_approved(
         if not still_pending:
             archived = archive_staging(staging_path, archive_dir)
 
+    # Post-write DQ validation — P0 failures raise DQValidationError
+    dq_result = validate_after_write("base-xbrl-tag-normalization", catalog=catalog)
+
     return {
         "promoted": len(promotable),
         "approved_count": len([p for p in promotable if p["status"] == "approved"]),
@@ -120,4 +145,7 @@ def promote_approved(
         "audit_snapshot_id": audit_snap,
         "audit_entries": len(audit_records),
         "archived_to": str(archived) if archived else None,
+        "dq_run_id": dq_result["run_id"],
+        "dq_passed": dq_result["rules_passed"],
+        "dq_total": dq_result["rules_total"],
     }

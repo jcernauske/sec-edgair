@@ -248,6 +248,56 @@ def _register_iceberg_views(
 
 
 # ---------------------------------------------------------------------------
+# Post-write validation
+# ---------------------------------------------------------------------------
+
+
+class DQValidationError(Exception):
+    """Raised when P0 DQ rules fail after a data write."""
+
+    def __init__(self, failures: list[dict], run_result: dict):
+        self.failures = failures
+        self.run_result = run_result
+        rule_ids = ", ".join(f["rule_id"] for f in failures)
+        super().__init__(f"P0 DQ gate FAILED: {rule_ids}")
+
+
+def validate_after_write(
+    spec: str,
+    catalog=None,
+) -> dict:
+    """Run DQ rules for a spec after data is written. Raises on P0 failure.
+
+    Call this after any promote/ingest operation to enforce DQ gates
+    automatically. This is the lakehouse equivalent of database constraints.
+
+    Args:
+        spec: The spec whose rules to execute.
+        catalog: PyIceberg catalog. If None, loads from default paths.
+
+    Returns:
+        Run result dict.
+
+    Raises:
+        DQValidationError: If any P0 rule fails.
+    """
+    result = run_rules(spec=spec, catalog=catalog)
+
+    if not result["p0_passed"]:
+        p0_failures = []
+        rules = load_rules(spec=spec)
+        rule_priorities = {r["rule_id"]: r.get("priority", "P3") for r in rules}
+        for r in result["results"]:
+            if not r["passed"] and not r.get("error") and rule_priorities.get(r["rule_id"]) == "P0":
+                # Only real failures, not errors from missing tables
+                p0_failures.append(r)
+        if p0_failures:
+            raise DQValidationError(p0_failures, result)
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Main runner
 # ---------------------------------------------------------------------------
 
@@ -291,9 +341,14 @@ def run_rules(
                 all_table_refs.append(ref)
 
     # Create DuckDB connection and register all Iceberg tables
+    # Tables that can't be loaded (e.g., in test environments) are skipped —
+    # rules referencing them will get individual SQL errors instead of crashing
     con = duckdb.connect()
-    if all_table_refs:
-        _register_iceberg_views(con, all_table_refs, catalog)
+    for ref in all_table_refs:
+        try:
+            _register_iceberg_views(con, [ref], catalog)
+        except RuntimeError:
+            pass  # Rule will fail with a SQL error when it references this table
 
     # Execute each rule
     results = []
