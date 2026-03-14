@@ -1,0 +1,24 @@
+[project]
+name = "sec-edgair"
+version = "0.1.0"
+description = "AI agent pipeline for SEC EDGAR XBRL data — Raw to AI-Ready with full governance"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.0",
+    "pyarrow>=17.0",
+    "pyiceberg>=0.7",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
