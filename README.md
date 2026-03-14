@@ -78,7 +78,38 @@ Every transformation produces governance artifacts automatically:
 - **OpenLineage** events in `governance/lineage/`
 - **DQ rules** with scorecards in `governance/dq-rules/` and `governance/dq-scorecards/`
 - **Audit trails** capturing every design decision in `governance/audit-trail/`
+- **Business glossary** with 25 terms in `governance/business-glossary.json` (see below)
 - **PII:** None detected. All data is public SEC filings — no personal or sensitive information.
+
+## Business Glossary
+
+25 business terms defined across three source tiers:
+
+| Source | Terms | Approval | Description |
+|--------|-------|----------|-------------|
+| XBRL Taxonomy | 7 | Auto-approved | Authoritative financial reporting standard |
+| SEC EDGAR | 7 | Auto-approved | Filing types, entity identifiers, regulatory concepts |
+| Project-Specific | 11 | Human approval required | Pipeline concepts (supersession, tiers, confidence, etc.) |
+
+### Key Financial Terms
+| Term | Definition | CDE |
+|------|-----------|-----|
+| Revenue | Total revenue from sale of goods and services, before deductions | CDE-015 |
+| Net Income | Total profit after all expenses, interest, and taxes | CDE-019 |
+| Total Assets | Sum of all current and non-current assets on the balance sheet | CDE-007 |
+| Financial Fact | A single reported value — one number, one concept, one unit, one period, one filing | — |
+| XBRL Concept | A specific financial metric tag from an XBRL taxonomy | — |
+
+### Key Pipeline Terms
+| Term | Definition | Status |
+|------|-----------|--------|
+| Supersession | Later filing replaces earlier filing for same company/concept/period | Proposed |
+| Tier | Match quality classification (1=exact, 2=pattern, 3=unmapped) | Proposed |
+| Confidence Score | Numeric certainty (0-1) in a proposed mapping | Proposed |
+| Human Approval Gate | Pipeline pause point requiring human review | Proposed |
+| Confidence Floor | Minimum confidence (0.7) below which human approval is always required | Proposed |
+
+Full glossary: [`governance/business-glossary.json`](governance/business-glossary.json)
 
 ## 25 Canonical Financial CDEs
 
@@ -446,6 +477,7 @@ src/                            Source code organized by zone
     xbrl_tag_normalization/      XBRL concept → canonical CDE
 data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
+  business-glossary.json        25 business terms (XBRL, SEC EDGAR, project-specific)
   cde-catalog.json              31 Critical Data Element definitions
   data-dictionary.json          5 table schemas with field-level docs
   models/                       Data models (conceptual, logical, physical) with Mermaid diagrams

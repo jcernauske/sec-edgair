@@ -102,6 +102,7 @@ erDiagram
 **Purpose:** Define WHAT data entities exist and HOW they relate, in business terms.
 **Audience:** Business stakeholders, data stewards, humans reviewing the proposal.
 **Contains:** Entities, relationships, cardinality. No data types, no columns, no implementation details.
+**Prerequisite:** @data-steward must have identified and proposed business terms for this spec. Conceptual models MUST reference glossary terms — entity names, relationship labels, and business rules should use terms from `governance/business-glossary.json`.
 **Greenfield:** First stage — proposed from spec requirements and data inspection.
 **Backfill:** Last stage — abstracted from the approved logical model.
 
@@ -115,16 +116,20 @@ Output format:
 **Stage:** Conceptual (1 of 3)
 **Status:** PROPOSED | APPROVED | REJECTED
 
+### Business Terms Referenced
+| Term ID | Term | Definition (from glossary) |
+|---------|------|---------------------------|
+
 ### Entities
-| Entity | Description | Business Owner |
-|--------|-------------|----------------|
+| Entity | Description | Business Owner | Glossary Term |
+|--------|-------------|----------------|---------------|
 
 ### Relationships
 | From | To | Relationship | Cardinality | Description |
 |------|----|-------------|-------------|-------------|
 
 ### Business Rules
-[Rules that constrain the model — e.g., "Every Fact must reference exactly one Filing"]
+[Rules that constrain the model — e.g., "Every Fact must reference exactly one Filing". Use glossary terms.]
 
 ### Design Rationale
 [Why these entities and relationships were chosen — what patterns in the data drove the decisions]

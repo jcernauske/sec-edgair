@@ -42,7 +42,8 @@ For specs that create or modify tables in the Base or Consumable zones, the 3-st
 #### Greenfield Mode (tables don't exist yet)
 Models must be complete BEFORE implementation begins. This gate is **blocking** at pre-implementation review.
 
-- [ ] **Conceptual model** exists in `governance/models/[spec-name]-conceptual.md` and is APPROVED
+- [ ] **Business terms** identified by @data-steward and added to `governance/business-glossary.json` — project-specific terms APPROVED by human
+- [ ] **Conceptual model** exists in `governance/models/[spec-name]-conceptual.md`, references glossary terms, and is APPROVED
 - [ ] **Logical model** exists in `governance/models/[spec-name]-logical.md` and is APPROVED
 - [ ] **Physical model** exists in `governance/models/[spec-name]-physical.md` and is derived from the approved logical model
 - [ ] All three models include a Mermaid `erDiagram` block that renders correctly
@@ -53,8 +54,10 @@ Models are reverse-engineered from existing implementation. This gate is checked
 - [ ] **Physical model** exists and accurately reflects the existing Iceberg tables and source code
 - [ ] **Logical model** exists, is abstracted from the physical, and is APPROVED
 - [ ] **Conceptual model** exists, is abstracted from the logical, and is APPROVED
+- [ ] **Business terms** extracted by @data-steward and added to `governance/business-glossary.json` — project-specific terms APPROVED
 - [ ] All three models are consistent with each other AND with the existing implementation
 - [ ] All three models include a Mermaid `erDiagram` block that renders correctly
+- [ ] Conceptual model references glossary terms (not inline definitions)
 - [ ] No implementation changes were made during backfill (documentation only)
 
 If `REQUIRE_HUMAN_APPROVAL = False` in `src/config.py`, models may be AUTO-APPROVED, but all three artifacts must still exist.
