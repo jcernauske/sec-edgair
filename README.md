@@ -161,7 +161,7 @@ erDiagram
     HUMAN_REVIEWER ||--o{ RESOLUTION_DECISION : "approves or rejects"
 ```
 
-| Entity | Glossary Ref |
+| Entity | Business Term |
 |--------|-------------|
 | RAW_ENTITY **†** | BT-003: Legal Entity Name |
 | CANONICAL_COMPANY **†** | BT-005: Canonical Company Identity |
@@ -178,7 +178,7 @@ erDiagram
     HUMAN_REVIEWER ||--o{ CLASSIFICATION_DECISION : "approves or rejects"
 ```
 
-| Entity | Glossary Ref |
+| Entity | Business Term |
 |--------|-------------|
 | XBRL_CONCEPT **†** | BT-009: XBRL Concept |
 | CANONICAL_CDE **†** | BT-013: Canonical CDE |
@@ -198,7 +198,7 @@ erDiagram
     SEC_FILING ||--o{ FINANCIAL_FACT : "source of"
 ```
 
-| Entity | Glossary Ref |
+| Entity | Business Term |
 |--------|-------------|
 | COMPANY **†** | BT-005: Canonical Company Identity |
 | FINANCIAL_FACT **†** | BT-017: Financial Fact |

@@ -19,7 +19,7 @@ erDiagram
 > **†** Entities marked with † have a matching business glossary term
 
 ### Entities
-| Entity | Description | Business Owner | Glossary Ref |
+| Entity | Description | Business Owner | Business Term |
 |--------|-------------|----------------|--------------|
 | Company † | A publicly traded company that files financial reports with the SEC. Identified by CIK, resolved to a canonical identity. | Data Governance | BT-005: Canonical Company Identity |
 | Financial Fact † | A single reported financial value — one number, for one concept, in one unit, for one reporting period, from one SEC filing. The atomic unit of financial data. | Finance / Data Engineering | BT-017: Financial Fact |

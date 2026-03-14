@@ -85,7 +85,7 @@ erDiagram
 - **Natural Key:** (cik, concept, unit, start_date, end_date, accession_number)
 - **Description:** A single reported financial value from an SEC filing, enriched with entity and concept metadata. The central fact table of the Base zone.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | fact_id | Identifier | No | Deterministic hash of grain fields | — | — |
 | entity_id | Identifier | No | Reference to resolved entity | — | — |
@@ -120,7 +120,7 @@ erDiagram
 - **Natural Key:** (cik, fiscal_year, fiscal_period)
 - **Description:** Temporal dimension mapping fiscal periods to calendar dates for each company. Built from observed filing data, not theoretical calendars.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | calendar_id | Identifier | No | Deterministic hash of grain | — | — |
 | cik | Identifier | No | Company | CDE-001 | BT-001 |
@@ -139,7 +139,7 @@ erDiagram
 - **Primary Key:** tracking_id
 - **Description:** Records each supersession event where an amended filing replaces an original. One row per (original → amendment) pair.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | tracking_id | Identifier | No | Unique event ID | — | — |
 | cik | Identifier | No | Company | CDE-001 | BT-001 |

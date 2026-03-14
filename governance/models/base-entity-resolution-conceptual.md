@@ -16,7 +16,7 @@ erDiagram
 > **†** Entities marked with † have a matching business glossary term
 
 ### Entities
-| Entity | Description | Business Owner | Glossary Ref |
+| Entity | Description | Business Owner | Business Term |
 |--------|-------------|----------------|--------------|
 | Raw Entity | A company name and CIK as received from SEC EDGAR. May be inconsistent (all-caps, abbreviations, legal suffixes). | Data Engineering | BT-003: Legal Entity Name |
 | Canonical Company | A normalized, human-approved company identity. The single source of truth for "who is this company?" across the pipeline. | Data Governance | BT-005: Canonical Company Identity |

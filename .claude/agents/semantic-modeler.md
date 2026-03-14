@@ -104,8 +104,8 @@ Every model level must cross-reference business glossary terms from `governance/
 
 | Level | What to add | Format |
 |-------|-------------|--------|
-| Conceptual | `Glossary Ref` column on Entities table | `BT-XXX: Term Name` — mark entity name with `†` suffix |
-| Logical | `Glossary Ref` column on each attribute table | `BT-XXX` — use `—` for unmapped attributes |
+| Conceptual | `Business Term` column on Entities table | `BT-XXX: Term Name` — mark entity name with `†` suffix |
+| Logical | `Business Term` column on each attribute table | `BT-XXX` — use `—` for unmapped attributes |
 | Physical | `Business Term` + `Term Def` columns on each column table | Full term name + abbreviated definition (~10-15 words) |
 
 After each Mermaid diagram, add this legend line:
@@ -183,7 +183,7 @@ Output format:
 - **Primary Key:** [key field(s)]
 - **Description:** [from conceptual model]
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 
 ### Relationships

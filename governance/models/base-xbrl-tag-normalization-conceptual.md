@@ -17,7 +17,7 @@ erDiagram
 > **†** Entities marked with † have a matching business glossary term
 
 ### Entities
-| Entity | Description | Business Owner | Glossary Ref |
+| Entity | Description | Business Owner | Business Term |
 |--------|-------------|----------------|--------------|
 | XBRL Concept† | A specific financial metric tag from the us-gaap XBRL taxonomy (e.g., "Revenues", "EarningsPerShareBasic"). There are ~3,285 distinct concepts in the dataset. | Data Engineering | BT-009: XBRL Concept |
 | Canonical CDE† | One of 25 standardized financial data elements (e.g., "Revenue", "Total Assets", "Net Income"). The common language for cross-company comparison. | Data Governance | BT-013: Canonical CDE |

@@ -47,7 +47,7 @@ erDiagram
 - **Natural Key:** cik (one mapping per CIK)
 - **Description:** A canonical company identity resolved from raw SEC EDGAR entity data. Maps a CIK to a normalized, human-approved company identity with metadata.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | mapping_id | Identifier | No | Stable human-readable ID | — | — |
 | cik | Identifier | No | SEC-assigned company identifier | CDE-001 | BT-001 |
@@ -69,7 +69,7 @@ erDiagram
 - **Foreign Key:** mapping_id → EntityMapping.mapping_id
 - **Description:** Append-only log of every action taken on an entity mapping. Provides full decision history for governance.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | audit_id | Identifier | No | Unique event ID | — | — |
 | mapping_id | Identifier | No | Which mapping this action applies to | — | — |

@@ -53,7 +53,7 @@ erDiagram
 - **Natural Key:** concept (one mapping per distinct XBRL concept)
 - **Description:** Classification of a us-gaap XBRL concept into a canonical CDE with tiered confidence. Maps the XBRL taxonomy's ~3,285 concepts to 25 standardized financial data elements.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | mapping_id | Identifier | No | Stable human-readable ID | — | — |
 | concept | Text | No | Raw XBRL concept name (e.g., "Revenues") | — | BT-009 |
@@ -73,7 +73,7 @@ erDiagram
 - **Description:** One of 25 canonical financial data elements that XBRL concepts map to. Defined in governance/cde-catalog.json. This entity is a reference table — it exists in config, not as an Iceberg table.
 - **Note:** This is a logical entity only. Physically it lives in CDE_DEFINITIONS in config.py and governance/cde-catalog.json, not in an Iceberg table.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | cde_id | Identifier | No | CDE-007 through CDE-031 | Self-referencing | BT-013 |
 | name | Text | No | Human-readable name (e.g., "Revenue") | — | — |
@@ -86,7 +86,7 @@ erDiagram
 - **Foreign Key:** mapping_id → ConceptMapping.mapping_id
 - **Description:** Append-only log of every classification action. Identical structure to EntityResolutionAudit (shared staging module).
 
-| Attribute | Domain | Nullable | Description | CDE Reference | Glossary Ref |
+| Attribute | Domain | Nullable | Description | CDE Reference | Business Term |
 |-----------|--------|----------|-------------|---------------|--------------|
 | audit_id | Identifier | No | Unique event ID | — | — |
 | mapping_id | Identifier | No | Which concept mapping this applies to | — | — |
