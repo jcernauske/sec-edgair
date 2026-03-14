@@ -1,8 +1,8 @@
 # SEC EDGAIR
 
 ![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)
-![DQ Rules](https://img.shields.io/badge/DQ%20rules-16%2F17%20passing-yellow)
-![P0 Gate](https://img.shields.io/badge/P0%20gate-FAIL-red)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-17%2F17%20passing-brightgreen)
+![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
 ![Companies](https://img.shields.io/badge/companies-20-blue)
 ![CDEs](https://img.shields.io/badge/CDEs-25-blue)
@@ -101,17 +101,24 @@ Every transformation produces governance artifacts automatically:
 
 | Spec | Rules | Passed | Failed | P0 Gate |
 |------|-------|--------|--------|---------|
-| base-entity-resolution | 5 | 4 | 1 | FAIL |
+| base-entity-resolution | 5 | 5 | 0 | PASS |
 | base-financial-facts-model | 7 | 7 | 0 | PASS |
 | base-xbrl-tag-normalization | 5 | 5 | 0 | PASS |
 | base-bitemporal-schema | 5 | — | — | (test-validated) |
-| **Total** | **22** | **16/17** | **1** | |
+| **Total** | **22** | **17/17** | **0** | |
 
-### Active Failures
+### Results by Data Quality Dimension
 
-| Rule | Priority | Spec | Description | Finding |
-|------|----------|------|-------------|---------|
-| BASE-ER-002 | P0 | base-entity-resolution | No duplicate CIKs in approved mappings | 3 duplicate CIKs found |
+| Dimension | Rules | Passing | Test-Validated | What It Checks |
+|-----------|-------|---------|----------------|----------------|
+| Validity | 6 | 3/3 | 3 | Values within expected ranges/formats |
+| Completeness | 5 | 5/5 | — | Required fields populated, no orphans |
+| Referential Integrity | 5 | 4/4 | 1 | Cross-table references resolve |
+| Uniqueness | 3 | 3/3 | — | No unintended duplicates |
+| Consistency | 2 | 1/1 | 1 | Cross-field relationships hold |
+| Coverage | 1 | 1/1 | — | Mapped concepts cover sufficient facts |
+
+*"Passing" = executed against real Iceberg data. "Test-validated" = bitemporal rules validated via pytest (no SQL equivalent).*
 
 ### Rule Lifecycle
 

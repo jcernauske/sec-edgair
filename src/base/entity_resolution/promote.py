@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from src.infra.iceberg_setup import append_data, create_test_table, get_catalog
+from src.infra.iceberg_setup import append_data, create_test_table, get_catalog, read_with_duckdb
 
 from .schema import ENTITY_MAPPINGS_SCHEMA, ENTITY_RESOLUTION_AUDIT_SCHEMA
 from .staging import archive_staging, read_staging
@@ -54,6 +54,24 @@ def promote_approved(
     now = datetime.now(timezone.utc)
 
     # Build mapping records (strip extra fields like reasoning/evidence)
+    # Uniqueness check: skip CIKs that already have approved mappings
+    existing_ciks = set()
+    try:
+        existing = read_with_duckdb(mappings_table)
+        existing_ciks = {r["cik"] for r in existing if r.get("status") == "approved"}
+    except Exception:
+        pass  # Empty table or first run
+
+    duplicates = [p for p in approved if p["cik"] in existing_ciks]
+    approved = [p for p in approved if p["cik"] not in existing_ciks]
+
+    if duplicates:
+        dup_ciks = [str(p["cik"]) for p in duplicates]
+        print(f"Skipping {len(duplicates)} duplicate CIK(s) already in entity_mappings: {', '.join(dup_ciks)}")
+
+    if not approved:
+        return {"promoted": 0, "skipped_duplicates": len(duplicates), "message": "All approved mappings already exist"}
+
     mapping_records = []
     audit_records = []
 
