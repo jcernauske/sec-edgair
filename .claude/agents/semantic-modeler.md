@@ -104,9 +104,11 @@ Every model level must cross-reference business glossary terms from `governance/
 
 | Level | What to add | Format |
 |-------|-------------|--------|
-| Conceptual | `Business Term`, `CDE`, `PII` columns on Entities table | `BT-XXX: Term Name` — mark entity name with `†` suffix. CDE lists CDE IDs contained by entity. PII = `None` or category. |
-| Logical | `Business Term`, `PII` columns on each attribute table (CDE Reference already exists) | `BT-XXX` — use `—` for unmapped attributes. PII = `None` or category. |
-| Physical | `Business Term`, `Term Def`, `CDE`, `PII` columns on each column table | Full term name + abbreviated definition. CDE = CDE ID or `—`. PII = `None` or category. |
+| Conceptual | `Business Term`, `CDE`, `PII` columns on Entities table | `BT-XXX` (ID only) — mark entity name with `†` suffix. CDE lists CDE IDs. PII = `None` or category. |
+| Logical | `Business Term`, `PII` columns on each attribute table (CDE Reference already exists) | `BT-XXX` (ID only) — use `—` for unmapped attributes. PII = `None` or category. |
+| Physical | `Business Term`, `CDE`, `PII` columns on each column table | `BT-XXX` (ID only). CDE = CDE ID or `—`. PII = `None` or category. |
+
+**IMPORTANT: Models store IDs only, never inline definitions.** The authoritative definitions live in `governance/business-glossary.json` (business terms) and `governance/cde-catalog.json` (CDEs). When generating documentation (README, reports), dereference IDs into human-readable names by looking up the authoritative source.
 
 After each Mermaid diagram, add this legend line:
 ```
@@ -230,8 +232,8 @@ Output format:
 - **Partitioning:** [strategy or none]
 - **Estimated Row Count:** N
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Term Def | CDE | PII |
-|--------|------------|----------|-------------|----------------|---------------|----------|-----|-----|
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | CDE | PII |
+|--------|------------|----------|-------------|----------------|---------------|-----|-----|
 
 ### DDL
 \```sql

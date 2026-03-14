@@ -18,10 +18,10 @@ erDiagram
 ### Entities
 | Entity | Description | Business Owner | Business Term | CDE | PII |
 |--------|-------------|----------------|--------------|-----|-----|
-| Raw Entity | A company name and CIK as received from SEC EDGAR. May be inconsistent (all-caps, abbreviations, legal suffixes). | Data Engineering | BT-003: Legal Entity Name | CDE-001, CDE-003 | None |
-| Canonical Company | A normalized, human-approved company identity. The single source of truth for "who is this company?" across the pipeline. | Data Governance | BT-005: Canonical Company Identity | CDE-001, CDE-005, CDE-006 | None |
-| Resolution Decision | A recorded action (propose, approve, reject) on a mapping between a raw entity and a canonical company. Provides full audit trail. | Data Governance | BT-008: Entity Resolution | — | None |
-| Human Reviewer | A person who approves or rejects proposed entity mappings. The human-in-the-loop gate. | Data Stewardship | BT-016: Human Approval Gate | — | None |
+| Raw Entity | A company name and CIK as received from SEC EDGAR. May be inconsistent (all-caps, abbreviations, legal suffixes). | Data Engineering | BT-003 | CDE-001, CDE-003 | None |
+| Canonical Company | A normalized, human-approved company identity. The single source of truth for "who is this company?" across the pipeline. | Data Governance | BT-005 | CDE-001, CDE-005, CDE-006 | None |
+| Resolution Decision | A recorded action (propose, approve, reject) on a mapping between a raw entity and a canonical company. Provides full audit trail. | Data Governance | BT-008 | — | None |
+| Human Reviewer | A person who approves or rejects proposed entity mappings. The human-in-the-loop gate. | Data Stewardship | BT-016 | — | None |
 
 ### Relationships
 | From | To | Relationship | Cardinality | Description |

@@ -84,7 +84,8 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 - Test theater (tests that don't validate real behavior) is a rejection
 - When model files in `governance/models/` are created or modified, update the corresponding Mermaid diagrams in the "Data Models" section of `README.md` (all three levels: conceptual, logical, AND physical — full details live in governance/models/)
 - When `governance/business-glossary.json` is modified, update the "Business Glossary" section of `README.md` (term counts, key terms tables)
-- Data models must cross-reference business glossary terms, CDEs, and PII at every level: conceptual entities get `Business Term`, `CDE`, `PII` columns; logical attributes get `Business Term`, `PII` columns (CDE Reference already exists); physical columns get `Business Term`, `Term Def`, `CDE`, `PII` columns
+- Data models store governance metadata as **IDs only** (`BT-XXX`, `CDE-XXX`, PII flag) — never inline definitions. Authoritative sources: `governance/business-glossary.json` (terms), `governance/cde-catalog.json` (CDEs), `governance/policies/` (PII). Documentation (README) dereferences IDs into human-readable names.
+- All model levels include `Business Term`, `CDE`, `PII` columns: conceptual on entity tables, logical on attribute tables, physical on column tables
 
 # Session Logging
 
