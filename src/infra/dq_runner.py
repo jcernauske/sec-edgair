@@ -487,8 +487,12 @@ def get_latest_results(spec: str | None = None) -> dict | None:
             return data
         return None
 
-    files = sorted(DQ_RESULTS_DIR.glob("*.json"), reverse=True)
-    files = [f for f in files if "-ack-" not in f.name]
+    # Prefer all-specs results when no spec filter
+    files = sorted(DQ_RESULTS_DIR.glob("all-*.json"), reverse=True)
+    if not files:
+        # Fall back to any results file
+        files = sorted(DQ_RESULTS_DIR.glob("*.json"), reverse=True)
+        files = [f for f in files if "-ack-" not in f.name]
     if not files:
         return None
     return json.loads(files[0].read_text())

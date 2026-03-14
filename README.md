@@ -1,7 +1,7 @@
 # SEC EDGAIR
 
 ![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)
-![DQ Rules](https://img.shields.io/badge/DQ%20rules-17%2F17%20passing-brightgreen)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-22%2F22%20passing-brightgreen)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
 ![Companies](https://img.shields.io/badge/companies-20-blue)
@@ -95,7 +95,7 @@ Every transformation produces governance artifacts automatically:
 
 ## Data Quality
 
-22 DQ rules across 4 specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`.
+22 SQL-based DQ rules across 4 specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`. Rules are defined as data (JSON + SQL), not code — engine-swappable to Soda Core or Great Expectations.
 
 ### Latest Results
 
@@ -104,21 +104,21 @@ Every transformation produces governance artifacts automatically:
 | base-entity-resolution | 5 | 5 | 0 | PASS |
 | base-financial-facts-model | 7 | 7 | 0 | PASS |
 | base-xbrl-tag-normalization | 5 | 5 | 0 | PASS |
-| base-bitemporal-schema | 5 | — | — | (test-validated) |
-| **Total** | **22** | **17/17** | **0** | |
+| base-bitemporal-schema | 5 | 5 | 0 | PASS |
+| **Total** | **22** | **22/22** | **0** | |
 
 ### Results by Data Quality Dimension
 
-| Dimension | Rules | Passing | Test-Validated | What It Checks |
-|-----------|-------|---------|----------------|----------------|
-| Validity | 6 | 3/3 | 3 | Values within expected ranges/formats |
-| Completeness | 5 | 5/5 | — | Required fields populated, no orphans |
-| Referential Integrity | 5 | 4/4 | 1 | Cross-table references resolve |
-| Uniqueness | 3 | 3/3 | — | No unintended duplicates |
-| Consistency | 2 | 1/1 | 1 | Cross-field relationships hold |
-| Coverage | 1 | 1/1 | — | Mapped concepts cover sufficient facts |
+| Dimension | Rules | Passing | What It Checks |
+|-----------|-------|---------|----------------|
+| Validity | 6 | 6/6 | Values within expected ranges/formats |
+| Completeness | 5 | 5/5 | Required fields populated, no orphans |
+| Referential Integrity | 5 | 5/5 | Cross-table references resolve |
+| Uniqueness | 3 | 3/3 | No unintended duplicates |
+| Consistency | 2 | 2/2 | Cross-field relationships hold |
+| Coverage | 1 | 1/1 | Mapped concepts cover sufficient facts |
 
-*"Passing" = executed against real Iceberg data. "Test-validated" = bitemporal rules validated via pytest (no SQL equivalent).*
+*All 22 rules are SQL-based and executed against real Iceberg data. Rules are defined as data (JSON), making the engine swappable.*
 
 ### Rule Lifecycle
 
