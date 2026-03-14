@@ -125,6 +125,153 @@ erDiagram
     SEC_FILING ||--o{ FINANCIAL_FACT : "source of"
 ```
 
+### Physical: Entity Resolution
+
+```mermaid
+erDiagram
+    base_entity_mappings {
+        STRING mapping_id PK
+        INTEGER cik
+        STRING canonical_name
+        STRING raw_entity_name
+        STRING ticker
+        STRING sic_code
+        STRING fiscal_year_end
+        DOUBLE confidence
+        STRING resolution_method
+        STRING status
+        STRING resolved_by
+        STRING approved_by
+        TIMESTAMPTZ resolved_at
+        TIMESTAMPTZ approved_at
+    }
+    base_entity_resolution_audit {
+        STRING audit_id PK
+        STRING mapping_id FK
+        STRING action
+        STRING actor
+        STRING reasoning
+        STRING evidence
+        DOUBLE confidence_at_action
+        TIMESTAMPTZ timestamp
+    }
+    base_entity_mappings ||--o{ base_entity_resolution_audit : "tracked by"
+```
+
+### Physical: XBRL Tag Normalization
+
+```mermaid
+erDiagram
+    base_concept_mappings {
+        STRING mapping_id PK
+        STRING concept
+        STRING canonical_cde
+        STRING cde_id
+        STRING financial_statement
+        STRING category
+        INTEGER tier
+        DOUBLE confidence
+        STRING mapping_method
+        STRING status
+        STRING mapped_by
+        TIMESTAMPTZ mapped_at
+    }
+    base_tag_normalization_audit {
+        STRING audit_id PK
+        STRING mapping_id FK
+        STRING action
+        STRING actor
+        STRING reasoning
+        STRING evidence
+        DOUBLE confidence_at_action
+        TIMESTAMPTZ timestamp
+    }
+    base_concept_mappings ||--o{ base_tag_normalization_audit : "tracked by"
+```
+
+### Physical: Financial Facts Model
+
+```mermaid
+erDiagram
+    base_entity_mappings {
+        STRING mapping_id PK
+        INTEGER cik
+        STRING canonical_name
+    }
+    base_concept_mappings {
+        STRING mapping_id PK
+        STRING concept
+        STRING cde_id
+        STRING canonical_cde
+    }
+    base_financial_facts {
+        STRING fact_id PK
+        STRING entity_id FK
+        INTEGER cik
+        STRING canonical_name
+        STRING ticker
+        STRING concept
+        STRING cde_id FK
+        STRING canonical_cde
+        STRING financial_statement
+        STRING category
+        INTEGER tier
+        STRING taxonomy
+        STRING unit
+        DOUBLE val
+        DATE start_date
+        DATE end_date
+        INTEGER fiscal_year
+        STRING fiscal_period
+        STRING fiscal_year_end
+        INTEGER calendar_year
+        INTEGER calendar_quarter
+        STRING accession_number
+        STRING form
+        DATE filed_date
+        BOOLEAN is_amendment
+        BOOLEAN is_superseded
+        STRING superseded_by
+        TIMESTAMPTZ promoted_at
+    }
+    base_fiscal_calendar {
+        STRING calendar_id PK
+        INTEGER cik
+        STRING entity_id FK
+        INTEGER fiscal_year
+        STRING fiscal_period
+        STRING fiscal_year_end
+        DATE period_start
+        DATE period_end
+        INTEGER calendar_year
+        INTEGER calendar_quarter
+        INTEGER duration_days
+        BOOLEAN is_annual
+    }
+    base_amendment_tracking {
+        STRING tracking_id PK
+        INTEGER cik
+        STRING concept
+        STRING unit
+        DATE start_date
+        DATE end_date
+        STRING original_accession
+        DATE original_filed_date
+        DOUBLE original_val
+        STRING amendment_accession
+        DATE amendment_filed_date
+        DOUBLE amendment_val
+        DOUBLE val_change
+        DOUBLE val_change_pct
+        STRING amendment_form
+        TIMESTAMPTZ detected_at
+    }
+    base_entity_mappings ||--o{ base_financial_facts : "entity_id"
+    base_concept_mappings ||--o{ base_financial_facts : "concept"
+    base_financial_facts }o--|| base_fiscal_calendar : "cik + fiscal_year + fiscal_period"
+    base_financial_facts ||--o{ base_amendment_tracking : "supersession pairs"
+```
+
 ## Quick Start
 
 ```bash

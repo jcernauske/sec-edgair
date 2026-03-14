@@ -323,3 +323,32 @@ Once the project ships, the following posts write themselves:
 - [ ] How deep on RLS? (Pattern demonstration vs. functional implementation)
 - [ ] Do we want a simple web UI for the point-in-time queries? (Nice to have, not essential)
 - [ ] Iceberg catalog layer — start without one, add Polaris/Lakekeeper later if needed?
+
+---
+
+## Phase 7 — Follow-On: Insider Ownership Data Product (PII Governance)
+
+**Problem:** SEC EDGAR XBRL financial data is entirely public with no PII. The pipeline's PII detection and governance capabilities can't be meaningfully tested against synthetic data without it feeling forced. Real PII governance problems emerge when you join two datasets and suddenly have personal information tied to financial data.
+
+**Solution:** Build a second data product from SEC EDGAR Forms 3/4/5 (insider ownership filings) and join it to the existing financial facts.
+
+**Why Forms 3/4/5:**
+- Filed per-insider, per-transaction — naturally person-centric
+- Include the **issuer CIK** (join key to existing `base.financial_facts`) and **reporting person CIK**
+- Contain real PII: officer/director names, relationships to company, titles
+- Available as structured XML on EDGAR — no PDF scraping
+- Millions of filings available
+- The join key (`company_cik`) already exists in our pipeline
+
+**Proposed pipeline:**
+- `raw.insider_ownership` — ingest Forms 3/4/5 XML from EDGAR
+- `base.board_members` — canonical person identities with names, titles, company relationships
+- Join to `base.financial_facts` via `cik` — now you have personal compensation data tied to financial performance
+
+**What this enables:**
+- Real PII detection (names, person CIKs, relationships) — not synthetic
+- PII governance policies that matter (masking, access control, retention)
+- RLS policies with actual teeth — "only compliance can see insider names tied to trading data"
+- The governance demo becomes dramatically more compelling: "here's how the agents handled real PII when two public datasets were joined"
+
+**The thesis:** PII governance isn't about scanning for SSNs in a text field. It's about what happens when you join two innocuous datasets and create something sensitive. That's the real-world problem, and this is how you demonstrate solving it.

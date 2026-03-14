@@ -78,7 +78,7 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 - @staff-engineer reviews last — no spec is marked complete until he approves
 - @staff-engineer can send work back to any agent for fixes
 - Test theater (tests that don't validate real behavior) is a rejection
-- When model files in `governance/models/` are created or modified, update the corresponding Mermaid diagrams in the "Data Models" section of `README.md` (conceptual diagrams only — README shows the high-level view, full details live in governance/models/)
+- When model files in `governance/models/` are created or modified, update the corresponding Mermaid diagrams in the "Data Models" section of `README.md` (conceptual AND physical diagrams — full details live in governance/models/)
 
 # Session Logging
 
