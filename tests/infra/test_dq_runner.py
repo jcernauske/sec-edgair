@@ -164,7 +164,7 @@ class TestLoadRules:
 
     def test_loads_all_rules(self):
         rules = load_rules()
-        assert len(rules) == 22
+        assert len(rules) == 30
 
     def test_each_rule_has_spec(self):
         rules = load_rules()

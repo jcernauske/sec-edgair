@@ -27,13 +27,15 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 
 ### Raw Zone Pipeline (physical-only, quick and dirty)
 1. @governance-reviewer — Pre-implementation review
-2. @primary-agent — Implementation
-3. @lineage-tracker — OpenLineage capture
-4. @dq-engineer — Quality rules + scorecard
-5. @cde-tagger — CDE mapping update
-6. @doc-generator — Dictionary + contracts update
-7. @governance-reviewer — Post-implementation completeness check
-8. @staff-engineer — Final quality review (LAST gate before completion)
+2. @primary-agent — Implementation (ingest raw data)
+3. @data-analyst — EDA on raw data (distributions, outliers, edge cases, threshold evidence)
+4. @dq-rule-writer — Write raw DQ rules from EDA report (completeness, validity, volume, freshness)
+5. @dq-engineer — Execute rules against real data, produce scorecard
+6. @lineage-tracker — OpenLineage capture
+7. @cde-tagger — CDE mapping update
+8. @doc-generator — Dictionary + contracts update
+9. @governance-reviewer — Post-implementation completeness check
+10. @staff-engineer — Final quality review (LAST gate before completion)
 
 ### Base & Consumable Zone Pipeline (with data modeling gates)
 
@@ -47,22 +49,27 @@ The pipeline auto-detects **greenfield** vs **backfill** mode:
 2. @data-steward — Identify and propose **business terms** from spec → **HUMAN APPROVAL GATE** (project-specific terms only; external standard terms auto-approve)
 3. @semantic-modeler — Propose **conceptual model** (referencing approved glossary terms) → **HUMAN APPROVAL GATE**
 4. @semantic-modeler — Propose **logical model** → **HUMAN APPROVAL GATE**
-5. @semantic-modeler — Generate **physical model** from approved logical
-6. @primary-agent — Implementation (must match approved physical model)
-7. @lineage-tracker — OpenLineage capture
-8. @dq-engineer — Quality rules + scorecard
-9. @cde-tagger — CDE mapping update
-10. @doc-generator — Dictionary + contracts update
-11. @governance-reviewer — Post-implementation completeness check (verifies models match)
-12. @staff-engineer — Final quality review (LAST gate before completion)
+5. @data-analyst — EDA on source data (profile what will populate base tables, inform thresholds)
+6. @dq-rule-writer — Write base DQ rules from EDA report + logical model (uniqueness, referential integrity, consistency, coverage)
+7. @semantic-modeler — Generate **physical model** from approved logical
+8. @primary-agent — Implementation (must match approved physical model)
+9. @dq-engineer — Execute all rules against real data, produce scorecard
+10. @lineage-tracker — OpenLineage capture
+11. @cde-tagger — CDE mapping update
+12. @doc-generator — Dictionary + contracts update
+13. @governance-reviewer — Post-implementation completeness check (verifies models match)
+14. @staff-engineer — Final quality review (LAST gate before completion)
 
 #### Backfill Mode (existing tables, missing models)
 1. @semantic-modeler — Reverse-engineer **physical model** from existing tables/code
 2. @semantic-modeler — Abstract **logical model** from physical → **HUMAN APPROVAL GATE**
-3. @semantic-modeler — Abstract **conceptual model** from logical → **HUMAN APPROVAL GATE**
-4. @data-steward — Extract **business terms** from conceptual model → **HUMAN APPROVAL GATE** (project-specific terms only)
-5. @governance-reviewer — Post-backfill completeness check (verifies models and glossary are consistent with existing implementation)
-6. @staff-engineer — Final review
+3. @data-analyst — EDA on existing base data (profile actual data state)
+4. @dq-rule-writer — Write base DQ rules from EDA report + logical model
+5. @dq-engineer — Execute rules, produce scorecard
+6. @semantic-modeler — Abstract **conceptual model** from logical → **HUMAN APPROVAL GATE**
+7. @data-steward — Extract **business terms** from conceptual model → **HUMAN APPROVAL GATE** (project-specific terms only)
+8. @governance-reviewer — Post-backfill completeness check (verifies models and glossary are consistent with existing implementation)
+9. @staff-engineer — Final review
 
 #### Mode Detection
 @semantic-modeler determines the mode automatically:
@@ -90,6 +97,7 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 - When `governance/business-glossary.json` is modified, update the "Business Glossary" section of `README.md` (term counts, key terms tables)
 - Data models store governance metadata as **IDs only** (`BT-XXX`, `CDE-XXX`, PII flag) — never inline definitions. Authoritative sources: `governance/business-glossary.json` (terms), `governance/cde-catalog.json` (CDEs), `governance/policies/` (PII). Documentation (README) dereferences IDs into human-readable names.
 - All model levels include `Business Term`, `CDE`, `PII` columns: conceptual on entity tables, logical on attribute tables, physical on column tables
+- DQ has three agents with distinct roles: @data-analyst (profiles data, produces EDA reports), @dq-rule-writer (writes rules from EDA evidence), @dq-engineer (executes rules, produces scorecards). No agent does another's job.
 - DQ rules follow a lifecycle: `PROPOSED → APPROVED → ACTIVE`. Rules must be executed against real Iceberg data via `python -m src.infra.dq_runner run`. P0 failures block spec completion.
 - DQ rule approval respects `REQUIRE_HUMAN_APPROVAL` — when False, proposed rules auto-advance to approved
 - DQ scorecards must be generated from real execution results (`python -m src.infra.dq_runner scorecard`), not test results
