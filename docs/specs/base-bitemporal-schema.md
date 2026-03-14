@@ -1,6 +1,6 @@
 # Base Zone: Bitemporal Schema
 
-## Status: 🟠 IMPLEMENTATION
+## Status: 🟢 COMPLETE
 
 | Status | Meaning |
 |--------|---------|
@@ -24,7 +24,7 @@
 | Zone | Base |
 | Primary Agent | @bitemporal-schema |
 | Blocked By | — |
-| Depends On | `base-financial-facts-model` (🟠 IMPLEMENTATION) |
+| Depends On | `base-financial-facts-model` (🟢 COMPLETE) |
 
 ---
 
@@ -146,3 +146,62 @@ python -m src.base.bitemporal.cli validate
 | Audit Trail | `governance/audit-trail/base-bitemporal-schema.json` |
 | DQ Rules | `governance/dq-rules/base-bitemporal-schema.json` |
 | DQ Scorecard | `governance/dq-scorecards/base-bitemporal-schema-scorecard.md` |
+
+## Staff Engineer Review
+### Date: 2026-03-14
+### Reviewer: @staff-engineer
+### Status: APPROVED
+
+### Review Summary
+
+This spec is clean, focused, and well-executed. It does exactly what the spec says — adds an ergonomic layer (query helpers, snapshot management, temporal DQ rules) on top of the existing `base.financial_facts` table without creating new tables or modifying existing schemas. Approved.
+
+### Code Quality
+
+**queries.py** — Solid. The `as_known_on` function is the most interesting piece: it correctly re-computes supersession within a filed_date window rather than relying on the pre-computed `is_superseded` flag. This is the right approach because `is_superseded` reflects the *current* state, not the state at a historical point in time. The SUPERSESSION_GRAIN is imported from `financial_facts_model.config` (single source of truth) rather than re-defined. `compare_periods` handles the division-by-zero case for `pct_change` when `val1 == 0`.
+
+**snapshot_registry.py** — Clean separation. Functions that need Iceberg infra are isolated here, keeping `queries.py` and `validation.py` testable with plain list[dict]. The `snapshot_diff_summary` uses `fact_id` set arithmetic to compute added/removed counts, which is correct.
+
+**validation.py** — All 5 rules handle string-vs-date coercion consistently. The 99% threshold on BASE-BT-004 is well-justified (NT filings, early filings). `run_all_validations` aggregates cleanly with a `reference_date` parameter that threads through to BASE-BT-001, making tests deterministic.
+
+**cli.py** — Functional. The `cmd_history` auto-detection of `start_date` when not provided is a nice UX touch. Lazy imports (`from .queries import ...` inside command functions) keep startup fast.
+
+**config.py** — Read-only re-export of `financial_facts_model.config`. No new state, no new tables. Exactly right.
+
+### Test Quality
+
+29 tests, all passing. No test theater detected.
+
+- **test_queries.py** (12 tests): Uses a well-constructed `_make_fact` factory with realistic defaults. Tests validate actual behavior — `test_before_amendment` and `test_after_amendment` verify that `as_known_on` returns different values based on the as-of date window, which is the core bitemporal query use case. `test_missing_period_returns_none` validates the null case.
+
+- **test_validation.py** (10 tests): Each rule has both pass and fail scenarios with assertions on violation counts, not just boolean pass/fail. The `test_fail_start_equals_end` correctly treats `start == end` as a violation (the spec says `start < end`, not `start <= end`). Tests use explicit `reference_date` parameters to avoid time-dependent flakiness.
+
+- **test_snapshot_registry.py** (5 tests): These are real integration tests — they create actual Iceberg tables in temp directories, append data to create multiple snapshots, then test `get_labeled_snapshots`, `find_snapshot_at`, `snapshot_diff_summary`, and `read_at_snapshot` against real snapshot IDs. No mocks. This is the right way to test snapshot behavior.
+
+- **test_cli.py** (2 tests): Mocks `_load_facts` and `_load_table` to test CLI wiring without Iceberg infra. Validates that the `validate` command outputs all 5 rule IDs and the pass count.
+
+### Governance Artifacts
+
+All four governance artifacts are substantive, not boilerplate:
+
+- **Lineage** (`governance/lineage/base-bitemporal-schema.json`): Correctly identifies `base.financial_facts` as the sole input with `usage: "Read-only"` and empty outputs (no new tables). Includes spec reference and agent attribution.
+
+- **Audit Trail** (`governance/audit-trail/base-bitemporal-schema.json`): Six decisions documented with rationale and confidence levels. Each one explains the *why* (e.g., "filed_date is the real-world 'when was this known?' signal" for the as_known_on design choice).
+
+- **DQ Rules** (`governance/dq-rules/base-bitemporal-schema.json`): All 5 rules documented with categories, priorities, thresholds, and rationale. The rules match the implementation exactly — function signatures, threshold values, and descriptions are consistent.
+
+- **DQ Scorecard** (`governance/dq-scorecards/base-bitemporal-schema-scorecard.md`): Comprehensive — covers not just the 5 DQ rules but also the 12 query helper behaviors and 5 snapshot registry behaviors with test cross-references. Reports full suite compatibility (175 tests passing).
+
+### Minor Observations (Non-blocking)
+
+1. **Empty list edge cases**: `as_known_on([])` returns `[]`, `compare_periods` with empty input returns `None`, `fact_history` with no matches returns `[]`. All behave sensibly, though none have explicit tests for the empty case. Not blocking because the behavior is correct by construction (list comprehensions on empty lists return empty lists).
+
+2. **CLI test coverage**: Only 2 of 5 CLI commands are tested (`validate`, `snapshots`). The `query`, `as-known-on`, and `history` commands are untested at the CLI layer, though their underlying functions are thoroughly tested in `test_queries.py`. Acceptable since the CLI is thin wiring.
+
+3. **`cmd_query` assumes val is always a number** (line 55: `f.get('val'):,.2f`). If `val` is None, this would raise a TypeError. Low risk since `financial_facts` validates non-null values upstream, but worth noting.
+
+### Verdict
+
+**APPROVED.** The implementation matches the spec, the tests validate real behavior, the governance artifacts contain real reasoning, and the architectural decisions are sound. The minor observations above are informational — none warrant blocking.
+
+Spec is ready to be marked COMPLETE.

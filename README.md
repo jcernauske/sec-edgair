@@ -50,6 +50,7 @@ Each zone is governed by AI agents that produce lineage, data quality rules, CDE
 | `base-entity-resolution` | Complete | Maps SEC EDGAR CIKs to canonical company identities. 20 companies resolved via exact CIK match (confidence 1.0). Human approval gate with CLI (`approve`, `reject`, `status`). Produces `base.entity_mappings` + `base.entity_resolution_audit` Iceberg tables. |
 | `base-xbrl-tag-normalization` | Complete | Maps 3,285 us-gaap XBRL concepts to 25 canonical financial CDEs via tiered matching engine. **Tier 1** (37 exact matches, confidence 1.0): core concepts like Revenue, Assets, Net Income. **Tier 2** (305 prefix/pattern matches, confidence 0.6-0.7): known variants. **Tier 3** (2,943 unmapped, confidence 0.0): long-tail concepts tagged with heuristic categories. Produces `base.concept_mappings` + `base.tag_normalization_audit` Iceberg tables. Reuses entity_resolution staging module for human approval gate. |
 | `base-financial-facts-model` | Complete | Denormalized fact table joining raw XBRL facts with entity/concept metadata. **547K facts** enriched with 28 columns including supersession detection, fiscal calendar alignment, and amendment tracking. Produces `base.financial_facts` + `base.fiscal_calendar` + `base.amendment_tracking` Iceberg tables. 40 tests, 7 DQ rules at 100%. |
+| `base-bitemporal-schema` | Complete | Temporal query helpers, snapshot management, and validation on top of `base.financial_facts`. Point-in-time queries (`as_known_on`), amendment history, period comparison, Iceberg time travel. No new tables — ergonomic layer. 29 tests, 5 DQ rules. |
 
 ### Phases 3-4: Consumable & AI-Ready
 
@@ -545,7 +546,7 @@ erDiagram
 # Install
 uv sync
 
-# Run tests (146 tests)
+# Run tests (175 tests)
 uv run pytest
 
 # Run XBRL tag normalization
@@ -561,6 +562,10 @@ uv run python -m src.base.entity_resolution.cli approve
 # Run financial facts model
 uv run python -m src.base.financial_facts_model.cli all
 uv run python -m src.base.financial_facts_model.cli status
+
+# Bitemporal queries
+uv run python -m src.base.bitemporal.cli query --cik 320193 --concept Assets
+uv run python -m src.base.bitemporal.cli validate
 ```
 
 ## Project Structure
@@ -573,6 +578,7 @@ src/                            Source code organized by zone
     entity_resolution/           CIK → canonical company identity
     xbrl_tag_normalization/      XBRL concept → canonical CDE
     financial_facts_model/       Denormalized facts + fiscal calendar + amendments
+    bitemporal/                  Temporal queries + snapshot management + validation
 data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
   business-glossary.json        25 business terms (XBRL, SEC EDGAR, project-specific)
@@ -586,6 +592,6 @@ governance/                     Governance artifacts
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (146 passing)
+tests/                          Tests organized by zone (175 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```
