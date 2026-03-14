@@ -240,6 +240,16 @@ erDiagram
     EntityMapping ||--o{ EntityResolutionAudit : "has audit trail"
 ```
 
+| Attribute | Business Term |
+|-----------|---------------|
+| cik | BT-001: Central Index Key (CIK) |
+| canonical_name | BT-005: Canonical Company Identity |
+| raw_entity_name | BT-003: Legal Entity Name |
+| sic_code | BT-025: SIC Code |
+| confidence | BT-010: Confidence Score |
+| approved_by | BT-016: Human Approval Gate |
+| confidence_at_action | BT-010: Confidence Score |
+
 ### Logical: XBRL Tag Normalization
 
 ```mermaid
@@ -278,6 +288,16 @@ erDiagram
     ConceptMapping }o--o| CanonicalCDE : "maps to"
     ConceptMapping ||--o{ TagNormalizationAudit : "has audit trail"
 ```
+
+| Attribute | Business Term |
+|-----------|---------------|
+| concept | BT-009: XBRL Concept |
+| canonical_cde | BT-013: Canonical CDE |
+| cde_id | BT-013: Canonical CDE |
+| financial_statement | BT-021: Financial Statement |
+| tier | BT-015: Tier |
+| confidence | BT-010: Confidence Score |
+| confidence_at_action | BT-010: Confidence Score |
 
 ### Logical: Financial Facts Model
 
@@ -349,6 +369,21 @@ erDiagram
     Entity ||--o{ FiscalCalendar : "has periods"
     FinancialFact ||--o{ AmendmentTracking : "superseded by"
 ```
+
+| Attribute | Business Term |
+|-----------|---------------|
+| cik | BT-001: Central Index Key (CIK) |
+| canonical_name | BT-005: Canonical Company Identity |
+| concept | BT-009: XBRL Concept |
+| cde_id / canonical_cde | BT-013: Canonical CDE |
+| financial_statement | BT-021: Financial Statement |
+| tier | BT-015: Tier |
+| taxonomy | BT-020: XBRL Taxonomy |
+| fiscal_year / fiscal_period | BT-018: Fiscal Period |
+| accession_number | BT-002: Accession Number |
+| filed_date | BT-006: Filing Date |
+| is_amendment | BT-007: Amendment |
+| is_superseded / superseded_by | BT-012: Supersession |
 
 ### Physical: Entity Resolution
 
