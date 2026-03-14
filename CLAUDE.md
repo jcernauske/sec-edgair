@@ -13,12 +13,14 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 - Source code: `src/` (organized by zone: raw, base, consumable, ai_ready)
 - Data: `data/` (gitignored, organized by zone)
 - Governance artifacts: `governance/`
+- Data models: `governance/models/` (conceptual, logical, physical)
 - Specs: `docs/specs/`
 - Tests: `tests/` (organized by zone)
 - Agent definitions: `.claude/agents/`
 
 ## Agent Workflow
-Every spec follows this mandatory pipeline:
+
+### Raw Zone Pipeline (physical-only, quick and dirty)
 1. @governance-reviewer — Pre-implementation review
 2. @primary-agent — Implementation
 3. @lineage-tracker — OpenLineage capture
@@ -28,12 +30,31 @@ Every spec follows this mandatory pipeline:
 7. @governance-reviewer — Post-implementation completeness check
 8. @staff-engineer — Final quality review (LAST gate before completion)
 
+### Base & Consumable Zone Pipeline (with data modeling gates)
+1. @governance-reviewer — Pre-implementation review (checks model gate below)
+2. @semantic-modeler — Propose **conceptual model** → **HUMAN APPROVAL GATE**
+3. @semantic-modeler — Propose **logical model** → **HUMAN APPROVAL GATE**
+4. @semantic-modeler — Generate **physical model** from approved logical
+5. @primary-agent — Implementation (must match approved physical model)
+6. @lineage-tracker — OpenLineage capture
+7. @dq-engineer — Quality rules + scorecard
+8. @cde-tagger — CDE mapping update
+9. @doc-generator — Dictionary + contracts update
+10. @governance-reviewer — Post-implementation completeness check (verifies models match)
+11. @staff-engineer — Final quality review (LAST gate before completion)
+
+The human approval gates at steps 2-3 are controlled by `REQUIRE_HUMAN_APPROVAL` in `src/config.py`. When False (dev/demo mode), models auto-advance but all three artifacts are still produced in `governance/models/`.
+
+Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md`, `[spec-name]-logical.md`, `[spec-name]-physical.md`.
+
 ## Rules
 - Specs are the source of truth — if it's not in the spec, it doesn't get built
 - Every transformation produces governance artifacts (lineage, DQ rules, CDE tags, audit trail)
 - DQ rules validate real data, never placeholders
 - Every agent logs its reasoning, not just outputs
 - No changes to data schemas without a spec
+- Base/Consumable tables require approved conceptual → logical → physical models before implementation
+- `REQUIRE_HUMAN_APPROVAL` in `src/config.py` is the single global toggle for all human-in-the-loop gates
 - @staff-engineer reviews last — no spec is marked complete until he approves
 - @staff-engineer can send work back to any agent for fixes
 - Test theater (tests that don't validate real behavior) is a rejection

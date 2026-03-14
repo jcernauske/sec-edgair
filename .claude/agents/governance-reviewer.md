@@ -35,6 +35,20 @@ Before a spec moves to implementation, verify:
 - [ ] Breaking changes to existing schemas are flagged
 - [ ] Testing approach is defined
 
+### Data Model Gate (Base & Consumable zones only)
+
+For specs that create or modify tables in the Base or Consumable zones, the 3-stage data modeling progression must be complete before implementation:
+
+- [ ] **Conceptual model** exists in `governance/models/[spec-name]-conceptual.md` and is APPROVED
+- [ ] **Logical model** exists in `governance/models/[spec-name]-logical.md` and is APPROVED
+- [ ] **Physical model** exists in `governance/models/[spec-name]-physical.md` and is derived from the approved logical model
+
+If `REQUIRE_HUMAN_APPROVAL = False` in `src/config.py`, models may be AUTO-APPROVED, but all three artifacts must still exist.
+
+**Raw zone specs skip this gate** — raw tables use physical-only models (data lands as-is).
+
+This gate is **blocking** — do not approve pre-implementation review if models are missing or unapproved.
+
 ## Post-Implementation Governance Completeness Checklist
 
 After implementation, verify every applicable item:
@@ -46,7 +60,8 @@ After implementation, verify every applicable item:
 - [ ] **Data Dictionary:** New or modified fields have entries in `governance/data-dictionary.json`
 - [ ] **Data Contracts:** Consumable zone tables have data contracts
 - [ ] **Audit Trail:** Agent decision logs exist in `governance/audit-trail/` for this spec
-- [ ] **Schema Changes:** Any schema changes match what the spec defined
+- [ ] **Schema Changes:** Any schema changes match what the spec defined and the approved physical model
+- [ ] **Data Models (Base/Consumable only):** All three model stages exist in `governance/models/` and physical model matches implementation
 - [ ] **No Orphaned Artifacts:** No governance artifacts reference tables or fields that don't exist
 - [ ] **Consistency:** Lineage, CDE tags, data dictionary, and DQ rules all reference the same field names and table names
 

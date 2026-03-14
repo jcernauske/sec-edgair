@@ -6,8 +6,7 @@ rules that classify 3,285 us-gaap XBRL concepts into those CDEs.
 
 from pathlib import Path
 
-# Human approval gate toggle (reuses entity_resolution.staging gate logic)
-REQUIRE_HUMAN_APPROVAL = True
+from src.config import REQUIRE_HUMAN_APPROVAL  # noqa: F401 — re-exported for local imports
 
 # Confidence threshold — mappings below this ALWAYS require human approval
 CONFIDENCE_FLOOR = 0.7

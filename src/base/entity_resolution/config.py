@@ -2,10 +2,7 @@
 
 from pathlib import Path
 
-# Human approval gate toggle
-# When True: proposed mappings pause for human review
-# When False: auto-promote mappings with confidence >= 0.7
-REQUIRE_HUMAN_APPROVAL = True
+from src.config import REQUIRE_HUMAN_APPROVAL  # noqa: F401 — re-exported for local imports
 
 # Confidence threshold — mappings below this ALWAYS require human approval
 # regardless of the REQUIRE_HUMAN_APPROVAL toggle
