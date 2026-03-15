@@ -9,8 +9,8 @@ def _make_proposals():
         {
             "mapping_id": "TN-0001",
             "concept": "Assets",
-            "canonical_cde": "Total Assets",
-            "cde_id": "CDE-007",
+            "business_term": "Total Assets",
+            "business_term_id": "BT-024",
             "financial_statement": "balance_sheet",
             "category": "assets",
             "tier": 1,
@@ -25,8 +25,8 @@ def _make_proposals():
         {
             "mapping_id": "TN-0002",
             "concept": "Revenues",
-            "canonical_cde": "Revenue",
-            "cde_id": "CDE-015",
+            "business_term": "Revenue",
+            "business_term_id": "BT-022",
             "financial_statement": "income_statement",
             "category": "revenue",
             "tier": 1,

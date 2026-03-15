@@ -15,17 +15,17 @@ def current_facts(
     *,
     cik: int | None = None,
     concept: str | None = None,
-    cde_id: str | None = None,
+    business_term_id: str | None = None,
 ) -> list[dict]:
-    """Return non-superseded facts, optionally filtered by cik/concept/cde_id."""
+    """Return non-superseded facts, optionally filtered by cik/concept/business_term_id."""
     result = [f for f in facts if not f.get("is_superseded", False)]
 
     if cik is not None:
         result = [f for f in result if f.get("cik") == cik]
     if concept is not None:
         result = [f for f in result if f.get("concept") == concept]
-    if cde_id is not None:
-        result = [f for f in result if f.get("cde_id") == cde_id]
+    if business_term_id is not None:
+        result = [f for f in result if f.get("business_term_id") == business_term_id]
 
     return result
 

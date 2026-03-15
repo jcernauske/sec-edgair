@@ -18,8 +18,8 @@ erDiagram
     base_concept_mappings {
         STRING mapping_id PK "Stable ID | ConceptMapping.mapping_id"
         STRING concept "XBRL concept | ConceptMapping.concept"
-        STRING cde_id "CDE reference | ConceptMapping.cde_id"
-        STRING canonical_cde "CDE name | ConceptMapping.canonical_cde"
+        STRING business_term_id "CDE reference | ConceptMapping.business_term_id"
+        STRING business_term "CDE name | ConceptMapping.business_term"
     }
     base_financial_facts {
         STRING fact_id PK "SHA-256 of grain fields | FinancialFact.fact_id"
@@ -28,8 +28,8 @@ erDiagram
         STRING canonical_name "Company name (denorm) | FinancialFact.canonical_name"
         STRING ticker "Stock ticker (denorm) | FinancialFact.ticker"
         STRING concept "XBRL concept name | FinancialFact.concept"
-        STRING cde_id FK "CDE reference (denorm) | FinancialFact.cde_id"
-        STRING canonical_cde "CDE name (denorm) | FinancialFact.canonical_cde"
+        STRING business_term_id FK "CDE reference (denorm) | FinancialFact.business_term_id"
+        STRING business_term "CDE name (denorm) | FinancialFact.business_term"
         STRING financial_statement "Statement type (denorm) | FinancialFact.financial_statement"
         STRING category "Subcategory (denorm) | FinancialFact.category"
         INTEGER tier "Match tier (denorm) | FinancialFact.tier"
@@ -96,80 +96,80 @@ erDiagram
 - **Partitioning:** None
 - **Estimated Row Count:** ~547,000
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | CDE | PII |
-|--------|------------|----------|-------------|----------------|---------------|-----|-----|
-| fact_id | STRING | No | SHA-256 hash of grain fields, truncated to 16 chars | Computed: SHA-256(cik, concept, unit, start_date, end_date, accession_number)[:16] | — | — | None |
-| entity_id | STRING | No | FK to entity_mappings.mapping_id | Looked up by CIK | — | — | None |
-| cik | INTEGER | No | SEC Central Index Key | raw.xbrl_company_facts.cik | BT-001 | CDE-001 | None |
-| canonical_name | STRING | No | Normalized company name | entity_mappings.canonical_name | BT-005 | CDE-005 | None |
-| ticker | STRING | Yes | Stock ticker | entity_mappings.ticker | — | — | None |
-| concept | STRING | No | XBRL concept name | raw.xbrl_company_facts.concept | BT-009 | — | None |
-| cde_id | STRING | Yes | CDE catalog reference (null for Tier 3) | concept_mappings.cde_id | BT-013 | CDE-007..031 (dynamic) | None |
-| canonical_cde | STRING | Yes | CDE name (null for Tier 3) | concept_mappings.canonical_cde | BT-013 | CDE-007..031 (dynamic) | None |
-| financial_statement | STRING | No | Statement classification | concept_mappings.financial_statement | BT-021 | — | None |
-| category | STRING | No | Subcategory | concept_mappings.category | — | — | None |
-| tier | INTEGER | No | Mapping tier (1/2/3) | concept_mappings.tier | BT-015 | — | None |
-| taxonomy | STRING | No | XBRL taxonomy (us-gaap, dei, etc.) | raw.xbrl_company_facts.taxonomy | BT-020 | — | None |
-| unit | STRING | No | Measurement unit (USD, shares, USD/shares) | raw.xbrl_company_facts.unit | — | — | None |
-| val | DOUBLE | No | Reported fact value | raw.xbrl_company_facts.val | — | — | None |
-| start_date | DATE | Yes | Period start (null for instant facts) | raw.xbrl_company_facts.start_date | — | — | None |
-| end_date | DATE | No | Period end | raw.xbrl_company_facts.end_date | — | — | None |
-| fiscal_year | INTEGER | No | Fiscal year | raw.xbrl_company_facts.fiscal_year | BT-018 | CDE-005 | None |
-| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | BT-018 | CDE-006 | None |
-| fiscal_year_end | STRING | Yes | MMDD format | entity_mappings.fiscal_year_end | — | — | None |
-| calendar_year | INTEGER | No | Calendar year of end_date | Computed: end_date.year | — | — | None |
-| calendar_quarter | INTEGER | No | Calendar quarter of end_date | Computed: (end_date.month - 1) / 3 + 1 | — | — | None |
-| accession_number | STRING | No | SEC accession number | raw.xbrl_company_facts.accession_number | BT-002 | CDE-002 | None |
-| form | STRING | No | Filing form type | raw.xbrl_company_facts.form | — | — | None |
-| filed_date | DATE | No | SEC filing date | raw.xbrl_company_facts.filed_date | BT-006 | CDE-004 | None |
-| is_amendment | BOOLEAN | No | Form ends in "/A" | Computed: form.endswith("/A") | BT-007 | — | None |
-| is_superseded | BOOLEAN | No | Later filing exists for same supersession grain | Computed by _apply_supersession() | BT-012 | — | None |
-| superseded_by | STRING | Yes | Accession number of superseding filing | Set by _apply_supersession() | BT-012 | — | None |
-| promoted_at | TIMESTAMPTZ | No | When written to base zone | Generated at promote time | — | — | None |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Is CDE | Is PII |
+|--------|------------|----------|-------------|----------------|---------------|--------|--------|
+| fact_id | STRING | No | SHA-256 hash of grain fields, truncated to 16 chars | Computed: SHA-256(cik, concept, unit, start_date, end_date, accession_number)[:16] | — | No | No |
+| entity_id | STRING | No | FK to entity_mappings.mapping_id | Looked up by CIK | — | No | No |
+| cik | INTEGER | No | SEC Central Index Key | raw.xbrl_company_facts.cik | BT-001 | Yes | No |
+| canonical_name | STRING | No | Normalized company name | entity_mappings.canonical_name | BT-005 | Yes | No |
+| ticker | STRING | Yes | Stock ticker | entity_mappings.ticker | — | No | No |
+| concept | STRING | No | XBRL concept name | raw.xbrl_company_facts.concept | BT-009 | No | No |
+| cde_id | STRING | Yes | CDE catalog reference (null for Tier 3) | concept_mappings.cde_id | BT-013 | Yes | No |
+| canonical_cde | STRING | Yes | CDE name (null for Tier 3) | concept_mappings.canonical_cde | BT-013 | Yes | No |
+| financial_statement | STRING | No | Statement classification | concept_mappings.financial_statement | BT-021 | No | No |
+| category | STRING | No | Subcategory | concept_mappings.category | — | No | No |
+| tier | INTEGER | No | Mapping tier (1/2/3) | concept_mappings.tier | BT-015 | No | No |
+| taxonomy | STRING | No | XBRL taxonomy (us-gaap, dei, etc.) | raw.xbrl_company_facts.taxonomy | BT-020 | No | No |
+| unit | STRING | No | Measurement unit (USD, shares, USD/shares) | raw.xbrl_company_facts.unit | — | No | No |
+| val | DOUBLE | No | Reported fact value | raw.xbrl_company_facts.val | — | No | No |
+| start_date | DATE | Yes | Period start (null for instant facts) | raw.xbrl_company_facts.start_date | — | No | No |
+| end_date | DATE | No | Period end | raw.xbrl_company_facts.end_date | — | No | No |
+| fiscal_year | INTEGER | No | Fiscal year | raw.xbrl_company_facts.fiscal_year | BT-018 | Yes | No |
+| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | BT-018 | Yes | No |
+| fiscal_year_end | STRING | Yes | MMDD format | entity_mappings.fiscal_year_end | — | No | No |
+| calendar_year | INTEGER | No | Calendar year of end_date | Computed: end_date.year | — | No | No |
+| calendar_quarter | INTEGER | No | Calendar quarter of end_date | Computed: (end_date.month - 1) / 3 + 1 | — | No | No |
+| accession_number | STRING | No | SEC accession number | raw.xbrl_company_facts.accession_number | BT-002 | Yes | No |
+| form | STRING | No | Filing form type | raw.xbrl_company_facts.form | — | No | No |
+| filed_date | DATE | No | SEC filing date | raw.xbrl_company_facts.filed_date | BT-006 | Yes | No |
+| is_amendment | BOOLEAN | No | Form ends in "/A" | Computed: form.endswith("/A") | BT-007 | No | No |
+| is_superseded | BOOLEAN | No | Later filing exists for same supersession grain | Computed by _apply_supersession() | BT-012 | No | No |
+| superseded_by | STRING | Yes | Accession number of superseding filing | Set by _apply_supersession() | BT-012 | No | No |
+| promoted_at | TIMESTAMPTZ | No | When written to base zone | Generated at promote time | — | No | No |
 
 #### base.fiscal_calendar
 - **Grain:** One row per (cik, fiscal_year, fiscal_period)
 - **Partitioning:** None
 - **Estimated Row Count:** ~1,600 (20 companies x ~80 periods)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | CDE | PII |
-|--------|------------|----------|-------------|----------------|---------------|-----|-----|
-| calendar_id | STRING | No | SHA-256 hash of (cik, fiscal_year, fiscal_period) | Computed | — | — | None |
-| cik | INTEGER | No | Company | raw.xbrl_company_facts.cik | BT-001 | CDE-001 | None |
-| entity_id | STRING | No | FK to entity_mappings | Looked up by CIK | — | — | None |
-| fiscal_year | INTEGER | No | e.g., 2024 | raw.xbrl_company_facts.fiscal_year | BT-018 | CDE-005 | None |
-| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | BT-018 | CDE-006 | None |
-| fiscal_year_end | STRING | No | MMDD from entity_mappings | entity_mappings.fiscal_year_end | — | — | None |
-| period_start | DATE | Yes | Earliest start_date observed for this period | Computed: min(start_date) | — | — | None |
-| period_end | DATE | No | Latest end_date observed for this period | Computed: max(end_date) | — | — | None |
-| calendar_year | INTEGER | No | Calendar year of period_end | Computed: period_end.year | — | — | None |
-| calendar_quarter | INTEGER | No | Calendar quarter of period_end | Computed: (period_end.month - 1) / 3 + 1 | — | — | None |
-| duration_days | INTEGER | Yes | period_end - period_start in days | Computed (null if period_start is null) | — | — | None |
-| is_annual | BOOLEAN | No | True if fiscal_period == "FY" | Computed | — | — | None |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Is CDE | Is PII |
+|--------|------------|----------|-------------|----------------|---------------|--------|--------|
+| calendar_id | STRING | No | SHA-256 hash of (cik, fiscal_year, fiscal_period) | Computed | — | No | No |
+| cik | INTEGER | No | Company | raw.xbrl_company_facts.cik | BT-001 | Yes | No |
+| entity_id | STRING | No | FK to entity_mappings | Looked up by CIK | — | No | No |
+| fiscal_year | INTEGER | No | e.g., 2024 | raw.xbrl_company_facts.fiscal_year | BT-018 | Yes | No |
+| fiscal_period | STRING | No | FY, Q1, Q2, Q3, Q4 | raw.xbrl_company_facts.fiscal_period | BT-018 | Yes | No |
+| fiscal_year_end | STRING | No | MMDD from entity_mappings | entity_mappings.fiscal_year_end | — | No | No |
+| period_start | DATE | Yes | Earliest start_date observed for this period | Computed: min(start_date) | — | No | No |
+| period_end | DATE | No | Latest end_date observed for this period | Computed: max(end_date) | — | No | No |
+| calendar_year | INTEGER | No | Calendar year of period_end | Computed: period_end.year | — | No | No |
+| calendar_quarter | INTEGER | No | Calendar quarter of period_end | Computed: (period_end.month - 1) / 3 + 1 | — | No | No |
+| duration_days | INTEGER | Yes | period_end - period_start in days | Computed (null if period_start is null) | — | No | No |
+| is_annual | BOOLEAN | No | True if fiscal_period == "FY" | Computed | — | No | No |
 
 #### base.amendment_tracking
 - **Grain:** One row per supersession pair (original filing → amending filing)
 - **Partitioning:** None
 - **Estimated Row Count:** Sparse (only amendments exist)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | CDE | PII |
-|--------|------------|----------|-------------|----------------|---------------|-----|-----|
-| tracking_id | STRING | No | UUID primary key | Generated (uuid4) | — | — | None |
-| cik | INTEGER | No | Company | From financial_facts | BT-001 | CDE-001 | None |
-| concept | STRING | No | XBRL concept amended | From financial_facts | BT-009 | — | None |
-| unit | STRING | No | Measurement unit | From financial_facts | — | — | None |
-| start_date | DATE | Yes | Period start of amended fact | From financial_facts | — | — | None |
-| end_date | DATE | No | Period end of amended fact | From financial_facts | — | — | None |
-| original_accession | STRING | No | First filing (superseded) | From superseded fact | BT-002 | CDE-002 | None |
-| original_filed_date | DATE | No | When original was filed | From superseded fact | BT-006 | CDE-004 | None |
-| original_val | DOUBLE | No | Original reported value | From superseded fact | — | — | None |
-| amendment_accession | STRING | No | Amending filing | From superseding fact | BT-002 | CDE-002 | None |
-| amendment_filed_date | DATE | No | When amendment was filed | From superseding fact | BT-006 | CDE-004 | None |
-| amendment_val | DOUBLE | No | New reported value | From superseding fact | — | — | None |
-| val_change | DOUBLE | No | amendment_val - original_val | Computed | — | — | None |
-| val_change_pct | DOUBLE | Yes | Percentage change (null if original_val = 0) | Computed | — | — | None |
-| amendment_form | STRING | No | "10-K/A", "10-Q/A" | From superseding fact | BT-007 | — | None |
-| detected_at | TIMESTAMPTZ | No | When detected by pipeline | Generated at detection time | — | — | None |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Is CDE | Is PII |
+|--------|------------|----------|-------------|----------------|---------------|--------|--------|
+| tracking_id | STRING | No | UUID primary key | Generated (uuid4) | — | No | No |
+| cik | INTEGER | No | Company | From financial_facts | BT-001 | Yes | No |
+| concept | STRING | No | XBRL concept amended | From financial_facts | BT-009 | No | No |
+| unit | STRING | No | Measurement unit | From financial_facts | — | No | No |
+| start_date | DATE | Yes | Period start of amended fact | From financial_facts | — | No | No |
+| end_date | DATE | No | Period end of amended fact | From financial_facts | — | No | No |
+| original_accession | STRING | No | First filing (superseded) | From superseded fact | BT-002 | Yes | No |
+| original_filed_date | DATE | No | When original was filed | From superseded fact | BT-006 | Yes | No |
+| original_val | DOUBLE | No | Original reported value | From superseded fact | — | No | No |
+| amendment_accession | STRING | No | Amending filing | From superseding fact | BT-002 | Yes | No |
+| amendment_filed_date | DATE | No | When amendment was filed | From superseding fact | BT-006 | Yes | No |
+| amendment_val | DOUBLE | No | New reported value | From superseding fact | — | No | No |
+| val_change | DOUBLE | No | amendment_val - original_val | Computed | — | No | No |
+| val_change_pct | DOUBLE | Yes | Percentage change (null if original_val = 0) | Computed | — | No | No |
+| amendment_form | STRING | No | "10-K/A", "10-Q/A" | From superseding fact | BT-007 | No | No |
+| detected_at | TIMESTAMPTZ | No | When detected by pipeline | Generated at detection time | — | No | No |
 
 ### Physical Design Decisions
 - **Denormalized financial_facts** — entity and concept metadata is duplicated into the fact table to avoid joins at query time. This is intentional: the fact table is the primary query surface, and 547K rows with 28 columns is trivially scannable.

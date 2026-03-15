@@ -19,14 +19,14 @@ erDiagram
 > **†** Entities marked with † have a matching business glossary term
 
 ### Entities
-| Entity | Description | Business Owner | Business Term | CDE | PII |
-|--------|-------------|----------------|--------------|-----|-----|
-| Company † | A publicly traded company that files financial reports with the SEC. Identified by CIK, resolved to a canonical identity. | Data Governance | BT-005 | CDE-001, CDE-005 | None |
-| Financial Fact † | A single reported financial value — one number, for one concept, in one unit, for one reporting period, from one SEC filing. The atomic unit of financial data. | Finance / Data Engineering | BT-017 | CDE-001..CDE-006, CDE-007..CDE-031 (via concept) | None |
-| Financial Concept † | An XBRL metric being measured (e.g., Revenue, Total Assets). May map to a canonical CDE for cross-company comparison. | Data Governance | BT-009 | CDE-007..CDE-031 | None |
-| Fiscal Period † | A company's reporting period (Q1-Q4, Full Year) mapped to calendar dates. Each company has its own fiscal calendar. | Finance / Accounting | BT-018 | CDE-005, CDE-006 | None |
-| SEC Filing † | A document submitted to the SEC (10-K, 10-Q, 10-K/A). The source of all financial facts. Identified by accession number. | Regulatory / Legal | BT-004 | CDE-002, CDE-004 | None |
-| Amendment † | A correction where a later filing supersedes an earlier one for the same fact. Tracks what changed and by how much. | Finance / Audit | BT-007 | CDE-002, CDE-004 | None |
+| Entity | Description | Business Owner | Business Term | Is CDE | Is PII |
+|--------|-------------|----------------|--------------|--------|--------|
+| Company † | A publicly traded company that files financial reports with the SEC. Identified by CIK, resolved to a canonical identity. | Data Governance | BT-005 | Yes | No |
+| Financial Fact † | A single reported financial value — one number, for one concept, in one unit, for one reporting period, from one SEC filing. The atomic unit of financial data. | Finance / Data Engineering | BT-017 | Yes | No |
+| Financial Concept † | An XBRL metric being measured (e.g., Revenue, Total Assets). May map to a canonical CDE for cross-company comparison. | Data Governance | BT-009 | Yes | No |
+| Fiscal Period † | A company's reporting period (Q1-Q4, Full Year) mapped to calendar dates. Each company has its own fiscal calendar. | Finance / Accounting | BT-018 | Yes | No |
+| SEC Filing † | A document submitted to the SEC (10-K, 10-Q, 10-K/A). The source of all financial facts. Identified by accession number. | Regulatory / Legal | BT-004 | Yes | No |
+| Amendment † | A correction where a later filing supersedes an earlier one for the same fact. Tracks what changed and by how much. | Finance / Audit | BT-007 | Yes | No |
 
 ### Relationships
 | From | To | Relationship | Cardinality | Description |

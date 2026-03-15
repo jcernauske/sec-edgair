@@ -47,38 +47,38 @@ erDiagram
 - **Natural Key:** cik (one mapping per CIK)
 - **Description:** A canonical company identity resolved from raw SEC EDGAR entity data. Maps a CIK to a normalized, human-approved company identity with metadata.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | PII | Business Term |
-|-----------|--------|----------|-------------|---------------|-----|--------------|
-| mapping_id | Identifier | No | Stable human-readable ID | — | None | — |
-| cik | Identifier | No | SEC-assigned company identifier | CDE-001 | None | BT-001 |
-| canonical_name | Text | No | Normalized display name | CDE-003 | None | BT-005 |
-| raw_entity_name | Text | No | Original name from SEC EDGAR | — | None | BT-003 |
-| ticker | Text | Yes | Primary stock ticker | — | None | — |
-| sic_code | Text | Yes | Industry classification code | — | None | BT-025 |
-| fiscal_year_end | Text (MMDD) | Yes | Month/day of fiscal year end | — | None | — |
-| confidence | Number (0-1) | No | Resolution confidence score | — | None | BT-010 |
-| resolution_method | Text (enum) | No | How the mapping was determined | — | None | — |
-| status | Text (enum) | No | Approval status | — | None | — |
-| resolved_by | Text | No | Agent that proposed the mapping | — | None | — |
-| approved_by | Text | Yes | Human or auto approver | — | None | BT-016 |
-| resolved_at | Timestamp | No | When proposed | — | None | — |
-| approved_at | Timestamp | Yes | When approved | — | None | — |
+| Attribute | Domain | Nullable | Description | Business Term | Is CDE | Is PII |
+|-----------|--------|----------|-------------|--------------|--------|--------|
+| mapping_id | Identifier | No | Stable human-readable ID | — | No | No |
+| cik | Identifier | No | SEC-assigned company identifier | BT-001 | Yes | No |
+| canonical_name | Text | No | Normalized display name | BT-005 | Yes | No |
+| raw_entity_name | Text | No | Original name from SEC EDGAR | BT-003 | No | No |
+| ticker | Text | Yes | Primary stock ticker | — | No | No |
+| sic_code | Text | Yes | Industry classification code | BT-025 | No | No |
+| fiscal_year_end | Text (MMDD) | Yes | Month/day of fiscal year end | — | No | No |
+| confidence | Number (0-1) | No | Resolution confidence score | BT-010 | No | No |
+| resolution_method | Text (enum) | No | How the mapping was determined | — | No | No |
+| status | Text (enum) | No | Approval status | — | No | No |
+| resolved_by | Text | No | Agent that proposed the mapping | — | No | No |
+| approved_by | Text | Yes | Human or auto approver | BT-016 | No | No |
+| resolved_at | Timestamp | No | When proposed | — | No | No |
+| approved_at | Timestamp | Yes | When approved | — | No | No |
 
 #### EntityResolutionAudit
 - **Primary Key:** audit_id
 - **Foreign Key:** mapping_id → EntityMapping.mapping_id
 - **Description:** Append-only log of every action taken on an entity mapping. Provides full decision history for governance.
 
-| Attribute | Domain | Nullable | Description | CDE Reference | PII | Business Term |
-|-----------|--------|----------|-------------|---------------|-----|--------------|
-| audit_id | Identifier | No | Unique event ID | — | None | — |
-| mapping_id | Identifier | No | Which mapping this action applies to | — | None | — |
-| action | Text (enum) | No | proposed, approved, rejected, updated | — | None | — |
-| actor | Text | No | Who performed the action | — | None | — |
-| reasoning | Text | No | Explanation of decision | — | None | — |
-| evidence | Structured (JSON) | No | Supporting data for the decision | — | None | — |
-| confidence_at_action | Number (0-1) | No | Confidence at time of action | — | None | BT-010 |
-| timestamp | Timestamp | No | When action occurred | — | None | — |
+| Attribute | Domain | Nullable | Description | Business Term | Is CDE | Is PII |
+|-----------|--------|----------|-------------|--------------|--------|--------|
+| audit_id | Identifier | No | Unique event ID | — | No | No |
+| mapping_id | Identifier | No | Which mapping this action applies to | — | No | No |
+| action | Text (enum) | No | proposed, approved, rejected, updated | — | No | No |
+| actor | Text | No | Who performed the action | — | No | No |
+| reasoning | Text | No | Explanation of decision | — | No | No |
+| evidence | Structured (JSON) | No | Supporting data for the decision | — | No | No |
+| confidence_at_action | Number (0-1) | No | Confidence at time of action | BT-010 | No | No |
+| timestamp | Timestamp | No | When action occurred | — | No | No |
 
 ### Relationships
 | Parent Entity | Child Entity | FK Field | Cardinality | On Delete |

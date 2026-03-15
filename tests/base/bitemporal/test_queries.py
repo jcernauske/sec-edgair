@@ -21,7 +21,7 @@ def _make_fact(
     accession_number: str = "0000-23-000001",
     is_superseded: bool = False,
     superseded_by: str | None = None,
-    cde_id: str | None = "CDE-007",
+    business_term_id: str | None = "BT-024",
     canonical_name: str = "Apple Inc.",
 ) -> dict:
     return {
@@ -35,7 +35,7 @@ def _make_fact(
         "accession_number": accession_number,
         "is_superseded": is_superseded,
         "superseded_by": superseded_by,
-        "cde_id": cde_id,
+        "business_term_id": business_term_id,
         "canonical_name": canonical_name,
     }
 
@@ -71,14 +71,14 @@ class TestCurrentFacts:
         assert len(result) == 1
         assert result[0]["concept"] == "Assets"
 
-    def test_filter_by_cde_id(self):
+    def test_filter_by_business_term_id(self):
         facts = [
-            _make_fact(cde_id="CDE-007"),
-            _make_fact(cde_id="CDE-015"),
+            _make_fact(business_term_id="BT-024"),
+            _make_fact(business_term_id="BT-022"),
         ]
-        result = current_facts(facts, cde_id="CDE-007")
+        result = current_facts(facts, business_term_id="BT-024")
         assert len(result) == 1
-        assert result[0]["cde_id"] == "CDE-007"
+        assert result[0]["business_term_id"] == "BT-024"
 
     def test_no_filters_returns_all_current(self):
         facts = [

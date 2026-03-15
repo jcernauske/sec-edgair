@@ -20,7 +20,7 @@ def _seed_tables(tmp_path):
         [{
             "fact_id": "f1", "entity_id": "ER-1", "cik": 1,
             "canonical_name": "Test", "ticker": None,
-            "concept": "Assets", "cde_id": None, "canonical_cde": None,
+            "concept": "Assets", "business_term_id": None, "business_term": None,
             "financial_statement": "balance_sheet", "category": "assets",
             "tier": 1, "taxonomy": "us-gaap", "unit": "USD", "val": 1.0,
             "start_date": None, "end_date": datetime.date(2023, 12, 31),

@@ -18,42 +18,42 @@ def _make_raw_records(concepts: list[str], cik: int = 320193) -> list[dict]:
 # --- Tier 1: Exact Match ---
 
 def test_exact_match_revenue():
-    """'Revenues' should exact-match to CDE-015 (Revenue)."""
+    """'Revenues' should exact-match to BT-022 (Revenue)."""
     result = _classify_concept("Revenues")
     assert result["tier"] == 1
     assert result["confidence"] == 1.0
-    assert result["cde_id"] == "CDE-015"
-    assert result["canonical_cde"] == "Revenue"
+    assert result["business_term_id"] == "BT-022"
+    assert result["business_term"] == "Revenue"
     assert result["mapping_method"] == "exact_match"
 
 
 def test_exact_match_assets():
-    """'Assets' should exact-match to CDE-007."""
+    """'Assets' should exact-match to BT-024."""
     result = _classify_concept("Assets")
     assert result["tier"] == 1
-    assert result["cde_id"] == "CDE-007"
-    assert result["canonical_cde"] == "Total Assets"
+    assert result["business_term_id"] == "BT-024"
+    assert result["business_term"] == "Total Assets"
 
 
 def test_exact_match_net_income():
-    """'NetIncomeLoss' → CDE-019."""
+    """'NetIncomeLoss' → BT-023."""
     result = _classify_concept("NetIncomeLoss")
     assert result["tier"] == 1
-    assert result["cde_id"] == "CDE-019"
+    assert result["business_term_id"] == "BT-023"
 
 
 def test_exact_match_eps_basic():
-    """'EarningsPerShareBasic' → CDE-027."""
+    """'EarningsPerShareBasic' → BT-044."""
     result = _classify_concept("EarningsPerShareBasic")
     assert result["tier"] == 1
-    assert result["cde_id"] == "CDE-027"
+    assert result["business_term_id"] == "BT-044"
 
 
 def test_exact_match_operating_cash_flow():
-    """'NetCashProvidedByUsedInOperatingActivities' → CDE-023."""
+    """'NetCashProvidedByUsedInOperatingActivities' → BT-040."""
     result = _classify_concept("NetCashProvidedByUsedInOperatingActivities")
     assert result["tier"] == 1
-    assert result["cde_id"] == "CDE-023"
+    assert result["business_term_id"] == "BT-040"
 
 
 # --- Tier 2: Prefix Match ---
@@ -63,22 +63,22 @@ def test_prefix_match_revenue_variant():
     result = _classify_concept("RevenueFromContractWithCustomerIncludingAssessedTax")
     assert result["tier"] == 2
     assert result["confidence"] == 0.7
-    assert result["cde_id"] == "CDE-015"
+    assert result["business_term_id"] == "BT-022"
     assert result["mapping_method"] == "prefix_match"
 
 
 def test_prefix_match_inventory_variant():
-    """'InventoryFinishedGoodsNetOfReserves' should prefix-match to CDE-012."""
+    """'InventoryFinishedGoodsNetOfReserves' should prefix-match to BT-031."""
     result = _classify_concept("InventoryFinishedGoodsNetOfReserves")
     assert result["tier"] == 2
-    assert result["cde_id"] == "CDE-012"
+    assert result["business_term_id"] == "BT-031"
 
 
 def test_prefix_match_goodwill_impairment():
-    """'GoodwillImpairmentLoss' should prefix-match to CDE-014."""
+    """'GoodwillImpairmentLoss' should prefix-match to BT-033."""
     result = _classify_concept("GoodwillImpairmentLoss")
     assert result["tier"] == 2
-    assert result["cde_id"] == "CDE-014"
+    assert result["business_term_id"] == "BT-033"
 
 
 # --- Tier 3: Unmapped ---
@@ -88,8 +88,8 @@ def test_unmapped_concept():
     result = _classify_concept("DeferredTaxAssetsOperatingLossCarryforwards")
     assert result["tier"] == 3
     assert result["confidence"] == 0.0
-    assert result["cde_id"] is None
-    assert result["canonical_cde"] is None
+    assert result["business_term_id"] is None
+    assert result["business_term"] is None
     assert result["mapping_method"] == "unmapped"
 
 

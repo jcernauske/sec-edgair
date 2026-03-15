@@ -1,0 +1,84 @@
+{
+  "run_id": "7391df8c",
+  "spec": "base-entity-resolution",
+  "executed_at": "2026-03-15T02:57:17.016479+00:00",
+  "rules_total": 6,
+  "rules_passed": 6,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "BASE-ER-001",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 2,
+      "error": null,
+      "executed_at": "2026-03-15T02:57:17.010934+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-002",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T02:57:17.011520+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-003",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T02:57:17.011971+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-004",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T02:57:17.012384+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-005",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T02:57:17.013063+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-006",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T02:57:17.013680+00:00"
+    }
+  ]
+}

@@ -13,8 +13,8 @@ from pyiceberg.types import (
 CONCEPT_MAPPINGS_SCHEMA = Schema(
     NestedField(field_id=1, name="mapping_id", field_type=StringType(), required=True),
     NestedField(field_id=2, name="concept", field_type=StringType(), required=True),
-    NestedField(field_id=3, name="canonical_cde", field_type=StringType(), required=False),
-    NestedField(field_id=4, name="cde_id", field_type=StringType(), required=False),
+    NestedField(field_id=3, name="business_term", field_type=StringType(), required=False),
+    NestedField(field_id=4, name="business_term_id", field_type=StringType(), required=False),
     NestedField(field_id=5, name="financial_statement", field_type=StringType(), required=True),
     NestedField(field_id=6, name="category", field_type=StringType(), required=True),
     NestedField(field_id=7, name="tier", field_type=IntegerType(), required=True),

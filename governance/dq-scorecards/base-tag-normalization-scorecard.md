@@ -9,11 +9,11 @@
 
 | Rule ID | Category | Priority | Description | Result | Details |
 |---------|----------|----------|-------------|--------|---------|
-| BASE-TN-001 | Completeness | P0 | Every Tier 1 concept has approved mapping | PASS | All exact-match concepts have cde_id and status=approved in test_promote |
-| BASE-TN-002 | Uniqueness | P0 | No concept maps to multiple CDEs | PASS | Each concept classified once via priority cascade: exact > prefix > pattern |
+| BASE-TN-001 | Completeness | P0 | Every Tier 1 concept has approved mapping | PASS | All exact-match concepts have business_term_id and status=approved in test_promote |
+| BASE-TN-002 | Uniqueness | P0 | No concept maps to multiple business terms | PASS | Each concept classified once via priority cascade: exact > prefix > pattern |
 | BASE-TN-003 | Validity | P0 | Confidence scores 0.0-1.0 | PASS | Exact=1.0, prefix=0.7, pattern=0.6, unmapped=0.0 — all in range |
 | BASE-TN-004 | Coverage | P1 | Coverage >= 80% of raw fact instances | PASS | 37 exact-match concepts cover the highest-frequency tags (20/20 companies for many) |
-| BASE-TN-005 | Referential Integrity | P0 | Approved mappings have valid cde_id | PASS | test_promote_mapping_fields_complete verifies cde_id present for approved |
+| BASE-TN-005 | Referential Integrity | P0 | Approved mappings have valid business_term_id | PASS | test_promote_mapping_fields_complete verifies business_term_id present for approved |
 
 ### Summary by Category
 | Category | Rules | Passing | Rate |

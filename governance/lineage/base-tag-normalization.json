@@ -11,7 +11,7 @@
         },
         "secEdgair_agentAttribution": {
           "agentId": "@tag-normalizer",
-          "reasoning": "Classify 3,285 us-gaap XBRL concepts into 25 canonical CDEs via tiered matching (exact, prefix, pattern) with human approval gate for Tier 1+2"
+          "reasoning": "Classify 3,285 us-gaap XBRL concepts into 25 canonical business terms via tiered matching (exact, prefix, pattern) with human approval gate for Tier 1+2"
         }
       }
     },
@@ -52,8 +52,8 @@
             "fields": [
               {"name": "mapping_id", "type": "STRING"},
               {"name": "concept", "type": "STRING"},
-              {"name": "canonical_cde", "type": "STRING"},
-              {"name": "cde_id", "type": "STRING"},
+              {"name": "business_term", "type": "STRING"},
+              {"name": "business_term_id", "type": "STRING"},
               {"name": "financial_statement", "type": "STRING"},
               {"name": "category", "type": "STRING"},
               {"name": "tier", "type": "INTEGER"},
@@ -75,7 +75,7 @@
                 "transformationDescription": "Sequential ID TN-NNNN assigned during normalization, sorted alphabetically by concept",
                 "transformationType": "DERIVED"
               },
-              "canonical_cde": {
+              "business_term": {
                 "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "concept"}],
                 "transformationDescription": "Mapped from raw concept via EXACT_MAPPINGS (tier 1), PREFIX_RULES (tier 2), or PATTERN_RULES (tier 2). Null for tier 3 unmapped.",
                 "transformationType": "DERIVED"

@@ -3,9 +3,9 @@
   "date": "2026-03-14",
   "decisions": [
     {
-      "decision": "25 CDEs covering core financial statements, not sector-specific",
+      "decision": "25 business terms covering core financial statements, not sector-specific",
       "agent": "@tag-normalizer",
-      "rationale": "Covers balance sheet (8), income statement (8), cash flow (4), per-share (3), other (2). Sector-specific CDEs (e.g., insurance premiums, bank NIM) are Consumable zone work. Base zone normalizes to universal financial concepts.",
+      "rationale": "Covers balance sheet (8), income statement (8), cash flow (4), per-share (3), other (2). Sector-specific business terms (e.g., insurance premiums, bank NIM) are Consumable zone work. Base zone normalizes to universal financial concepts.",
       "confidence": "high"
     },
     {
@@ -33,9 +33,9 @@
       "confidence": "high"
     },
     {
-      "decision": "All revenue variants map to one CDE (Revenue)",
+      "decision": "All revenue variants map to one business term (Revenue)",
       "agent": "@tag-normalizer",
-      "rationale": "Revenues, RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet, SalesRevenueGoodsNet all normalize to CDE-015. Gross/net/segment distinctions are Consumable zone. Base zone answers 'what is this company's revenue?'",
+      "rationale": "Revenues, RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet, SalesRevenueGoodsNet all normalize to BT-022. Gross/net/segment distinctions are Consumable zone. Base zone answers 'what is this company's revenue?'",
       "confidence": "high"
     },
     {

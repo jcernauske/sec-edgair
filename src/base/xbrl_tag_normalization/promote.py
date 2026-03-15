@@ -81,8 +81,8 @@ def promote_approved(
         mapping_records.append({
             "mapping_id": p["mapping_id"],
             "concept": p["concept"],
-            "canonical_cde": p.get("canonical_cde"),
-            "cde_id": p.get("cde_id"),
+            "business_term": p.get("business_term"),
+            "business_term_id": p.get("business_term_id"),
             "financial_statement": p["financial_statement"],
             "category": p["category"],
             "tier": p["tier"],
@@ -113,7 +113,7 @@ def promote_approved(
                 "mapping_id": p["mapping_id"],
                 "action": "approved",
                 "actor": p.get("approved_by", "auto"),
-                "reasoning": f"Mapping {p['mapping_id']} approved: {p['concept']} → {p.get('canonical_cde', 'N/A')}",
+                "reasoning": f"Mapping {p['mapping_id']} approved: {p['concept']} → {p.get('business_term', 'N/A')}",
                 "evidence": json.dumps({
                     "confidence": p["confidence"],
                     "mapping_method": p["mapping_method"],

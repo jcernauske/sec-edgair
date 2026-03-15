@@ -13,8 +13,8 @@ erDiagram
     base_concept_mappings {
         STRING mapping_id PK "Stable ID (TN-0001..) | ConceptMapping.mapping_id"
         STRING concept "Raw XBRL concept name | ConceptMapping.concept"
-        STRING canonical_cde "CDE name or null | ConceptMapping.canonical_cde"
-        STRING cde_id "CDE-007..031 or null | ConceptMapping.cde_id"
+        STRING business_term "CDE name or null | ConceptMapping.business_term"
+        STRING business_term_id "CDE-007..031 or null | ConceptMapping.business_term_id"
         STRING financial_statement "Statement classification | ConceptMapping.financial_statement"
         STRING category "Subcategory | ConceptMapping.category"
         INTEGER tier "Match quality 1/2/3 | ConceptMapping.tier"
@@ -44,36 +44,36 @@ erDiagram
 - **Partitioning:** None
 - **Row Count:** 3,285
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | CDE | PII |
-|--------|------------|----------|-------------|----------------|---------------|-----|-----|
-| mapping_id | STRING | No | Stable ID (TN-0001...) | Generated sequentially | — | — | None |
-| concept | STRING | No | Raw us-gaap XBRL concept name | raw.xbrl_company_facts distinct concepts (us-gaap taxonomy only) | BT-009 | — | None |
-| canonical_cde | STRING | Yes | Mapped CDE name (null for Tier 3) | CDE_DEFINITIONS lookup via tier matching | BT-013 | CDE-007..CDE-031 (dynamic) | None |
-| cde_id | STRING | Yes | CDE catalog reference CDE-007..CDE-031 (null for Tier 3) | From EXACT_MAPPINGS, PREFIX_RULES, or PATTERN_RULES | BT-013 | CDE-007..CDE-031 (dynamic) | None |
-| financial_statement | STRING | No | balance_sheet, income_statement, cash_flow, per_share, other | From matching rule or HEURISTIC_CATEGORIES | BT-021 | — | None |
-| category | STRING | No | Subcategory (revenue, assets, eps, tax...) | From matching rule or HEURISTIC_CATEGORIES | — | — | None |
-| tier | INTEGER | No | 1 (exact), 2 (prefix/pattern), 3 (unmapped) | Determined by matching engine | BT-015 | — | None |
-| confidence | DOUBLE | No | 1.0 / 0.7 / 0.6 / 0.0 by tier | Fixed per tier level | BT-010 | — | None |
-| mapping_method | STRING | No | exact_match, prefix_match, pattern_match, unmapped | From matching engine | — | — | None |
-| status | STRING | No | "approved" (Tier 1+2), "unmapped" (Tier 3) | Set by approval gate | — | — | None |
-| mapped_by | STRING | No | "@tag-normalizer" | Fixed | — | — | None |
-| mapped_at | TIMESTAMPTZ | No | When mapping was proposed | Generated at normalize time | — | — | None |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Is CDE | Is PII |
+|--------|------------|----------|-------------|----------------|---------------|--------|--------|
+| mapping_id | STRING | No | Stable ID (TN-0001...) | Generated sequentially | — | No | No |
+| concept | STRING | No | Raw us-gaap XBRL concept name | raw.xbrl_company_facts distinct concepts (us-gaap taxonomy only) | BT-009 | No | No |
+| canonical_cde | STRING | Yes | Mapped CDE name (null for Tier 3) | CDE_DEFINITIONS lookup via tier matching | BT-013 | Yes | No |
+| cde_id | STRING | Yes | CDE catalog reference CDE-007..CDE-031 (null for Tier 3) | From EXACT_MAPPINGS, PREFIX_RULES, or PATTERN_RULES | BT-013 | Yes | No |
+| financial_statement | STRING | No | balance_sheet, income_statement, cash_flow, per_share, other | From matching rule or HEURISTIC_CATEGORIES | BT-021 | No | No |
+| category | STRING | No | Subcategory (revenue, assets, eps, tax...) | From matching rule or HEURISTIC_CATEGORIES | — | No | No |
+| tier | INTEGER | No | 1 (exact), 2 (prefix/pattern), 3 (unmapped) | Determined by matching engine | BT-015 | No | No |
+| confidence | DOUBLE | No | 1.0 / 0.7 / 0.6 / 0.0 by tier | Fixed per tier level | BT-010 | No | No |
+| mapping_method | STRING | No | exact_match, prefix_match, pattern_match, unmapped | From matching engine | — | No | No |
+| status | STRING | No | "approved" (Tier 1+2), "unmapped" (Tier 3) | Set by approval gate | — | No | No |
+| mapped_by | STRING | No | "@tag-normalizer" | Fixed | — | No | No |
+| mapped_at | TIMESTAMPTZ | No | When mapping was proposed | Generated at normalize time | — | No | No |
 
 #### base.tag_normalization_audit
 - **Grain:** One audit event per action on a concept mapping (append-only log)
 - **Partitioning:** None
 - **Row Count:** ~6,500 (2 events per mapping: proposed + approved/classified)
 
-| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | CDE | PII |
-|--------|------------|----------|-------------|----------------|---------------|-----|-----|
-| audit_id | STRING | No | UUID primary key | Generated (uuid4) | — | — | None |
-| mapping_id | STRING | No | FK to concept_mappings | From proposal | — | — | None |
-| action | STRING | No | "proposed", "approved", "rejected", "classified_unmapped" | Pipeline stage | — | — | None |
-| actor | STRING | No | Who performed action | "@tag-normalizer", "human:jeff", "auto" | — | — | None |
-| reasoning | STRING | No | Why decision was made | Generated explanation with match details | — | — | None |
-| evidence | STRING | No | JSON string (fact_count, company_count) | Serialized from raw data analysis | — | — | None |
-| confidence_at_action | DOUBLE | No | Confidence at time of action | From proposal | BT-010 | — | None |
-| timestamp | TIMESTAMPTZ | No | When action occurred | Generated at action time | — | — | None |
+| Column | DuckDB Type | Nullable | Description | Source Mapping | Business Term | Is CDE | Is PII |
+|--------|------------|----------|-------------|----------------|---------------|--------|--------|
+| audit_id | STRING | No | UUID primary key | Generated (uuid4) | — | No | No |
+| mapping_id | STRING | No | FK to concept_mappings | From proposal | — | No | No |
+| action | STRING | No | "proposed", "approved", "rejected", "classified_unmapped" | Pipeline stage | — | No | No |
+| actor | STRING | No | Who performed action | "@tag-normalizer", "human:jeff", "auto" | — | No | No |
+| reasoning | STRING | No | Why decision was made | Generated explanation with match details | — | No | No |
+| evidence | STRING | No | JSON string (fact_count, company_count) | Serialized from raw data analysis | — | No | No |
+| confidence_at_action | DOUBLE | No | Confidence at time of action | From proposal | BT-010 | No | No |
+| timestamp | TIMESTAMPTZ | No | When action occurred | Generated at action time | — | No | No |
 
 ### Physical Design Decisions
 - **No partitioning** — 3,285 rows scans instantly.

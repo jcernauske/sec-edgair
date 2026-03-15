@@ -20,11 +20,11 @@ def _make_entity(cik: int = 320193) -> dict:
     }
 
 
-def _make_concept(concept: str = "Assets", cde_id: str = "CDE-007") -> dict:
+def _make_concept(concept: str = "Assets", business_term_id: str = "BT-024") -> dict:
     return {
         "concept": concept,
-        "cde_id": cde_id,
-        "canonical_cde": "Total Assets",
+        "business_term_id": business_term_id,
+        "business_term": "Total Assets",
         "financial_statement": "balance_sheet",
         "category": "assets",
         "tier": 1,
@@ -107,16 +107,16 @@ def test_join_enriches_entity_fields():
 
 
 def test_join_enriches_concept_fields():
-    """Concept fields (cde_id, canonical_cde, tier, etc.) should be populated."""
+    """Concept fields (business_term_id, business_term, tier, etc.) should be populated."""
     entities = [_make_entity()]
-    concepts = [_make_concept("Assets", "CDE-007")]
+    concepts = [_make_concept("Assets", "BT-024")]
     facts = build_financial_facts_from_records(
         [_make_raw_fact(concept="Assets")], entities, concepts,
     )
 
     f = facts[0]
-    assert f["cde_id"] == "CDE-007"
-    assert f["canonical_cde"] == "Total Assets"
+    assert f["business_term_id"] == "BT-024"
+    assert f["business_term"] == "Total Assets"
     assert f["financial_statement"] == "balance_sheet"
     assert f["tier"] == 1
 
@@ -130,8 +130,8 @@ def test_join_unmapped_concept():
     )
 
     f = facts[0]
-    assert f["cde_id"] is None
-    assert f["canonical_cde"] is None
+    assert f["business_term_id"] is None
+    assert f["business_term"] is None
     assert f["financial_statement"] == "other"
     assert f["category"] == "uncategorized"
     assert f["tier"] == 3
@@ -248,8 +248,8 @@ def test_supersession_different_concepts_independent():
     """Different concepts for same CIK are independent grain groups."""
     entities = [_make_entity()]
     concepts = [
-        _make_concept("Assets", "CDE-007"),
-        {"concept": "Revenue", "cde_id": "CDE-015", "canonical_cde": "Revenue",
+        _make_concept("Assets", "BT-024"),
+        {"concept": "Revenue", "business_term_id": "BT-022", "business_term": "Revenue",
          "financial_statement": "income_statement", "category": "revenue", "tier": 1},
     ]
     raw = [

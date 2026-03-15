@@ -71,12 +71,12 @@
         "namespace": "sec-edgair",
         "name": "base.concept_mappings",
         "facets": {
-          "description": "XBRL concept to CDE mappings with tier classification",
+          "description": "XBRL concept to business term mappings with tier classification",
           "schema": {
             "fields": [
               {"name": "concept", "type": "STRING"},
-              {"name": "cde_id", "type": "STRING"},
-              {"name": "canonical_cde", "type": "STRING"},
+              {"name": "business_term_id", "type": "STRING"},
+              {"name": "business_term", "type": "STRING"},
               {"name": "financial_statement", "type": "STRING"},
               {"name": "category", "type": "STRING"},
               {"name": "tier", "type": "INTEGER"}
@@ -98,8 +98,8 @@
               {"name": "canonical_name", "type": "STRING"},
               {"name": "ticker", "type": "STRING"},
               {"name": "concept", "type": "STRING"},
-              {"name": "cde_id", "type": "STRING"},
-              {"name": "canonical_cde", "type": "STRING"},
+              {"name": "business_term_id", "type": "STRING"},
+              {"name": "business_term", "type": "STRING"},
               {"name": "financial_statement", "type": "STRING"},
               {"name": "category", "type": "STRING"},
               {"name": "tier", "type": "INTEGER"},
@@ -132,8 +132,8 @@
                 "inputFields": [{"namespace": "sec-edgair", "name": "base.entity_mappings", "field": "canonical_name"}],
                 "transformationType": "DIRECT"
               },
-              "cde_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.concept_mappings", "field": "cde_id"}],
+              "business_term_id": {
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.concept_mappings", "field": "business_term_id"}],
                 "transformationType": "DIRECT"
               },
               "fact_id": {

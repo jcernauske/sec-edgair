@@ -1,7 +1,7 @@
 """Core financial facts model: join raw + entity + concept mappings.
 
 Joins raw XBRL facts with entity_mappings (for company metadata) and
-concept_mappings (for CDE/tier/category), computes derived fields
+concept_mappings (for business term/tier/category), computes derived fields
 (calendar alignment, amendment detection, supersession), and produces
 the base.financial_facts table.
 """
@@ -133,8 +133,8 @@ def build_financial_facts(
             "canonical_name": entity["canonical_name"],
             "ticker": entity.get("ticker"),
             "concept": r["concept"],
-            "cde_id": concept["cde_id"] if concept else None,
-            "canonical_cde": concept["canonical_cde"] if concept else None,
+            "business_term_id": concept["business_term_id"] if concept else None,
+            "business_term": concept["business_term"] if concept else None,
             "financial_statement": concept["financial_statement"] if concept else "other",
             "category": concept["category"] if concept else "uncategorized",
             "tier": concept["tier"] if concept else 3,

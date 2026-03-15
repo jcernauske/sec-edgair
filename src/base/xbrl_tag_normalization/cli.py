@@ -5,7 +5,7 @@ Usage:
     python -m src.base.xbrl_tag_normalization.cli status
     python -m src.base.xbrl_tag_normalization.cli approve
     python -m src.base.xbrl_tag_normalization.cli approve TN-0001 TN-0002
-    python -m src.base.xbrl_tag_normalization.cli reject TN-0042 --reason "Wrong CDE"
+    python -m src.base.xbrl_tag_normalization.cli reject TN-0042 --reason "Wrong mapping"
     python -m src.base.xbrl_tag_normalization.cli coverage
 """
 
@@ -92,12 +92,12 @@ def cmd_status(args: argparse.Namespace) -> None:
         print("No pending proposals.")
         return
 
-    print(f"\n{'ID':<10} {'Concept':<55} {'CDE':<25} {'Tier':<6} {'Conf':<8} {'Method'}")
+    print(f"\n{'ID':<10} {'Concept':<55} {'Business Term':<25} {'Tier':<6} {'Conf':<8} {'Method'}")
     print("-" * 120)
     for p in pending:
-        cde = p.get("canonical_cde") or "(unmapped)"
+        bt = p.get("business_term") or "(unmapped)"
         print(
-            f"{p['mapping_id']:<10} {p['concept']:<55} {cde:<25} "
+            f"{p['mapping_id']:<10} {p['concept']:<55} {bt:<25} "
             f"{p['tier']:<6} {p['confidence']:<8.2f} {p['mapping_method']}"
         )
     print(f"\n{len(pending)} pending mapping(s)")
@@ -117,7 +117,7 @@ def cmd_approve(args: argparse.Namespace) -> None:
 
     print(f"Approved {len(approved)} mapping(s):")
     for a in approved:
-        print(f"  {a['mapping_id']} — {a['concept']} → {a.get('canonical_cde', 'N/A')}")
+        print(f"  {a['mapping_id']} — {a['concept']} → {a.get('business_term', 'N/A')}")
 
     result = promote_approved(
         staging_path=staging_path,
@@ -184,18 +184,18 @@ def cmd_coverage(args: argparse.Namespace) -> None:
     print(f"Tier 3 (unmapped):  {tier_counts[3]}")
     print(f"Mapped concepts:    {mapped}/{total} ({mapped/total*100:.1f}%)")
 
-    # Count by CDE
-    cde_counts: dict[str, int] = {}
+    # Count by business term
+    bt_counts: dict[str, int] = {}
     for p in proposals:
-        cde = p.get("canonical_cde")
-        if cde:
-            cde_counts[cde] = cde_counts.get(cde, 0) + 1
+        bt = p.get("business_term")
+        if bt:
+            bt_counts[bt] = bt_counts.get(bt, 0) + 1
 
-    if cde_counts:
-        print(f"\n{'CDE':<35} {'Concepts Mapped'}")
+    if bt_counts:
+        print(f"\n{'Business Term':<35} {'Concepts Mapped'}")
         print("-" * 50)
-        for cde, count in sorted(cde_counts.items(), key=lambda x: -x[1]):
-            print(f"{cde:<35} {count}")
+        for bt, count in sorted(bt_counts.items(), key=lambda x: -x[1]):
+            print(f"{bt:<35} {count}")
 
 
 def main(argv: list[str] | None = None) -> None:

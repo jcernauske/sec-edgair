@@ -11,8 +11,8 @@ def _make_proposals():
         {
             "mapping_id": "TN-0001",
             "concept": "Assets",
-            "canonical_cde": "Total Assets",
-            "cde_id": "CDE-007",
+            "business_term": "Total Assets",
+            "business_term_id": "BT-024",
             "financial_statement": "balance_sheet",
             "category": "assets",
             "tier": 1,
@@ -27,8 +27,8 @@ def _make_proposals():
         {
             "mapping_id": "TN-0002",
             "concept": "Revenues",
-            "canonical_cde": "Revenue",
-            "cde_id": "CDE-015",
+            "business_term": "Revenue",
+            "business_term_id": "BT-022",
             "financial_statement": "income_statement",
             "category": "revenue",
             "tier": 1,
@@ -43,8 +43,8 @@ def _make_proposals():
         {
             "mapping_id": "TN-0003",
             "concept": "DeferredTaxAssetsOther",
-            "canonical_cde": None,
-            "cde_id": None,
+            "business_term": None,
+            "business_term_id": None,
             "financial_statement": "income_statement",
             "category": "tax",
             "tier": 3,
@@ -156,7 +156,7 @@ def test_promote_mapping_fields_complete(tmp_path):
     rows = read_with_duckdb(table)
 
     expected_fields = {
-        "mapping_id", "concept", "canonical_cde", "cde_id",
+        "mapping_id", "concept", "business_term", "business_term_id",
         "financial_statement", "category", "tier", "confidence",
         "mapping_method", "status", "mapped_by", "mapped_at", "load_date",
     }

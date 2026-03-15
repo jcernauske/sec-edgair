@@ -6,7 +6,7 @@
 
 ### Key Findings
 
-- **70.1% of financial_facts have NULL cde_id/canonical_cde** — expected. Tier 3 unmapped concepts (89.6% of concept_mappings) don't have CDEs. Only Tier 1+2 (10.4%) get CDE assignments.
+- **70.1% of financial_facts have NULL business_term_id/business_term** — expected. Tier 3 unmapped concepts (89.6% of concept_mappings) don't have business terms. Only Tier 1+2 (10.4%) get business term assignments.
 - **48.3% of financial_facts are superseded** — almost half. Every original filing that gets amended produces a superseded row. This is the expected supersession ratio for 20 large-cap companies.
 - **39.1% of financial_facts have NULL start_date** — inherited from raw (instant-type facts). By design.
 - **fiscal_calendar has 1 NULL period_start** — one fiscal period where no start_date was observed. Edge case.
@@ -29,7 +29,7 @@
 | Observation | Value | DQ Implication |
 |-------------|-------|----------------|
 | 89.6% are Tier 3 (unmapped) | 2,943 | Expected — long tail of XBRL concepts |
-| 89.6% have NULL cde_id | 2,943 | Matches Tier 3 count exactly — correct |
+| 89.6% have NULL business_term_id | 2,943 | Matches Tier 3 count exactly — correct |
 | 2 status values: approved (342), unmapped (2,943) | — | No 'pending' or 'rejected' in promoted data — correct |
 | 4 confidence values: 0.0, 0.6, 0.7, 1.0 | — | Matches tier definitions exactly |
 
@@ -42,7 +42,7 @@
 | 48.3% superseded | 264,373 | Expected for 20 companies with amendment history |
 | 0.9% amendments | 4,786 | Low amendment rate — most filings are originals |
 | 51.7% null superseded_by | 283,025 | Matches non-superseded rows (100% - 48.3%) |
-| 70.1% null cde_id | 383,499 | Tier 3 concepts have no CDE — expected |
+| 70.1% null business_term_id | 383,499 | Tier 3 concepts have no business term — expected |
 | 39.1% null start_date | 214,231 | Instant-type facts — inherited from raw |
 
 ### Table: base.fiscal_calendar (1,294 rows)
@@ -66,7 +66,7 @@
 
 | Observation | Count | Percentage | Recommendation |
 |-------------|-------|------------|----------------|
-| cde_id NULL in financial_facts | 383,499 | 70.1% | NOT a violation — Tier 3 concepts. Do not add completeness rule. |
+| business_term_id NULL in financial_facts | 383,499 | 70.1% | NOT a violation — Tier 3 concepts. Do not add completeness rule. |
 | superseded_by NULL in financial_facts | 283,025 | 51.7% | NOT a violation — non-superseded rows. Do not add completeness rule. |
 | start_date NULL in financial_facts | 214,231 | 39.1% | NOT a violation — instant-type facts. |
 | period_start NULL in fiscal_calendar | 1 | 0.08% | P2 — worth tracking but not blocking |
@@ -74,9 +74,9 @@
 
 ### Recommendations for @dq-rule-writer
 
-1. **Do NOT add completeness rules for cde_id, superseded_by, start_date** — high null rates are by design
+1. **Do NOT add completeness rules for business_term_id, superseded_by, start_date** — high null rates are by design
 2. **Consider P0 rule: `is_superseded = true` implies `superseded_by IS NOT NULL`** — already exists (BASE-FM-003), verified 0 violations
-3. **Consider P0 rule: `status = 'approved'` in concept_mappings implies `cde_id IS NOT NULL`** — already exists (BASE-TN-005), verified 0 violations
+3. **Consider P0 rule: `status = 'approved'` in concept_mappings implies `business_term_id IS NOT NULL`** — already exists (BASE-TN-005), verified 0 violations
 4. **Consider P2 rule for fiscal_calendar period_start completeness** — 1 null out of 1,294 (99.9%)
 5. **Consider P0 rule: load_date IS NOT NULL across all tables** — structural, should never be null
 6. **Consider P0 rule: entity_mappings.confidence in [0, 1]** — already exists (BASE-ER-003)

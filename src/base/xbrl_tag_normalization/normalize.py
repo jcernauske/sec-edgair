@@ -1,7 +1,7 @@
 """Core XBRL tag normalization logic.
 
 Reads raw.xbrl_company_facts, extracts distinct us-gaap concepts,
-and classifies each into a tier with a CDE mapping.
+and classifies each into a tier with a business term mapping.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from pathlib import Path
 from src.infra.iceberg_setup import get_catalog, read_with_duckdb
 
 from .config import (
-    CDE_DEFINITIONS,
+    BUSINESS_TERM_DEFINITIONS,
     EXACT_MAPPINGS,
     HEURISTIC_CATEGORIES,
     PATTERN_RULES,
@@ -23,18 +23,18 @@ from .config import (
 
 
 def _classify_concept(concept: str) -> dict:
-    """Classify a single XBRL concept into a tier with CDE mapping.
+    """Classify a single XBRL concept into a tier with business term mapping.
 
-    Returns a dict with: cde_id, canonical_cde, financial_statement,
+    Returns a dict with: business_term_id, business_term, financial_statement,
     category, tier, confidence, mapping_method.
     """
     # Tier 1: Exact match
     if concept in EXACT_MAPPINGS:
-        cde_id, stmt, cat = EXACT_MAPPINGS[concept]
-        cde_name = CDE_DEFINITIONS[cde_id]["name"]
+        business_term_id, stmt, cat = EXACT_MAPPINGS[concept]
+        bt_name = BUSINESS_TERM_DEFINITIONS[business_term_id]["name"]
         return {
-            "cde_id": cde_id,
-            "canonical_cde": cde_name,
+            "business_term_id": business_term_id,
+            "business_term": bt_name,
             "financial_statement": stmt,
             "category": cat,
             "tier": 1,
@@ -43,12 +43,12 @@ def _classify_concept(concept: str) -> dict:
         }
 
     # Tier 2: Prefix match (confidence 0.7)
-    for prefix, cde_id, stmt, cat in PREFIX_RULES:
+    for prefix, business_term_id, stmt, cat in PREFIX_RULES:
         if concept.startswith(prefix):
-            cde_name = CDE_DEFINITIONS[cde_id]["name"]
+            bt_name = BUSINESS_TERM_DEFINITIONS[business_term_id]["name"]
             return {
-                "cde_id": cde_id,
-                "canonical_cde": cde_name,
+                "business_term_id": business_term_id,
+                "business_term": bt_name,
                 "financial_statement": stmt,
                 "category": cat,
                 "tier": 2,
@@ -57,12 +57,12 @@ def _classify_concept(concept: str) -> dict:
             }
 
     # Tier 2: Pattern match (confidence 0.6)
-    for pattern, cde_id, stmt, cat in PATTERN_RULES:
+    for pattern, business_term_id, stmt, cat in PATTERN_RULES:
         if re.match(pattern, concept):
-            cde_name = CDE_DEFINITIONS[cde_id]["name"]
+            bt_name = BUSINESS_TERM_DEFINITIONS[business_term_id]["name"]
             return {
-                "cde_id": cde_id,
-                "canonical_cde": cde_name,
+                "business_term_id": business_term_id,
+                "business_term": bt_name,
                 "financial_statement": stmt,
                 "category": cat,
                 "tier": 2,
@@ -73,8 +73,8 @@ def _classify_concept(concept: str) -> dict:
     # Tier 3: Unmapped — assign heuristic category
     stmt, cat = _heuristic_category(concept)
     return {
-        "cde_id": None,
-        "canonical_cde": None,
+        "business_term_id": None,
+        "business_term": None,
         "financial_statement": stmt,
         "category": cat,
         "tier": 3,
@@ -157,8 +157,8 @@ def _build_proposals(concept_stats: dict[str, dict]) -> list[dict]:
         proposals.append({
             "mapping_id": mapping_id,
             "concept": concept,
-            "canonical_cde": classification["canonical_cde"],
-            "cde_id": classification["cde_id"],
+            "business_term": classification["business_term"],
+            "business_term_id": classification["business_term_id"],
             "financial_statement": classification["financial_statement"],
             "category": classification["category"],
             "tier": classification["tier"],
@@ -186,24 +186,24 @@ def _build_reasoning(concept: str, classification: dict, stats: dict) -> str:
     if method == "exact_match":
         return (
             f"Exact match: '{concept}' directly mapped to "
-            f"{classification['canonical_cde']} ({classification['cde_id']}). "
+            f"{classification['business_term']} ({classification['business_term_id']}). "
             f"Appears in {stats['company_count']} companies, {stats['fact_count']} facts."
         )
     elif method == "prefix_match":
         return (
             f"Prefix match: '{concept}' starts with a known prefix for "
-            f"{classification['canonical_cde']} ({classification['cde_id']}). "
+            f"{classification['business_term']} ({classification['business_term_id']}). "
             f"Appears in {stats['company_count']} companies, {stats['fact_count']} facts."
         )
     elif method == "pattern_match":
         return (
             f"Pattern match: '{concept}' matched regex for "
-            f"{classification['canonical_cde']} ({classification['cde_id']}). "
+            f"{classification['business_term']} ({classification['business_term_id']}). "
             f"Appears in {stats['company_count']} companies, {stats['fact_count']} facts."
         )
     else:
         return (
-            f"Unmapped: '{concept}' did not match any known CDE. "
+            f"Unmapped: '{concept}' did not match any known business term. "
             f"Heuristic category: {classification['financial_statement']}/{classification['category']}. "
             f"Appears in {stats['company_count']} companies, {stats['fact_count']} facts."
         )

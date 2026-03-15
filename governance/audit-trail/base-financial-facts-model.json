@@ -11,7 +11,7 @@
     {
       "decision": "Denormalize entity + concept fields into financial_facts",
       "agent": "@financial-facts-model",
-      "rationale": "Avoids JOINs for common queries. ~547K rows x ~28 cols is small enough that denormalization has negligible storage cost. Every fact carries its entity name, ticker, CDE mapping, and tier without needing to join back to dimension tables.",
+      "rationale": "Avoids JOINs for common queries. ~547K rows x ~28 cols is small enough that denormalization has negligible storage cost. Every fact carries its entity name, ticker, business term mapping, and tier without needing to join back to dimension tables.",
       "confidence": "high"
     },
     {
@@ -47,7 +47,7 @@
     {
       "decision": "Post-implementation governance review: APPROVED with advisory findings",
       "agent": "@governance-reviewer",
-      "rationale": "All governance artifacts present and complete (lineage, DQ rules, scorecard, audit trail, data dictionary). All three data models (conceptual, logical, physical) are APPROVED and consistent with each other and implementation. Business glossary terms approved. DQ rules validate real behavior. No implementation changes during backfill. Two advisory findings: (1) CDE catalog lacks explicit mappings for the 3 new base tables (CDEs traceable through lineage), (2) README has stale counts and missing spec in Phase 2 table (data model diagrams are present and current). Neither advisory blocks approval.",
+      "rationale": "All governance artifacts present and complete (lineage, DQ rules, scorecard, audit trail, data dictionary). All three data models (conceptual, logical, physical) are APPROVED and consistent with each other and implementation. Business glossary terms approved. DQ rules validate real behavior. No implementation changes during backfill. Two advisory findings: (1) Business glossary lacks explicit mappings for the 3 new base tables (business terms traceable through lineage), (2) README has stale counts and missing spec in Phase 2 table (data model diagrams are present and current). Neither advisory blocks approval.",
       "confidence": "high",
       "review_type": "post-implementation (backfill mode)",
       "review_report": "governance/reviews/base-financial-facts-model-post-review.md",
