@@ -199,13 +199,13 @@ Detailed scorecards per spec: [`governance/dq-scorecards/`](governance/dq-scorec
 
 ## Business Glossary
 
-25 business terms defined across three source tiers — all approved:
+52 business terms defined across three source tiers — all approved:
 
 | Source | Terms | Approved By | Description |
 |--------|-------|-------------|-------------|
-| XBRL Taxonomy | 7 | Auto (external standard) | Authoritative financial reporting standard |
+| XBRL Taxonomy | 25 | Auto (external standard) | Financial reporting metrics (Revenue, Net Income, etc.) |
 | SEC EDGAR | 7 | Auto (external standard) | Filing types, entity identifiers, regulatory concepts |
-| Project-Specific | 11 | human:jeff | Pipeline concepts (supersession, tiers, confidence, etc.) |
+| Project-Specific | 20 | human:jeff / auto | Pipeline concepts + derived metrics (ratios, growth, sectors) |
 
 ### Entity Terms
 | Term | Definition | Source |
@@ -651,13 +651,51 @@ erDiagram
 
 > Column-level business terms and definitions in [base-financial-facts-model-physical.md](governance/models/base-financial-facts-model-physical.md).
 
+### Conceptual: Company Financials
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ COMPANY_FINANCIAL : "reports"
+    BUSINESS_TERM ||--o{ COMPANY_FINANCIAL : "classifies"
+    FISCAL_PERIOD ||--o{ COMPANY_FINANCIAL : "measured in"
+```
+
+> Full model: [consumable-company-financials-conceptual.md](governance/models/consumable-company-financials-conceptual.md)
+
+### Conceptual: Financial Ratios
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ FINANCIAL_RATIO : "has ratios"
+    RATIO_DEFINITION ||--o{ FINANCIAL_RATIO : "classifies"
+    NUMERATOR_TERM ||--|| FINANCIAL_RATIO : "provides numerator"
+    DENOMINATOR_TERM ||--|| FINANCIAL_RATIO : "provides denominator"
+    FISCAL_PERIOD ||--o{ FINANCIAL_RATIO : "measured in"
+    COMPANY_FINANCIAL ||--o{ FINANCIAL_RATIO : "derived from"
+```
+
+> Full model: [consumable-financial-ratios-conceptual.md](governance/models/consumable-financial-ratios-conceptual.md)
+
+### Conceptual: Period-Over-Period Growth
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ GROWTH_METRIC : "has growth metrics"
+    BUSINESS_TERM ||--o{ GROWTH_METRIC : "measured for"
+    GROWTH_TYPE ||--o{ GROWTH_METRIC : "classifies"
+    FISCAL_PERIOD ||--o{ GROWTH_METRIC : "measured in"
+    COMPANY_FINANCIAL ||--o{ GROWTH_METRIC : "derived from"
+```
+
+> Full model: [consumable-period-over-period-conceptual.md](governance/models/consumable-period-over-period-conceptual.md)
+
 ## Quick Start
 
 ```bash
 # Install
 uv sync
 
-# Run tests (229 tests)
+# Run tests (281 tests)
 uv run pytest
 
 # Data quality — execute rules against real Iceberg data
@@ -683,6 +721,11 @@ uv run python -m src.base.financial_facts_model.cli status
 # Bitemporal queries
 uv run python -m src.base.bitemporal.cli query --cik 320193 --concept Assets
 uv run python -m src.base.bitemporal.cli validate
+
+# Consumable zone
+uv run python -m src.consumable.company_financials.cli all
+uv run python -m src.consumable.financial_ratios.cli all
+uv run python -m src.consumable.period_over_period.cli all
 ```
 
 ## Project Structure
@@ -696,21 +739,25 @@ src/                            Source code organized by zone
     xbrl_tag_normalization/      XBRL concept → canonical CDE
     financial_facts_model/       Denormalized facts + fiscal calendar + amendments
     bitemporal/                  Temporal queries + snapshot management + validation
+  consumable/                   Consumable zone data products
+    company_financials/          Cross-company financial comparison table
+    financial_ratios/            Computed financial ratios (margins, leverage)
+    period_over_period/          YoY growth, CAGR, trend analysis
 data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
-  business-glossary.json        25 business terms (XBRL, SEC EDGAR, project-specific)
+  business-glossary.json        52 business terms (XBRL, SEC EDGAR, project-specific)
   cde-catalog.json              31 Critical Data Element definitions
-  data-dictionary.json          8 table schemas with field-level docs
+  data-dictionary.json          11 table schemas with field-level docs
   models/                       Data models (conceptual, logical, physical) with Mermaid diagrams
   lineage/                      OpenLineage events
   eda/                          EDA reports from @data-analyst
-  dq-rules/                     Data quality rule definitions (42 rules, JSON + SQL)
+  dq-rules/                     Data quality rule definitions (72 rules, JSON + SQL)
   dq-results/                   Timestamped DQ execution results
   dq-scorecards/                DQ scorecards from real data execution
   audit-trail/                  Design decision logs
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (229 passing)
+tests/                          Tests organized by zone (281 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```

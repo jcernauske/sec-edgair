@@ -2,7 +2,7 @@
   "glossary_metadata": {
     "version": "2.0",
     "last_updated": "2026-03-14",
-    "term_count": 51,
+    "term_count": 52,
     "sources": {
       "xbrl-taxonomy": "US GAAP XBRL Taxonomy \u2014 authoritative financial reporting standard. Auto-approved.",
       "sec-edgar": "SEC EDGAR documentation \u2014 filing types, entity identifiers, regulatory concepts. Auto-approved.",
@@ -1280,6 +1280,34 @@
       "approved_at": "2026-03-14T16:00:00Z",
       "used_in_models": [
         "consumable-financial-ratios"
+      ],
+      "is_cde": false,
+      "is_pii": false,
+      "cde_rationale": "Derived metric, not a primary data element.",
+      "pii_rationale": null
+    },
+    {
+      "term_id": "BT-052",
+      "term": "Period-Over-Period Growth",
+      "definition": "A computed metric expressing the change in a financial value between two time periods. Growth types include: year-over-year absolute change (current - prior), year-over-year percentage change ((current - prior) / abs(prior)), and compound annual growth rate (CAGR). Used for trend analysis and cross-company growth comparison.",
+      "source": "project-specific",
+      "source_reference": "docs/specs/consumable-period-over-period.md",
+      "synonyms": [
+        "YoY Growth",
+        "Growth Rate",
+        "CAGR",
+        "Period Growth"
+      ],
+      "related_terms": [
+        "BT-013"
+      ],
+      "category": "financial",
+      "owner": "Finance / Data Governance",
+      "status": "approved",
+      "approved_by": "auto (REQUIRE_HUMAN_APPROVAL gate)",
+      "approved_at": "2026-03-15T05:00:00Z",
+      "used_in_models": [
+        "consumable-period-over-period"
       ],
       "is_cde": false,
       "is_pii": false,

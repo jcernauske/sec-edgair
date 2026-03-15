@@ -1,0 +1,152 @@
+{
+  "spec": "consumable-period-over-period",
+  "tables": [
+    "consumable.period_over_period"
+  ],
+  "rules": [
+    {
+      "rule_id": "CONS-PP-001",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "record_id is unique (no duplicate grain)",
+      "sql": "SELECT record_id, COUNT(*) FROM consumable.period_over_period GROUP BY record_id HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "record_id is a deterministic SHA-256 hash of the grain (cik, business_term_id, fiscal_year, fiscal_period, growth_type). Duplicates indicate a computation or dedup guard bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-002",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "Every row has valid growth_type (yoy_change, yoy_pct_change, cagr_5yr)",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_type NOT IN ('yoy_change', 'yoy_pct_change', 'cagr_5yr')",
+      "threshold": "result = 0",
+      "rationale": "Only 3 defined growth types exist. Unknown growth_types indicate a config or build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-003",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every row has valid cik (exists in consumable.company_financials)",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period pp WHERE NOT EXISTS (SELECT 1 FROM consumable.company_financials cf WHERE cf.cik = pp.cik)",
+      "threshold": "result = 0",
+      "rationale": "All growth metric CIKs must exist in the source company_financials table. Orphan CIKs indicate a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-004",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No null growth_value (every row has a computed value)",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_value IS NULL",
+      "threshold": "result = 0",
+      "rationale": "Every growth row must have a computed value. Null growth_value indicates the build pipeline created a row without computing the metric.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-005",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "YoY rows have non-null prior_val",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_type IN ('yoy_change', 'yoy_pct_change') AND prior_val IS NULL",
+      "threshold": "result = 0",
+      "rationale": "YoY growth requires a prior year value. Null prior_val on YoY rows indicates the build pipeline failed to populate the comparison value.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-006",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "CAGR rows have non-null base_val and base_fiscal_year",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_type = 'cagr_5yr' AND (base_val IS NULL OR base_fiscal_year IS NULL)",
+      "threshold": "result = 0",
+      "rationale": "CAGR requires a base year value and the base fiscal year reference. Nulls on CAGR rows indicate the build pipeline failed to populate comparison values.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-007",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "CAGR base_fiscal_year = fiscal_year - 5",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_type = 'cagr_5yr' AND base_fiscal_year != fiscal_year - 5",
+      "threshold": "result = 0",
+      "rationale": "5-year CAGR always looks back exactly 5 years. Any other gap indicates a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-008",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "YoY pct change: prior_val is never 0 (division by zero guard)",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_type = 'yoy_pct_change' AND prior_val = 0",
+      "threshold": "result = 0",
+      "rationale": "The build pipeline skips yoy_pct_change when prior_val is 0. Any row with prior_val=0 indicates the guard failed. EDA found 24 zero values across 6 business terms.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-009",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "CAGR: base_val is always > 0",
+      "sql": "SELECT COUNT(*) FROM consumable.period_over_period WHERE growth_type = 'cagr_5yr' AND base_val <= 0",
+      "threshold": "result = 0",
+      "rationale": "CAGR formula (current/base)^(1/5) - 1 requires base > 0. Negative or zero base makes the fractional exponent undefined or division by zero.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-010",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 3 growth types represented in the table",
+      "sql": "SELECT 3 - COUNT(DISTINCT growth_type) FROM consumable.period_over_period",
+      "threshold": "result = 0",
+      "rationale": "The table must contain data for all 3 defined growth types. EDA confirms each type has sufficient source data.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-011",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 25 business terms represented in YoY rows",
+      "sql": "SELECT 25 - COUNT(DISTINCT business_term_id) FROM consumable.period_over_period WHERE growth_type = 'yoy_change'",
+      "threshold": "result = 0",
+      "rationale": "All 25 business terms from company_financials should have YoY growth data. EDA confirms every business term has multi-year data for all 20 companies.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PP-012",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "companies_reporting is accurate (matches actual distinct company count per growth_type per business_term_id per fiscal_period)",
+      "sql": "SELECT pp.growth_type, pp.business_term_id, pp.fiscal_period, pp.companies_reporting, COUNT(DISTINCT pp.cik) AS actual_count FROM consumable.period_over_period pp GROUP BY pp.growth_type, pp.business_term_id, pp.fiscal_period, pp.companies_reporting HAVING pp.companies_reporting != COUNT(DISTINCT pp.cik)",
+      "threshold": "result_count = 0",
+      "rationale": "companies_reporting is a denormalized aggregate. It must match the actual count of distinct CIKs for each (growth_type, business_term_id, fiscal_period) combination.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    }
+  ]
+}

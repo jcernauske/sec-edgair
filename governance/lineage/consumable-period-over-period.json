@@ -1,0 +1,102 @@
+{
+  "eventType": "COMPLETE",
+  "eventTime": "2026-03-15T05:00:00.000Z",
+  "producer": "https://github.com/jcernauske/sec_edgair",
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "run": {
+    "runId": "consumable-period-over-period-build-001",
+    "facets": {
+      "processing_engine": {
+        "name": "SEC EDGAIR Pipeline",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "job": {
+    "namespace": "sec_edgair",
+    "name": "consumable.period_over_period.build",
+    "facets": {
+      "documentation": {
+        "description": "Compute YoY change, YoY % change, and 5-year CAGR from consumable.company_financials by self-joining on (cik, business_term_id, fiscal_period) across fiscal years."
+      },
+      "sourceCode": {
+        "type": "PYTHON",
+        "url": "src/consumable/period_over_period/build.py"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.company_financials",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "cik", "type": "INTEGER"},
+            {"name": "business_term_id", "type": "STRING"},
+            {"name": "business_term", "type": "STRING"},
+            {"name": "val", "type": "DOUBLE"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"},
+            {"name": "entity_id", "type": "STRING"},
+            {"name": "ticker", "type": "STRING"},
+            {"name": "canonical_name", "type": "STRING"},
+            {"name": "sector", "type": "STRING"},
+            {"name": "financial_statement", "type": "STRING"},
+            {"name": "category", "type": "STRING"},
+            {"name": "fiscal_year_end", "type": "STRING"},
+            {"name": "period_end_date", "type": "DATE"},
+            {"name": "calendar_year", "type": "INTEGER"},
+            {"name": "calendar_quarter", "type": "INTEGER"}
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.period_over_period",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "record_id", "type": "STRING", "description": "SHA-256 hash of (cik, business_term_id, fiscal_year, fiscal_period, growth_type)"},
+            {"name": "growth_type", "type": "STRING", "description": "yoy_change, yoy_pct_change, or cagr_5yr"},
+            {"name": "growth_value", "type": "DOUBLE", "description": "Computed growth metric value"},
+            {"name": "current_val", "type": "DOUBLE", "description": "Value in the current period"},
+            {"name": "prior_val", "type": "DOUBLE", "description": "Value in prior year (YoY only)"},
+            {"name": "base_val", "type": "DOUBLE", "description": "Value 5 years ago (CAGR only)"},
+            {"name": "base_fiscal_year", "type": "INTEGER", "description": "Fiscal year of base value (CAGR only)"},
+            {"name": "companies_reporting", "type": "INTEGER", "description": "COUNT(DISTINCT cik) per (growth_type, business_term_id, fiscal_period)"}
+          ]
+        },
+        "columnLineage": {
+          "fields": {
+            "record_id": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "SHA-256 hash of (cik, business_term_id, fiscal_year, fiscal_period, growth_type), truncated to 16 chars"
+            },
+            "growth_value": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"}
+              ],
+              "transformationType": "INDIRECT",
+              "transformationDescription": "yoy_change: current_val - prior_val. yoy_pct_change: (current - prior) / abs(prior). cagr_5yr: (current / base)^(1/5) - 1. Skips zero/negative base for pct_change/CAGR respectively."
+            },
+            "companies_reporting": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "cik"}
+              ],
+              "transformationType": "AGGREGATION",
+              "transformationDescription": "COUNT(DISTINCT cik) per (growth_type, business_term_id, fiscal_period) across all fiscal years"
+            },
+            "growth_type": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "From GROWTH_TYPES config — classifies the computation method used"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
