@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEC EDGAIR — AI Agents That Make Data Clean</title>
+  <meta name="description" content="AI agents don't just consume clean data. They create it. 14 specialized agents took raw SEC EDGAR filings and delivered governed, tested, AI-ready financial data -- with 128 DQ rules, 28 data models, and an A from the architect.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="hero">
+      <h1>Everyone says you can't use AI until you clean up your data.</h1>
+      <p class="subtitle">But what if you could use AI to get your data ready for AI?</p>
+      <p>14 AI agents took raw SEC EDGAR XBRL filings &mdash; 547,398 financial facts from 20 public companies &mdash; and delivered them as clean, modeled, governed, AI-ready data products. Not by consuming clean data. By <em>making</em> data clean.</p>
+      <p>Every business term, every data quality rule, every lineage event, every data model was produced by an AI agent and approved by a human. The conventional wisdom is wrong. AI is not just the consumer of clean data &mdash; it is the tool that makes data clean.</p>
+    </div>
+
+    <div class="metric-grid fade-in">
+      <div class="metric-card">
+        <div class="metric-value">128</div>
+        <div class="metric-label">DQ Rules</div>
+        <div class="metric-detail">9 dimensions &middot; 127 pass, 1 P1 advisory</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">88/88</div>
+        <div class="metric-label">Verified</div>
+        <div class="metric-detail">Checks against real 10-K filings</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">A</div>
+        <div class="metric-label">Architect Grade</div>
+        <div class="metric-detail">Up from B+, after real remediation</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">54</div>
+        <div class="metric-label">Business Terms</div>
+        <div class="metric-detail">Defined, mapped, approved</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">28</div>
+        <div class="metric-label">Data Models</div>
+        <div class="metric-detail">Conceptual, logical, physical</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">466</div>
+        <div class="metric-label">Tests</div>
+        <div class="metric-detail">All passing</div>
+      </div>
+    </div>
+
+    <div class="container--wide" style="margin: 0 auto;">
+      <h2 style="text-align: center; padding: 0 var(--space-lg);">The Pipeline</h2>
+    </div>
+
+    <div class="pipeline fade-in">
+      <div class="pipeline-stage">
+        <div class="stage-name">SEC EDGAR XBRL</div>
+        <div class="stage-stat">20 companies<br>17 years of data</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-name">Raw Zone</div>
+        <div class="stage-stat">547K facts<br>As-landed, profiled, classified</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-name">Base Zone</div>
+        <div class="stage-stat">786K rows<br>Normalized, governed, modeled</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-name">Consumable Zone</div>
+        <div class="stage-stat">136K rows<br>5 data products</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-name">AI-Ready Chat</div>
+        <div class="stage-stat">8 tool functions<br>Natural language queries</div>
+      </div>
+    </div>
+
+    <div class="container" style="text-align: center;">
+      <p style="margin: 0 auto;">Every zone transition is governed. Every promote emits runtime lineage events to an Iceberg table. Every table passes DQ rules before data is written. P0 failures block the pipeline.</p>
+    </div>
+
+    <div class="container">
+      <h2>Who is this for?</h2>
+      <div class="audience-grid fade-in">
+        <div class="audience-card">
+          <h3>Chief Data &amp; Analytics Officers</h3>
+          <p>You want to know if AI agents can actually do the work your data teams spend months on &mdash; modeling, governance, quality rules, documentation. The answer is yes, and the numbers prove it.</p>
+          <a href="results.html" class="card-link">See the results &rarr;</a>
+        </div>
+        <div class="audience-card">
+          <h3>Data Architects</h3>
+          <p>You are skeptical. You have seen AI-generated code that looks good in a demo and falls apart under scrutiny. This project was reviewed by a @principal-data-architect agent &mdash; who gave it a B+ the first time, then watched the team fix every finding and re-graded it an A.</p>
+          <a href="architecture.html" class="card-link">See the architecture &rarr;</a>
+        </div>
+        <div class="audience-card">
+          <h3>Auditors &amp; Compliance</h3>
+          <p>You need to know where the human controls are. There are 4 human approval gates, a global <code>REQUIRE_HUMAN_APPROVAL</code> toggle, runtime lineage with snapshot IDs, and a full audit trail.</p>
+          <a href="governance.html" class="card-link">See the governance controls &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>What makes this different</h2>
+      <p>This is not a demo. This is not synthetic data with placeholder governance.</p>
+      <ul class="diff-list fade-in">
+        <li><strong>Real data.</strong> 547,398 financial facts from SEC EDGAR &mdash; Apple, Microsoft, JPMorgan, Tesla, and 16 others.</li>
+        <li><strong>Real verification.</strong> 88 checks against actual 10-K annual reports. Apple's FY2023 revenue matches. Goldman Sachs' net income matches. Every company, every fiscal year-end pattern.</li>
+        <li><strong>Real governance artifacts.</strong> 54 business terms in a structured glossary. 128 DQ rules executed against Iceberg tables. 28 data model artifacts with Mermaid diagrams. Runtime lineage events with snapshot IDs and row counts.</li>
+        <li><strong>Real architectural scrutiny.</strong> A @principal-data-architect <em>agent</em> reviewed the full pipeline, filed 7 findings, and watched them get fixed. Yes, AI reviewing AI &mdash; but the findings were legitimate and the fixes were structural. The re-review grade: A.</li>
+        <li><strong>Real transparency.</strong> 38 session logs documenting every decision, every mistake, every architectural debate. Nothing hidden.</li>
+      </ul>
+    </div>
+
+    <div class="container">
+      <div class="built-with">
+        <p><strong>Stack:</strong> Python 3.11+, DuckDB + Apache Iceberg, Claude Code with 14+ specialized agents</p>
+        <p><strong>Source:</strong> <a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="architecture.html">Architecture</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

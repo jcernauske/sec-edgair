@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture - SEC EDGAIR</title>
+  <meta name="description" content="4-zone medallion architecture with DuckDB + Apache Iceberg, 14 Iceberg tables, runtime lineage, and DQ gates on every promote. Reviewed by a @principal-data-architect agent: grade A.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html" class="active">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">Architecture</div>
+      <h1>For the skeptic who wants to see the wiring.</h1>
+      <p>You have seen AI-generated pipelines that look impressive in a slide deck. You want to know if this one holds up when you pull on the threads. Here is every thread.</p>
+    </div>
+
+    <div class="container">
+
+      <h2>The Zones</h2>
+      <div class="fade-in">
+        <pre><code>SEC EDGAR API/Bulk ZIP
+    |
+    v
+raw.xbrl_company_facts              547,398 facts, 20 companies, 19 columns
+    |
+    v
+base.entity_mappings                20 CIK -> canonical company identity
+base.concept_mappings               3,285 XBRL concept -> business term classifications
+base.financial_facts                547K enriched facts, 28 columns
+base.conformed_facts                28,849 rows -- one authoritative fact per grain
+base.fiscal_calendar                1,483 fiscal periods
+base.amendment_tracking             264K supersession pairs
+    |
+    v
+consumable.company_financials       28,849 rows -- cross-company comparison
+consumable.financial_ratios         7,102 rows -- 7 computed ratios
+consumable.period_over_period       71,402 rows -- YoY growth + 5yr CAGR
+consumable.peer_comparison          28,633 rows -- sector ranks + percentiles
+consumable.amendment_analysis       371 rows -- restatement patterns
+    |
+    v
+AI-Ready Chat Interface             8 tool functions -> Claude API -> answers</code></pre>
+      </div>
+
+      <p>14 Iceberg tables. Each zone reads only from the prior zone's tables via PyIceberg scan &rarr; Arrow &rarr; DuckDB. No zone reaches backward more than one level.</p>
+
+      <h2>Storage: DuckDB + Apache Iceberg</h2>
+
+      <p><strong>DuckDB</strong> is the compute engine. In-process, zero infrastructure, anyone who clones the repo runs it immediately. No Docker, no cloud account, no catalog server.</p>
+
+      <p><strong>Apache Iceberg</strong> is the table format. Open standard with built-in time travel via snapshots. Every write creates a new snapshot. Previous versions are always queryable. The same code works against local storage or S3/Databricks/Snowflake.</p>
+
+      <p>Why this matters: Iceberg is what every enterprise is evaluating for their lakehouse. This project produces Iceberg tables that are directly portable to any Iceberg-compatible environment.</p>
+
+      <h2>Zone Boundaries</h2>
+
+      <p>Each zone has a reason to exist:</p>
+
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Zone</th><th>Purpose</th><th>Tables</th><th>Key Logic</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Raw</strong></td>
+              <td>Land data as-is. Profile, classify, but never transform.</td>
+              <td>1</td>
+              <td>XBRL bulk ingest, PII scan (none found), data classification</td>
+            </tr>
+            <tr>
+              <td><strong>Base</strong></td>
+              <td>Normalize, conform, govern. Domain complexity lives here.</td>
+              <td>7</td>
+              <td>Entity resolution, tag normalization (3,285 &rarr; 25), fiscal calendar, supersession, amendment tracking</td>
+            </tr>
+            <tr>
+              <td><strong>Consumable</strong></td>
+              <td>Purpose-built analytical tables. Opinionated about what questions they answer.</td>
+              <td>5</td>
+              <td>Ratios, growth, peer rankings, amendment intelligence</td>
+            </tr>
+            <tr>
+              <td><strong>AI-Ready</strong></td>
+              <td>Expose governed data to an LLM.</td>
+              <td>0 (application layer)</td>
+              <td>8 tool functions over DuckDB, no new tables</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The AI-Ready zone deliberately creates no new Iceberg tables. It queries the consumable tables via validated Python functions. Claude never writes SQL.</p>
+
+      <h2>The Conformed Facts Layer</h2>
+
+      <p>The most important architectural decision in the pipeline: <code>base.conformed_facts</code>.</p>
+
+      <p>Raw XBRL data has a problem: multiple concepts map to the same business metric. Apple might report Revenue as <code>RevenueFromContractWithCustomerExcludingAssessedTax</code> in one filing and <code>Revenues</code> in another. After tag normalization, you can have 3-5 competing facts for the same (company, metric, year).</p>
+
+      <p><code>base.conformed_facts</code> resolves this. One authoritative fact per (company, metric, year, period), selected by concept priority rules stored as a governance artifact. Every consumable table reads from conformed_facts, not from financial_facts directly.</p>
+
+      <p>This matters because:</p>
+      <ul>
+        <li>Business logic (collision resolution, unit filtering, supersession filtering) lives in the base zone, not scattered across 5 consumable tables</li>
+        <li>The concept priority rules are a versioned JSON artifact, not buried Python config</li>
+        <li>Adding a new XBRL concept mapping is a governance change, not a code change</li>
+      </ul>
+
+      <blockquote class="fade-in">
+        <p>&ldquo;The <code>base.conformed_facts</code> table is architecturally sound. It answers a different question than <code>base.financial_facts</code>: 'what is the single best value for each metric?' vs 'what did the filings say?' The grain is correct, the lineage columns are well-designed, and the build logic is clean. This is the right abstraction boundary.&rdquo;</p>
+      </blockquote>
+
+      <h2>Runtime Lineage</h2>
+
+      <p>Every promote function emits START/COMPLETE/FAIL events to a <code>governance.lineage_events</code> Iceberg table.</p>
+
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Event Field</th><th>What It Records</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>run_id</code></td><td>Pairs START and COMPLETE events</td></tr>
+            <tr><td><code>snapshot_id</code></td><td>The Iceberg snapshot created by this write</td></tr>
+            <tr><td><code>output_row_count</code></td><td>How many rows were written</td></tr>
+            <tr><td><code>dq_passed</code></td><td>Whether DQ rules passed</td></tr>
+            <tr><td><code>duration_ms</code></td><td>How long the promote took</td></tr>
+            <tr><td><code>error_message</code></td><td>What went wrong (on FAIL events)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>All 11 promote functions are instrumented. Lineage write failures log warnings but do not block the pipeline &mdash; the correct design for a cross-cutting concern.</p>
+
+      <p>The static lineage JSON files are now <em>derived</em> from runtime data via <code>python -m src.infra.lineage generate-docs</code>. They are projections of reality, not primary sources.</p>
+
+      <blockquote class="fade-in">
+        <p>&ldquo;The difference between 'we have lineage docs' and 'every promote emits runtime events to an Iceberg table with snapshot IDs, row counts, and DQ results' is the difference between aspiration and engineering.&rdquo;</p>
+      </blockquote>
+
+      <h2>DQ Gates</h2>
+
+      <p>128 SQL-based DQ rules across 9 dimensions, executed against real Iceberg tables.</p>
+
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Uniqueness</td><td>No duplicate grains in conformed_facts</td></tr>
+            <tr><td>Completeness</td><td>No null business_term_id in financial_facts</td></tr>
+            <tr><td>Validity</td><td>All fiscal_year values between 2000 and 2030</td></tr>
+            <tr><td>Consistency</td><td>companies_reporting count matches actual distinct CIKs</td></tr>
+            <tr><td>Freshness</td><td>Load dates within expected recency</td></tr>
+            <tr><td>Referential Integrity</td><td>Every company_financials.company_cik exists in entity_mappings</td></tr>
+            <tr><td>Volume</td><td>Row counts within expected ranges</td></tr>
+            <tr><td>Accuracy</td><td>No superseded facts leaked through filters</td></tr>
+            <tr><td>Reasonableness</td><td>Operating margins between -100x and 100x (evidence-based)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>P0 failures <strong>block</strong> the pipeline. No data is written to Iceberg until DQ passes.</p>
+
+      <h2>AI-Ready: Why Tool Use, Not RAG</h2>
+
+      <p>The original plan called for embeddings, vector stores, RAG, pre-computed grounding documents, and an MCP server. All of it was scrapped.</p>
+
+      <p>The insight report from the consumable-to-AI-ready zone transition identified the problem: <strong>RAG solves for finding relevant information in a large, unstructured corpus. We don't have that problem.</strong> We have 5 clean, structured Iceberg tables with 136K rows and DuckDB that joins them in milliseconds.</p>
+
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>What RAG would have added</th><th>What tool use provides instead</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Probabilistic retrieval (top-K nearest neighbors)</td><td>Deterministic retrieval (WHERE clause)</td></tr>
+            <tr><td>Stale pre-computed documents</td><td>Always-live queries against Iceberg</td></tr>
+            <tr><td>Embedding re-indexing on data changes</td><td>No index to maintain</td></tr>
+            <tr><td>Chunking and boundary management</td><td>Data fits in context without chunking</td></tr>
+            <tr><td>Vector database infrastructure</td><td>Zero infrastructure (DuckDB is already in the stack)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <blockquote>
+        <p>&ldquo;Tool use over DuckDB is the correct architecture for this dataset. At 136K rows across 5 structured tables, the data fits comfortably in memory, DuckDB runs joins in milliseconds, and Claude can express any analytical query through the 7 tool functions.&rdquo;</p>
+      </blockquote>
+
+      <h2>The Architect Review</h2>
+
+      <div class="meme-container fade-in">
+        <img src="assets/img/obama-medal.webp" alt="Obama giving himself a medal meme">
+        <p class="caption">Claude has reviewed his work and finds it amazing.</p>
+      </div>
+
+      <p>Full disclosure: the @principal-data-architect is itself an AI agent. So yes, this is AI reviewing AI. We'll pause while you make the Obama-giving-himself-a-medal joke.</p>
+
+      <p>Done? Good. Now read the actual findings &mdash; because they were real, and the fixes were structural. The value of this review isn't impartial human judgment. It's that a systematic architectural review with a defined rubric caught problems that were then systematically fixed and re-verified.</p>
+
+      <div class="review-timeline fade-in">
+        <div class="review-step">
+          <div class="review-grade review-grade--b">First Review: B+</div>
+          <p>7 findings identified:</p>
+          <ol>
+            <li>In-memory dedup pattern does not scale beyond 20 companies</li>
+            <li>Consumable promote code lacks DQ gates that exist in base zone</li>
+            <li>Anomaly checker hardcodes Boeing-specific rules instead of deriving from data</li>
+            <li>No negative testing in verification scripts</li>
+            <li>Static lineage files are &ldquo;documentation masquerading as lineage&rdquo;</li>
+            <li>Concept priority rules buried in Python config, not a governance artifact</li>
+            <li>Missing tool function for amendment_analysis data</li>
+          </ol>
+        </div>
+        <div class="review-step">
+          <div class="review-grade" style="color: var(--accent);">Remediation</div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>In-memory dedup</p></div>
+            <div class="fix"><div class="label">Fix</div><p>DuckDB anti-join via <code>filter_existing_records()</code></p></div>
+          </div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>Missing DQ gates</p></div>
+            <div class="fix"><div class="label">Fix</div><p><code>validate_after_write()</code> on all consumable CLI builds</p></div>
+          </div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>Hardcoded anomaly detection</p></div>
+            <div class="fix"><div class="label">Fix</div><p>Generic rules: any company with negative equity gets flagged</p></div>
+          </div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>Static lineage</p></div>
+            <div class="fix"><div class="label">Fix</div><p>Runtime events to <code>governance.lineage_events</code> Iceberg table</p></div>
+          </div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>No negative testing</p></div>
+            <div class="fix"><div class="label">Fix</div><p><code>verify_negative.py</code> with 10 targeted absence checks</p></div>
+          </div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>Buried config</p></div>
+            <div class="fix"><div class="label">Fix</div><p><code>concept-priority-rules.json</code> governance artifact</p></div>
+          </div>
+          <div class="finding-fix">
+            <div class="finding"><div class="label">Finding</div><p>Missing amendment tool</p></div>
+            <div class="fix"><div class="label">Fix</div><p><code>get_amendment_summary</code> (tool #8)</p></div>
+          </div>
+        </div>
+        <div class="review-step">
+          <div class="review-grade review-grade--a">Re-Review: A</div>
+          <blockquote>
+            <p>&ldquo;The remediation work is thorough, well-targeted, and high-quality. Every top risk from the original review has been addressed.&rdquo;</p>
+          </blockquote>
+          <blockquote>
+            <p>&ldquo;Would I ship this? To the stated audience, yes. Would I stake my reputation on it? On the data quality, verification rigor, and architectural soundness &mdash; yes. On production readiness at scale &mdash; still no, but the path to production is clearer now.&rdquo;</p>
+          </blockquote>
+        </div>
+      </div>
+
+      <h2>What is not production-ready</h2>
+
+      <p>The architect agent was honest. So are we.</p>
+
+      <ul>
+        <li><strong>Incremental refresh.</strong> The pipeline does full rebuilds. For 20 companies this takes seconds. At production scale, you need change detection.</li>
+        <li><strong>Concurrent access.</strong> The SQLite-backed PyIceberg catalog does not support concurrent writers.</li>
+        <li><strong>Monitoring.</strong> DQ rules run on-demand via CLI. Production needs scheduled execution with alerting.</li>
+        <li><strong>Memory at scale.</strong> <code>read_with_duckdb()</code> still materializes full tables as Python dicts. The dedup path is fixed, but the read path would need attention at 100x scale.</li>
+      </ul>
+
+      <p>These are known, documented, and architectural &mdash; not bugs. The path to production is clear.</p>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

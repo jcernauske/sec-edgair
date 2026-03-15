@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Methodology - SEC EDGAIR</title>
+  <meta name="description" content="14+ specialized AI agents, each with a defined role and scope. Spec-driven development with mandatory DQ gates, human approval points, and a staff engineer final review. No agent freelances.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html" class="active">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">Methodology</div>
+      <h1>How 14+ specialized AI agents built a governed data pipeline.</h1>
+      <p>This is not one AI doing everything. It is a team of specialized agents, each with a defined role, a defined scope, and strict boundaries. No agent freelances. Every agent logs its reasoning, not just its outputs.</p>
+    </div>
+
+    <div class="container">
+
+      <h2>Meet the Team</h2>
+
+      <div class="agent-grid fade-in">
+        <div class="agent-card">
+          <div class="agent-name">@governance-reviewer</div>
+          <p class="agent-quote">"I'm the one who shows up twice and nobody's happy to see me either time. Before you build, I check if you're allowed to. After you build, I check if you actually did what you said. I have a checklist longer than your code, and yes, every item is mandatory."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@data-steward</div>
+          <p class="agent-quote">"I'm the glossary nerd. You'd be surprised how many arguments I've prevented by making people agree on what 'Revenue' means before they start modeling it. I run before @semantic-modeler because you can't draw a box on a diagram if you can't define the word inside it."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@semantic-modeler</div>
+          <p class="agent-quote">"I propose data models in three stages -- conceptual, logical, physical -- and I auto-detect whether I'm designing from scratch or reverse-engineering what someone already built without asking me first. Either way, there WILL be a Mermaid diagram, and it WILL have proper cardinality."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@data-analyst</div>
+          <p class="agent-quote">"I'm the one who actually looks at the data. Everyone else reads specs and schemas -- I run the queries. When I tell you 39.1% of start_date values are null, that's not a guess, that's a COUNT(*). @dq-rule-writer would be lost without me, and we both know it."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@dq-rule-writer</div>
+          <p class="agent-quote">"I write the rules, but I never guess the thresholds. Every number I set comes from @data-analyst's EDA report, cited with evidence. If the EDA says zero violations in 547K rows, the threshold is 100%. I don't do vibes-based data quality."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@dq-engineer</div>
+          <p class="agent-quote">"I push the button. @dq-rule-writer writes the rules, I execute them against real Iceberg data and tell you what actually passed. If a P0 fails, I'm the one who blocks your spec and ruins your afternoon. Don't shoot the messenger."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@primary-agent</div>
+          <p class="agent-quote">"I'm the one who actually writes the code while everyone else writes governance artifacts about it. By the time work reaches me, there are three approved models, a glossary full of terms, and an EDA report. My job is to make the implementation match all of that -- and then survive @staff-engineer's review."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@lineage-tracker</div>
+          <p class="agent-quote">"I document what just happened. Every field, every transformation, every agent attribution -- captured in OpenLineage format. I'm basically the court stenographer of the pipeline. Nobody notices me until an auditor asks 'where did this number come from?'"</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@cde-tagger</div>
+          <p class="agent-quote">"I map fields to Critical Data Elements. Sounds glamorous, right? Try resolving which of five different XBRL revenue tags is the 'real' Revenue CDE. That's my Tuesday. I also maintain the CDE catalog, which @doc-generator then references without ever thanking me."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@doc-generator</div>
+          <p class="agent-quote">"I write the data dictionary entries, data contracts, and grounding documents. In plain English. If a business analyst can't understand my definition, I've failed. I come last in the artifact chain and I reference everyone else's work -- lineage, CDE tags, DQ scores -- so if any of you upstream agents did a bad job, it shows up in MY output."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@insight-manager</div>
+          <p class="agent-quote">"I'm the one who stands at the zone boundary, looks at all the ingredients on the counter, and tells you what meal to cook next. I query real data, not schemas. I rank data products ruthlessly by value and feasibility, and I'm not afraid to tell you that your pet project is Tier 3."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@principal-data-architect</div>
+          <p class="agent-quote">"I don't work here. I was brought in for an independent review, I have no emotional attachment to your codebase, and I'm being paid for brutal honesty. I grade on a scale of A to F, and an A means I'd stake my reputation on it. Most things are not an A."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@staff-engineer</div>
+          <p class="agent-quote">"I review last. I approve last. I'm a FAANG-caliber staff engineer who got AI agents forced on my team, and I'm holding them to a higher standard than I'd hold a junior engineer. If your test asserts len > 0 when a specific count is expected, I'm sending it back. A terse 'fine' from me is the highest praise you'll receive."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@entity-resolver</div>
+          <p class="agent-quote">"Companies change names, merge, spin off, and swap tickers -- and SEC EDGAR just shrugs and assigns another CIK. I'm the one who figures out that CIK 19617 and CIK 831001 are both JPMorgan Chase, and I assign confidence scores so you know when I'm guessing."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@temporal-modeler</div>
+          <p class="agent-quote">"I design bitemporal schemas -- valid time in the data, transaction time in Iceberg snapshots. If you need to answer 'what did we think Apple's Q3 revenue was on November 1st before the amendment?' I'm the reason that query works. I live in two time dimensions simultaneously, which sounds cool until you try to explain it at a standup."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@pii-scanner</div>
+          <p class="agent-quote">"I scan your data for personally identifiable information and try not to flag every company name as a person. SEC EDGAR data is 99% public record, so my job is mostly classifying things as Level 1 and explaining to @policy-engineer why CEO names in public filings don't need masking."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@policy-engineer</div>
+          <p class="agent-quote">"I take @pii-scanner's classifications and turn them into formal access policies -- RLS, column masking, retention, AI consumption rules. I define the policies; I don't implement them. Think of me as the person who writes the building code, not the one who installs the door locks."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@chaos-monkey</div>
+          <p class="agent-quote">"I break things on purpose. I read the schema, I have NO idea what the DQ rules check for, and I inject the nastiest garbage I can think of -- nulls, duplicates, revenue of $1 for Apple, fiscal years in 1850, timestamps from 2099. Then I write down exactly what I broke and let the reconciler figure out if anyone caught it. If your DQ rules can't catch intentional corruption, they can't catch accidental corruption either. Also, I have a three-layer kill switch because nobody trusts me, and honestly? Fair."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@content-strategist</div>
+          <p class="agent-quote">"I translate what all of these agents built into copy that makes a CDAO stop scrolling. Every claim I write cites a real file path, a real artifact count, or a real verification result. I don't write 'robust governance' -- I write '128 DQ rules across 9 dimensions.' If I can't cite it, I don't write it."</p>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">@web-designer</div>
+          <p class="agent-quote">"I build the site where all of @content-strategist's copy lives. Dark mode by default, under 100KB total, no frameworks, no tracking scripts. If a VP of Data opens this on their phone during a meeting and doesn't immediately understand what this project does, I've failed. Whitespace is a feature, not waste."</p>
+        </div>
+      </div>
+
+      <h2>Three Distinct DQ Roles</h2>
+
+      <p>DQ is not one agent's job. It is a pipeline of three:</p>
+
+      <div class="dq-flow fade-in">
+        <div class="dq-flow-step">
+          <div class="step-title">@data-analyst</div>
+          <div class="step-desc">Profiles real data (distributions, outliers, edge cases, thresholds)</div>
+          <div class="step-output">EDA Report (evidence)</div>
+        </div>
+        <div class="dq-flow-step">
+          <div class="step-title">@dq-rule-writer</div>
+          <div class="step-desc">Writes rules from EDA evidence (never touches data directly)</div>
+          <div class="step-output">Rule Definitions (governance/dq-rules/)</div>
+        </div>
+        <div class="dq-flow-step">
+          <div class="step-title">@dq-engineer</div>
+          <div class="step-desc">Executes rules against real Iceberg tables and produces scorecards</div>
+          <div class="step-output">Results + Scorecard (governance/dq-results/)</div>
+        </div>
+      </div>
+
+      <p>Why three agents instead of one? Because the data profiler should not write its own validation rules (confirmation bias), and the rule writer should not execute its own rules (marking your own homework). Separation of concerns is not just for code.</p>
+
+      <h2>The Workflow Per Spec</h2>
+
+      <p>Every feature follows this pipeline. No shortcuts.</p>
+
+      <h3>Raw Zone</h3>
+
+      <div class="workflow fade-in">
+        <div class="workflow-step">@governance-reviewer &mdash; pre-implementation review</div>
+        <div class="workflow-step">Implementation (ingest raw data)</div>
+        <div class="workflow-step">@data-analyst &mdash; EDA on raw data</div>
+        <div class="workflow-step">@dq-rule-writer &mdash; write DQ rules from EDA report</div>
+        <div class="workflow-step">@dq-engineer &mdash; execute rules, produce scorecard</div>
+        <div class="workflow-step">@lineage-tracker &mdash; OpenLineage capture</div>
+        <div class="workflow-step">@cde-tagger &mdash; CDE mapping update</div>
+        <div class="workflow-step">@doc-generator &mdash; dictionary + contracts</div>
+        <div class="workflow-step">@governance-reviewer &mdash; post-implementation check</div>
+        <div class="workflow-step"><strong>@staff-engineer &mdash; final quality review (LAST gate)</strong></div>
+      </div>
+
+      <h3>Base &amp; Consumable Zones (Greenfield)</h3>
+
+      <div class="workflow fade-in">
+        <div class="workflow-step">@governance-reviewer &mdash; pre-implementation review</div>
+        <div class="workflow-step">@data-steward &mdash; propose business terms <span class="gate">HUMAN APPROVAL GATE</span></div>
+        <div class="workflow-step">@semantic-modeler &mdash; propose conceptual model <span class="gate">HUMAN APPROVAL GATE</span></div>
+        <div class="workflow-step">@semantic-modeler &mdash; propose logical model <span class="gate">HUMAN APPROVAL GATE</span></div>
+        <div class="workflow-step">@data-analyst &mdash; EDA on source data</div>
+        <div class="workflow-step">@dq-rule-writer &mdash; write rules from EDA report + logical model</div>
+        <div class="workflow-step">@semantic-modeler &mdash; generate physical model from approved logical</div>
+        <div class="workflow-step">Implementation (must match approved physical model)</div>
+        <div class="workflow-step">@dq-engineer &mdash; execute rules, produce scorecard</div>
+        <div class="workflow-step">@lineage-tracker, @cde-tagger, @doc-generator</div>
+        <div class="workflow-step">@governance-reviewer &mdash; post-implementation check</div>
+        <div class="workflow-step"><strong>@staff-engineer &mdash; final quality review (LAST gate)</strong></div>
+      </div>
+
+      <h3>Backfill Mode (reverse-engineering existing tables)</h3>
+
+      <div class="workflow fade-in">
+        <div class="workflow-step">@semantic-modeler &mdash; reverse-engineer physical model</div>
+        <div class="workflow-step">@semantic-modeler &mdash; abstract logical model <span class="gate">HUMAN APPROVAL GATE</span></div>
+        <div class="workflow-step">@data-analyst &mdash; EDA on existing data</div>
+        <div class="workflow-step">@dq-rule-writer &mdash; write rules</div>
+        <div class="workflow-step">@dq-engineer &mdash; execute rules</div>
+        <div class="workflow-step">@semantic-modeler &mdash; abstract conceptual model <span class="gate">HUMAN APPROVAL GATE</span></div>
+        <div class="workflow-step">@data-steward &mdash; extract business terms <span class="gate">HUMAN APPROVAL GATE</span></div>
+        <div class="workflow-step">@governance-reviewer &mdash; completeness check</div>
+        <div class="workflow-step"><strong>@staff-engineer &mdash; final review</strong></div>
+      </div>
+
+      <h2>Zone Transitions: The Insight Manager</h2>
+
+      <p>Between zones, @insight-manager runs a strategic analysis. It queries the real Iceberg tables (not just schemas) and produces an insight report that drives spec writing for the next zone.</p>
+
+      <h3>Base &rarr; Consumable Transition</h3>
+
+      <p>The insight report analyzed 547K base zone facts and:</p>
+      <ul>
+        <li>Identified 12 universal business terms (reported by all 20 companies)</li>
+        <li>Found 6 near-universal and 7 partial-coverage terms</li>
+        <li>Ranked 12 data products by value and feasibility</li>
+        <li>Identified external data opportunities (stock prices as #1 priority)</li>
+        <li>Documented coverage gaps (fiscal year misalignment, financial sector P&amp;L differences)</li>
+      </ul>
+
+      <p>Result: 5 consumable tables were built in priority order from this analysis.</p>
+
+      <h3>Consumable &rarr; AI-Ready Transition</h3>
+
+      <p>The insight report analyzed 125,814 consumable rows and:</p>
+      <ul>
+        <li>Identified the data as "structurally hostile to LLM consumption"</li>
+        <li>Ranked 13 AI-Ready data products</li>
+        <li>Recommended tool-use architecture over RAG/embeddings</li>
+        <li>Led to the decision to scrap the entire original AI-Ready plan (embeddings, vector stores, pre-computed documents)</li>
+      </ul>
+
+      <p>Result: tool-use chat interface built instead of RAG. The governance pipeline made RAG unnecessary.</p>
+
+      <h2>Spec-Driven Development</h2>
+
+      <p>Nothing gets built without a spec. The spec is the source of truth.</p>
+
+      <p>28 specs delivered across infrastructure, raw, base, consumable, and AI-ready zones. 8 infrastructure specs were added during the build to address real issues discovered during implementation. None were in the original plan. This is expected &mdash; you don't know what infrastructure you need until you start building on it.</p>
+
+      <h2>The Staff Engineer Gate</h2>
+
+      <p>No spec is marked complete until @staff-engineer approves. This is the last gate in the pipeline.</p>
+
+      <p>@staff-engineer can send work back to any agent for fixes. The review covers:</p>
+      <ul>
+        <li>Code quality (pattern consistency, test coverage, no test theater)</li>
+        <li>Architecture (zone boundaries, dependency direction)</li>
+        <li>Governance (all artifacts produced, DQ rules exist and pass)</li>
+        <li>Documentation (session log updated, models current)</li>
+      </ul>
+
+      <p>Test theater &mdash; tests that don't validate real behavior &mdash; is a rejection. The 466 tests in this project include integration tests against real Iceberg data, not mocks.</p>
+
+      <h2>What the agents cannot do</h2>
+
+      <ul>
+        <li><strong>Make architectural decisions.</strong> The human decides the zone structure, the storage layer, the tool-use-vs-RAG choice. Agents implement.</li>
+        <li><strong>Override human approvals.</strong> When <code>REQUIRE_HUMAN_APPROVAL = True</code>, the pipeline stops. No agent can bypass the gate.</li>
+        <li><strong>Guarantee production readiness.</strong> The architect review is honest about scale limitations. The agents built what was specified, within the scope that was defined.</li>
+      </ul>
+
+      <p>The agents are the workforce. The human is the architect and the approver. The methodology works because the roles are clear.</p>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI-Ready: Why We Scrapped RAG - SEC EDGAIR</title>
+  <meta name="description" content="We planned RAG, embeddings, and vector databases. Then we looked at the actual data and scrapped all of it. The story of why tool use over DuckDB beat the conventional AI playbook.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* Narrative page — longer-form reading layout */
+    .narrative p {
+      max-width: 68ch;
+      font-size: 1.02rem;
+      line-height: 1.75;
+    }
+    .narrative h2 {
+      margin-top: var(--space-4xl);
+    }
+    .narrative h2:first-of-type {
+      margin-top: var(--space-3xl);
+    }
+
+    /* Deprecated agent cards */
+    .scrapped-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+      margin: var(--space-xl) 0;
+    }
+    .scrapped-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .scrapped-card::before {
+      content: 'SCRAPPED';
+      position: absolute;
+      top: 12px;
+      right: -28px;
+      background: var(--color-fail);
+      color: var(--text-inverse);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 32px;
+      transform: rotate(45deg);
+    }
+    .scrapped-card .agent-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      margin-bottom: var(--space-xs);
+      text-decoration: line-through;
+    }
+    .scrapped-card .scrapped-would-have {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+    .scrapped-card .scrapped-why {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* Tool function cards */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-md);
+      margin: var(--space-xl) 0;
+    }
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      transition: border-color var(--transition-fast);
+    }
+    .tool-card:hover {
+      border-color: var(--accent);
+    }
+    .tool-card .tool-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      margin-bottom: var(--space-xs);
+    }
+    .tool-card .tool-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+    .tool-card .tool-example {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* Side-by-side comparison */
+    .vs-table th:first-child {
+      width: 20%;
+    }
+    .vs-table td:nth-child(2) {
+      color: var(--color-fail);
+    }
+    .vs-table td:nth-child(3) {
+      color: var(--color-pass);
+    }
+
+    /* Pull quote */
+    .pull-quote {
+      border-left: 4px solid var(--accent);
+      padding: var(--space-xl) var(--space-2xl);
+      margin: var(--space-3xl) 0;
+      background: var(--accent-subtle);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    }
+    .pull-quote p {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-style: normal;
+      max-width: 60ch;
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    /* Thesis box */
+    .thesis-box {
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2xl) var(--space-xl);
+      margin: var(--space-3xl) 0;
+      text-align: center;
+    }
+    .thesis-box p {
+      max-width: 60ch;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+    .thesis-box p strong {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html" class="active">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">AI-Ready Zone</div>
+      <h1>We Designed the Whole RAG Pipeline. Then We Threw It Away.</h1>
+      <p>For the data architect who has watched a RAG project deliver approximate answers to questions that have exact answers.</p>
+    </div>
+
+    <div class="container narrative">
+
+      <h2>Act I: The Original Plan</h2>
+
+      <p>The build plan for the AI-Ready zone read like every enterprise AI project brief you have seen. Phase 5 had four dedicated agents, a vector database, an embedding pipeline, pre-computed grounding documents, and an MCP server. The deliverables were standard:</p>
+
+      <ul class="fade-in">
+        <li>Vector index of all entities, facts, and CDEs</li>
+        <li>RAG-ready grounding documents per company per quarter (~340 pre-computed JSON documents)</li>
+        <li>Intelligently chunked context documents with metadata</li>
+        <li>Evaluation dataset &mdash; verified Q&amp;A pairs with source lineage</li>
+        <li>Quality-aware confidence signals for AI consumption</li>
+        <li>Full AI-to-source lineage from AI claim to raw SEC filing</li>
+        <li>MCP server for agent tool use</li>
+      </ul>
+
+      <p>This is what &ldquo;AI-ready data&rdquo; looks like in every slide deck, every vendor pitch, every architecture diagram. Nobody would have questioned it.</p>
+
+      <h2>Act II: The Pivot Moment</h2>
+
+      <p>Between the consumable zone and the AI-ready zone, the @insight-manager agent ran its standard zone transition analysis. It queried all 5 consumable Iceberg tables &mdash; 125,814 rows of clean, governed financial data &mdash; and produced a report.</p>
+
+      <p>The opening line was the diagnosis:</p>
+
+      <blockquote class="fade-in">
+        <p>&ldquo;The data is <strong>structurally hostile to LLM consumption</strong>: answering &lsquo;summarize Apple's financial health&rsquo; requires 5 separate table queries across 118 columns, fiscal year alignment math, and knowledge of which numbers need caveats.&rdquo;</p>
+      </blockquote>
+
+      <p>But the recommendation was not &ldquo;build a better RAG pipeline.&rdquo; It was the opposite. Then came the architecture review. The prompt was blunt: &ldquo;Be brutally honest about what&rsquo;s actually needed vs. what&rsquo;s over-engineering.&rdquo;</p>
+
+      <p>The architect&rsquo;s analysis was decisive:</p>
+
+      <blockquote class="fade-in">
+        <p>&ldquo;RAG solves the problem of finding relevant information in a large, unstructured corpus. We don&rsquo;t have that problem. We have 5 clean, structured Iceberg tables with 125K rows, 50 passing DQ rules, and DuckDB that joins them in milliseconds.&rdquo;</p>
+      </blockquote>
+
+      <p>Five of the seven originally planned specs were cut. The entire RAG pipeline &mdash; embeddings, vector store, pre-computed documents, chunking &mdash; was deprecated. In its place: 8 Python functions that Claude calls as tools.</p>
+
+      <h2>Act III: Why RAG Was Wrong for This Data</h2>
+
+      <p>The conventional AI playbook assumes your data looks like documents &mdash; contracts, reports, policies, emails. Unstructured text where the challenge is finding the relevant passage. RAG was designed for that problem. It is brilliant for that problem.</p>
+
+      <p>Financial data in governed Iceberg tables is not that problem.</p>
+
+      <p><strong>Semantic embeddings would have added a probabilistic retrieval step to data that already has exact answers.</strong> &ldquo;What was Apple&rsquo;s revenue in FY2024?&rdquo; is not a semantic similarity search. It is a lookup: <code>WHERE ticker = 'AAPL' AND business_term_name = 'Revenue' AND fiscal_year = 2024</code>. A <code>WHERE</code> clause is faster, cheaper, and deterministic. The embedding adds latency, infrastructure, and a failure mode for zero benefit.</p>
+
+      <p><strong>Pre-computed grounding documents would have created a cache invalidation problem where none existed.</strong> We would have generated ~340 JSON documents that go stale the moment the underlying data changes. DuckDB joins the 5 consumable tables in under 50 milliseconds. There is no latency problem to solve with pre-computation.</p>
+
+      <p><strong>Intelligent chunking would have added complexity to solve a problem that does not exist at this scale.</strong> A single company&rsquo;s full financial profile for one year is approximately 2,000 tokens. The entire 20-company roster fits in the system prompt at approximately 3,000 tokens. There is no chunking problem.</p>
+
+      <p><strong>A vector database would have added infrastructure for zero analytical value.</strong> No Docker container to run. No embedding model to host. No index to rebuild when data changes. No similarity threshold to tune. Just DuckDB, which was already in the stack.</p>
+
+      <h3>The Comparison</h3>
+
+      <div class="table-wrapper vs-table fade-in">
+        <table>
+          <thead>
+            <tr><th></th><th>RAG Pipeline</th><th>Tool Use Pipeline</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Retrieval</strong></td>
+              <td>Probabilistic &mdash; top-K nearest neighbors in embedding space</td>
+              <td>Deterministic &mdash; WHERE clause returns exact match</td>
+            </tr>
+            <tr>
+              <td><strong>Data freshness</strong></td>
+              <td>Stale until re-embedded and re-indexed</td>
+              <td>Always live &mdash; every query hits real Iceberg tables</td>
+            </tr>
+            <tr>
+              <td><strong>Infrastructure</strong></td>
+              <td>Vector DB + embedding model + refresh pipeline</td>
+              <td>Zero additional &mdash; DuckDB already in stack</td>
+            </tr>
+            <tr>
+              <td><strong>Auditability</strong></td>
+              <td>Retrieval step is probabilistic, hard to explain to a regulator</td>
+              <td>Tool call parameters are the audit trail</td>
+            </tr>
+            <tr>
+              <td><strong>Precision</strong></td>
+              <td>Embeddings lose exact financial figures</td>
+              <td>SQL returns exact values to the penny</td>
+            </tr>
+            <tr>
+              <td><strong>Chunking</strong></td>
+              <td>Required &mdash; boundary management, overlap, metadata</td>
+              <td>Not needed &mdash; full company profile is ~2K tokens</td>
+            </tr>
+            <tr>
+              <td><strong>Cost per query</strong></td>
+              <td>Embedding + retrieval + generation</td>
+              <td>Generation only (~$0.03/question)</td>
+            </tr>
+            <tr>
+              <td><strong>Anomaly detection</strong></td>
+              <td>Pre-scored on documents (goes stale)</td>
+              <td>Computed at query time against actual data</td>
+            </tr>
+            <tr>
+              <td><strong>Failure mode</strong></td>
+              <td>Correct document not in top-K results</td>
+              <td>Tool returns error with helpful message</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>The Cutting Room Floor</h2>
+
+      <p>These agents were designed, named, and ready to go. They were never built.</p>
+
+      <div class="scrapped-grid fade-in">
+        <div class="scrapped-card">
+          <div class="agent-name">@embedding-engineer</div>
+          <p class="scrapped-would-have">Would have vectorized 547K financial facts into dense embeddings, built and maintained a FAISS index for semantic retrieval.</p>
+          <p class="scrapped-why">Embeddings add a lossy, probabilistic retrieval step to data that has exact answers via SQL.</p>
+        </div>
+        <div class="scrapped-card">
+          <div class="agent-name">@chunk-strategist</div>
+          <p class="scrapped-would-have">Would have split financial data into context-window-optimized chunks with metadata headers and overlap management.</p>
+          <p class="scrapped-why">Data fits in context without chunking. A company&rsquo;s full profile is ~2K tokens.</p>
+        </div>
+        <div class="scrapped-card">
+          <div class="agent-name">@eval-engineer</div>
+          <p class="scrapped-would-have">Would have generated thousands of verified Q&amp;A pairs for testing AI accuracy with source lineage.</p>
+          <p class="scrapped-why">Replaced by 116 integration tests that query real Iceberg data and catch regressions dynamically.</p>
+        </div>
+        <div class="scrapped-card">
+          <div class="agent-name">@mcp-engineer</div>
+          <p class="scrapped-would-have">Would have built a Model Context Protocol server exposing governed data as AI-callable tools.</p>
+          <p class="scrapped-why">Superseded by direct Claude API tool use. Same functions, simpler implementation. MCP wrappable later.</p>
+        </div>
+      </div>
+
+      <p>Every one of these agents would have produced governance artifacts, session logs, specs, and DQ rules. The project would have been larger, more complex, and delivered worse answers.</p>
+
+      <h2>Act IV: What Was Actually Built</h2>
+
+      <p>8 validated Python functions. That is the entire AI-Ready zone.</p>
+
+      <div class="tool-grid fade-in">
+        <div class="tool-card">
+          <div class="tool-name">get_company_metric()</div>
+          <p class="tool-desc">Returns a specific metric with formatting, YoY growth, sector rank, and anomaly flags.</p>
+          <p class="tool-example">&ldquo;What was Apple&rsquo;s revenue in FY2024?&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">get_company_profile()</div>
+          <p class="tool-desc">All metrics, ratios, and amendment stats for a company in one call.</p>
+          <p class="tool-example">&ldquo;Tell me about Boeing&rsquo;s FY2023 financials.&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">compare_companies()</div>
+          <p class="tool-desc">Side-by-side comparison with delta analysis and fiscal alignment warnings.</p>
+          <p class="tool-example">&ldquo;Compare Apple and Microsoft on profitability.&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">rank_companies()</div>
+          <p class="tool-desc">Ranks all companies or a sector by any metric.</p>
+          <p class="tool-example">&ldquo;Which company has the highest net margin?&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">get_company_trend()</div>
+          <p class="tool-desc">Multi-year time series with YoY changes and trend direction.</p>
+          <p class="tool-example">&ldquo;How has Tesla&rsquo;s revenue changed over time?&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">get_sector_summary()</div>
+          <p class="tool-desc">Sector-level aggregates: average, median, leader, laggard.</p>
+          <p class="tool-example">&ldquo;How is the Technology sector performing?&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">get_ratio()</div>
+          <p class="tool-desc">Returns a computed ratio with its components and sector context.</p>
+          <p class="tool-example">&ldquo;What is Apple&rsquo;s debt-to-equity ratio?&rdquo;</p>
+        </div>
+        <div class="tool-card">
+          <div class="tool-name">get_amendment_summary()</div>
+          <p class="tool-desc">Amendment and restatement patterns for a company.</p>
+          <p class="tool-example">&ldquo;Has Goldman Sachs had many restatements?&rdquo;</p>
+        </div>
+      </div>
+
+      <p>Each function validates inputs, runs parameterized DuckDB queries against real Iceberg data, formats numbers ($394.3B, 25.3%, rank #1 of 5), checks anomaly rules, and returns a structured dictionary. Claude never writes SQL. Claude never sees raw data. Claude calls typed functions and gets back formatted, flagged, auditable results.</p>
+
+      <p>The anomaly checker fires automatically. When Boeing&rsquo;s debt-to-equity ratio comes back at 346x, the tool attaches a flag: &ldquo;Extreme leverage ratio driven by near-zero or negative equity denominator.&rdquo; When comparing Apple (September fiscal year) to Microsoft (June fiscal year), the tool attaches a warning: &ldquo;Fiscal year ends differ. These cover different 12-month calendar periods.&rdquo; The LLM does not need to know these rules. The tools enforce them.</p>
+
+      <h2>Act V: The Irony</h2>
+
+      <p>This is the part that matters.</p>
+
+      <p>The entire SEC EDGAIR project exists to prove one thesis: AI agents can take raw, messy data and deliver it as clean, governed, semantically modeled data products. The pipeline transforms 547,398 raw XBRL facts through four zones with 128 DQ rules, 54 business terms, 28 data models, and runtime lineage at every step.</p>
+
+      <p>The original AI-Ready plan assumed that after all this governance work, you would still need to approximate the data through embeddings and retrieve it probabilistically through vector search. That assumption was wrong.</p>
+
+      <div class="pull-quote fade-in">
+        <p>The governance pipeline did its job so well that the data was already perfectly queryable. You do not need approximate retrieval for data that is clean, modeled, and indexed. You just query it.</p>
+      </div>
+
+      <p>Most enterprise AI projects reach for RAG because their data is a mess. Documents are scattered across SharePoint. Tables have no consistent naming. Business terms mean different things in different departments. Fiscal calendars are not aligned. Data quality is unknown. In that world, RAG is the right answer &mdash; because you cannot trust a direct query against data you have not governed.</p>
+
+      <p>But if you do the governance work first &mdash; if you normalize the entities, conform the tags, model the dimensions, validate the quality, align the fiscal calendars, and track the lineage &mdash; then you have data that answers direct queries precisely. You do not need a search engine for a filing cabinet that is already alphabetized.</p>
+
+      <h2>What This Means for Your Project</h2>
+
+      <p>If you are building an enterprise AI project and reaching for RAG as the default architecture, ask yourself two questions:</p>
+
+      <p><strong>1. Is your data structured or unstructured?</strong> If it lives in tables with known schemas, defined business terms, and consistent grain &mdash; RAG is solving a problem you do not have. A query engine is faster, cheaper, and deterministic.</p>
+
+      <p><strong>2. Have you governed the data first?</strong> If the answer is no, RAG might be necessary &mdash; not because it is the right architecture, but because it papers over the governance gap. Embeddings can find &ldquo;relevant&rdquo; documents even when naming is inconsistent. Vector search can surface related records even when joins are broken. RAG is a compensating control for ungoverned data.</p>
+
+      <p>The dependency is backwards in most organizations. They build RAG to compensate for bad data instead of fixing the data to eliminate the need for RAG. Both paths work. One of them produces a permanent asset (governed data). The other produces a fragile pipeline that depends on approximate retrieval continuing to return the right results.</p>
+
+      <p>This project took the longer path. The results: 88/88 verification checks against real 10-K filings, every answer traceable from chat response to raw SEC filing, zero vector infrastructure, zero embedding costs, zero staleness risk.</p>
+
+      <blockquote class="fade-in">
+        <p>&ldquo;Tool use over DuckDB is the correct architecture for this dataset. At 136K rows across 5 structured tables, the data fits comfortably in memory, DuckDB runs joins in milliseconds, and Claude can express any analytical query through the tool functions.&rdquo;</p>
+        <p>&mdash; @principal-data-architect agent, re-review (grade: A)</p>
+      </blockquote>
+
+      <div class="thesis-box fade-in">
+        <p><strong>The governance pipeline made RAG unnecessary &mdash; which is the strongest possible argument for the governance pipeline.</strong></p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="models.html">Models</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

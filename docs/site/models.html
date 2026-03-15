@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Models - SEC EDGAIR</title>
+  <meta name="description" content="28 data model artifacts across 9 entity groups. Conceptual, logical, and physical models -- every one proposed by an AI agent, reviewed by a human, and linked to the business glossary.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* Models page — details/summary styling */
+    .model-details {
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+      background: var(--bg-card);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+    .model-details:hover {
+      border-color: var(--accent);
+    }
+    .model-details summary {
+      padding: var(--space-md) var(--space-lg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      list-style: none;
+      user-select: none;
+      transition: background var(--transition-fast);
+    }
+    .model-details summary::-webkit-details-marker { display: none; }
+    .model-details summary::before {
+      content: '';
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-left: 6px solid var(--text-tertiary);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      transition: transform var(--transition-fast);
+      flex-shrink: 0;
+    }
+    .model-details[open] > summary::before {
+      transform: rotate(90deg);
+    }
+    .model-details summary:hover {
+      background: var(--accent-subtle);
+    }
+    .model-details .model-level-badge {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      padding: 0.15em 0.6em;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .model-level-badge--conceptual {
+      color: var(--zone-ai);
+      background: rgba(244, 114, 182, 0.12);
+    }
+    .model-level-badge--logical {
+      color: var(--zone-consumable);
+      background: rgba(52, 211, 153, 0.12);
+    }
+    .model-level-badge--physical {
+      color: var(--zone-base);
+      background: rgba(56, 189, 248, 0.12);
+    }
+    .model-details .detail-content {
+      padding: 0 var(--space-lg) var(--space-lg);
+      overflow-x: auto;
+    }
+    .model-details .mermaid {
+      margin: var(--space-md) 0 0;
+      text-align: center;
+      overflow-x: auto;
+      min-width: 0;
+    }
+
+    /* Zone section headers */
+    .zone-section {
+      margin-top: var(--space-3xl);
+    }
+    .zone-section:first-of-type {
+      margin-top: var(--space-xl);
+    }
+    .zone-badge {
+      display: inline-block;
+      padding: 0.2em 0.8em;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: var(--space-sm);
+      vertical-align: middle;
+    }
+    .zone-badge--base {
+      color: var(--zone-base);
+      background: rgba(56, 189, 248, 0.12);
+    }
+    .zone-badge--consumable {
+      color: var(--zone-consumable);
+      background: rgba(52, 211, 153, 0.12);
+    }
+    .zone-badge--ai-ready {
+      color: var(--zone-ai);
+      background: rgba(244, 114, 182, 0.12);
+    }
+
+    /* Model group card */
+    .model-group {
+      margin-bottom: var(--space-2xl);
+    }
+    .model-group h3 {
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-xs);
+    }
+    .model-group .model-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      max-width: 72ch;
+    }
+
+    /* Responsive scroll container for wide diagrams */
+    @media (max-width: 768px) {
+      .model-details .mermaid {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .model-details .mermaid svg {
+        min-width: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html" class="active">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">Data Models</div>
+      <h1>28 model artifacts. Every one machine-proposed, human-reviewed.</h1>
+      <p>9 entity groups across 3 zones. Every model was proposed by an AI agent (@semantic-modeler), reviewed by a human, and linked to the business glossary. Conceptual models define what exists. Logical models define attributes and relationships. Physical models define actual Iceberg column types and source mappings.</p>
+    </div>
+
+    <div class="metric-grid fade-in">
+      <div class="metric-card">
+        <div class="metric-value">28</div>
+        <div class="metric-label">Model Artifacts</div>
+        <div class="metric-detail">Conceptual + Logical + Physical</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">9</div>
+        <div class="metric-label">Entity Groups</div>
+        <div class="metric-detail">Across Base, Consumable, AI-Ready</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Abstraction Levels</div>
+        <div class="metric-detail">Conceptual, Logical, Physical</div>
+      </div>
+    </div>
+
+    <div class="container container--wide">
+
+      <!-- ============================================================ -->
+      <!-- BASE ZONE -->
+      <!-- ============================================================ -->
+      <div class="zone-section fade-in">
+        <h2><span class="zone-badge zone-badge--base">Base</span> Base Zone Models</h2>
+        <p>The base zone normalizes, conforms, and governs raw SEC EDGAR data. Seven Iceberg tables handle entity resolution, tag normalization, financial facts, fiscal calendars, amendment tracking, and conformed facts.</p>
+      </div>
+
+      <!-- Entity Resolution -->
+      <div class="model-group fade-in">
+        <h3>Entity Resolution</h3>
+        <p class="model-desc">Maps raw SEC EDGAR entity names (inconsistent, all-caps, abbreviated) to canonical company identities with human-in-the-loop approval. 20 companies, full audit trail.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Entity Resolution &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    RAW_ENTITY }o--|| CANONICAL_COMPANY : "resolves to"
+    CANONICAL_COMPANY ||--o{ RESOLUTION_DECISION : "has history of"
+    HUMAN_REVIEWER ||--o{ RESOLUTION_DECISION : "approves or rejects"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Entity Resolution &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    EntityMapping {
+        identifier mapping_id PK
+        identifier cik
+        text canonical_name
+        text raw_entity_name
+        text ticker
+        text sic_code
+        text fiscal_year_end
+        number confidence
+        text resolution_method
+        text status
+        text resolved_by
+        text approved_by
+        timestamp resolved_at
+        timestamp approved_at
+    }
+    EntityResolutionAudit {
+        identifier audit_id PK
+        identifier mapping_id FK
+        text action
+        text actor
+        text reasoning
+        text evidence
+        number confidence_at_action
+        timestamp timestamp
+    }
+    EntityMapping ||--o{ EntityResolutionAudit : "has audit trail"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Entity Resolution &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    base_entity_mappings {
+        STRING mapping_id PK "Stable ID (ER-001..) | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized display name | EntityMapping.canonical_name"
+        STRING raw_entity_name "Original from SEC EDGAR | EntityMapping.raw_entity_name"
+        STRING ticker "Stock ticker symbol | EntityMapping.ticker"
+        STRING sic_code "Industry classification | EntityMapping.sic_code"
+        STRING fiscal_year_end "MMDD format | EntityMapping.fiscal_year_end"
+        DOUBLE confidence "Resolution confidence 0-1 | EntityMapping.confidence"
+        STRING resolution_method "exact_cik_match or fuzzy | EntityMapping.resolution_method"
+        STRING status "Approval status | EntityMapping.status"
+        STRING resolved_by "Proposing agent | EntityMapping.resolved_by"
+        STRING approved_by "Human or auto approver | EntityMapping.approved_by"
+        TIMESTAMPTZ resolved_at "When proposed | EntityMapping.resolved_at"
+        TIMESTAMPTZ approved_at "When approved | EntityMapping.approved_at"
+    }
+    base_entity_resolution_audit {
+        STRING audit_id PK "UUID | EntityResolutionAudit.audit_id"
+        STRING mapping_id FK "FK to entity_mappings | EntityResolutionAudit.mapping_id"
+        STRING action "proposed/approved/rejected | EntityResolutionAudit.action"
+        STRING actor "Who performed action | EntityResolutionAudit.actor"
+        STRING reasoning "Decision explanation | EntityResolutionAudit.reasoning"
+        STRING evidence "JSON supporting data | EntityResolutionAudit.evidence"
+        DOUBLE confidence_at_action "Confidence at action time | EntityResolutionAudit.confidence_at_action"
+        TIMESTAMPTZ timestamp "When action occurred | EntityResolutionAudit.timestamp"
+    }
+    base_entity_mappings ||--o{ base_entity_resolution_audit : "tracked by"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- XBRL Tag Normalization -->
+      <div class="model-group fade-in">
+        <h3>XBRL Tag Normalization</h3>
+        <p class="model-desc">Classifies 3,285 XBRL concepts into 25 canonical financial data elements using a tiered matching engine. Tier 1 (exact), Tier 2 (pattern), Tier 3 (unmapped). Human-approved concept-to-CDE mappings.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Tag Normalization &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    XBRL_CONCEPT }o--o| CANONICAL_CDE : "maps to (optional)"
+    XBRL_CONCEPT ||--o{ CLASSIFICATION_DECISION : "has history of"
+    CANONICAL_CDE ||--|{ FINANCIAL_STATEMENT : "belongs to"
+    HUMAN_REVIEWER ||--o{ CLASSIFICATION_DECISION : "approves or rejects"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Tag Normalization &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    ConceptMapping {
+        identifier mapping_id PK
+        text concept
+        text business_term
+        identifier business_term_id
+        text financial_statement
+        text category
+        number tier
+        number confidence
+        text mapping_method
+        text status
+        text mapped_by
+        timestamp mapped_at
+    }
+    TagNormalizationAudit {
+        identifier audit_id PK
+        identifier mapping_id FK
+        text action
+        text actor
+        text reasoning
+        text evidence
+        number confidence_at_action
+        timestamp timestamp
+    }
+    CanonicalCDE {
+        identifier business_term_id PK
+        text name
+        text category
+        text subcategory
+        text definition
+    }
+    ConceptMapping }o--o| CanonicalCDE : "maps to"
+    ConceptMapping ||--o{ TagNormalizationAudit : "has audit trail"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Tag Normalization &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    base_concept_mappings {
+        STRING mapping_id PK "Stable ID (TN-0001..) | ConceptMapping.mapping_id"
+        STRING concept "Raw XBRL concept name | ConceptMapping.concept"
+        STRING business_term "CDE name or null | ConceptMapping.business_term"
+        STRING business_term_id "CDE-007..031 or null | ConceptMapping.business_term_id"
+        STRING financial_statement "Statement classification | ConceptMapping.financial_statement"
+        STRING category "Subcategory | ConceptMapping.category"
+        INTEGER tier "Match quality 1/2/3 | ConceptMapping.tier"
+        DOUBLE confidence "1.0/0.7/0.6/0.0 by tier | ConceptMapping.confidence"
+        STRING mapping_method "How match was determined | ConceptMapping.mapping_method"
+        STRING status "approved or unmapped | ConceptMapping.status"
+        STRING mapped_by "Classifying agent | ConceptMapping.mapped_by"
+        TIMESTAMPTZ mapped_at "When classified | ConceptMapping.mapped_at"
+    }
+    base_tag_normalization_audit {
+        STRING audit_id PK "UUID | TagNormalizationAudit.audit_id"
+        STRING mapping_id FK "FK to concept_mappings | TagNormalizationAudit.mapping_id"
+        STRING action "proposed/approved/rejected | TagNormalizationAudit.action"
+        STRING actor "Who performed action | TagNormalizationAudit.actor"
+        STRING reasoning "Classification rationale | TagNormalizationAudit.reasoning"
+        STRING evidence "JSON fact/company counts | TagNormalizationAudit.evidence"
+        DOUBLE confidence_at_action "Confidence at action time | TagNormalizationAudit.confidence_at_action"
+        TIMESTAMPTZ timestamp "When action occurred | TagNormalizationAudit.timestamp"
+    }
+    base_concept_mappings ||--o{ base_tag_normalization_audit : "tracked by"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Financial Facts Model -->
+      <div class="model-group fade-in">
+        <h3>Financial Facts Model</h3>
+        <p class="model-desc">The heart of the base zone. Joins raw XBRL data with resolved entities and normalized concepts to produce 547K enriched facts, plus fiscal calendar (1,483 periods) and amendment tracking (264K supersession pairs).</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Financial Facts &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    COMPANY ||--o{ FINANCIAL_FACT : "reports"
+    FINANCIAL_CONCEPT ||--o{ FINANCIAL_FACT : "measures"
+    COMPANY ||--o{ FISCAL_PERIOD : "operates in"
+    FINANCIAL_FACT ||--o{ AMENDMENT : "corrected by"
+    FISCAL_PERIOD ||--o{ FINANCIAL_FACT : "contains"
+    SEC_FILING ||--o{ FINANCIAL_FACT : "source of"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Financial Facts &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    Entity {
+        identifier entity_id PK
+        identifier cik
+        text canonical_name
+        text ticker
+        text sic_code
+        text fiscal_year_end
+    }
+    Concept {
+        identifier mapping_id PK
+        text concept
+        identifier business_term_id
+        text business_term
+        text financial_statement
+        text category
+        number tier
+    }
+    FinancialFact {
+        identifier fact_id PK
+        identifier entity_id FK
+        text concept FK
+        text taxonomy
+        text unit
+        number val
+        date start_date
+        date end_date
+        number fiscal_year
+        text fiscal_period
+        number calendar_year
+        number calendar_quarter
+        identifier accession_number
+        text form
+        date filed_date
+        boolean is_amendment
+        boolean is_superseded
+        identifier superseded_by
+    }
+    FiscalCalendar {
+        identifier calendar_id PK
+        identifier cik FK
+        identifier entity_id FK
+        number fiscal_year
+        text fiscal_period
+        date period_start
+        date period_end
+        number duration_days
+        boolean is_annual
+    }
+    AmendmentTracking {
+        identifier tracking_id PK
+        identifier cik
+        text concept
+        text unit
+        date end_date
+        identifier original_accession
+        number original_val
+        identifier amendment_accession
+        number amendment_val
+        number val_change
+        number val_change_pct
+    }
+    Entity ||--o{ FinancialFact : "reported by"
+    Concept ||--o{ FinancialFact : "classified as"
+    Entity ||--o{ FiscalCalendar : "has periods"
+    FinancialFact ||--o{ AmendmentTracking : "superseded by"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Financial Facts &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    base_entity_mappings {
+        STRING mapping_id PK "Stable ID | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized name | EntityMapping.canonical_name"
+    }
+    base_concept_mappings {
+        STRING mapping_id PK "Stable ID | ConceptMapping.mapping_id"
+        STRING concept "XBRL concept | ConceptMapping.concept"
+        STRING business_term_id "CDE reference | ConceptMapping.business_term_id"
+        STRING business_term "CDE name | ConceptMapping.business_term"
+    }
+    base_financial_facts {
+        STRING fact_id PK "SHA-256 of grain fields | FinancialFact.fact_id"
+        STRING entity_id FK "FK to entity_mappings | FinancialFact.entity_id"
+        INTEGER cik "SEC company ID (denorm) | FinancialFact.cik"
+        STRING canonical_name "Company name (denorm) | FinancialFact.canonical_name"
+        STRING ticker "Stock ticker (denorm) | FinancialFact.ticker"
+        STRING concept "XBRL concept name | FinancialFact.concept"
+        STRING business_term_id FK "CDE reference (denorm) | FinancialFact.business_term_id"
+        STRING business_term "CDE name (denorm) | FinancialFact.business_term"
+        STRING financial_statement "Statement type (denorm) | FinancialFact.financial_statement"
+        STRING category "Subcategory (denorm) | FinancialFact.category"
+        INTEGER tier "Match tier (denorm) | FinancialFact.tier"
+        STRING taxonomy "XBRL taxonomy source | FinancialFact.taxonomy"
+        STRING unit "USD/shares/USD-per-share | FinancialFact.unit"
+        DOUBLE val "Reported value | FinancialFact.val"
+        DATE start_date "Period start (null=instant) | FinancialFact.start_date"
+        DATE end_date "Period end | FinancialFact.end_date"
+        INTEGER fiscal_year "Fiscal year | FinancialFact.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3/Q4 | FinancialFact.fiscal_period"
+        STRING fiscal_year_end "MMDD (denorm) | FinancialFact.fiscal_year_end"
+        INTEGER calendar_year "Derived from end_date | FinancialFact.calendar_year"
+        INTEGER calendar_quarter "Derived from end_date | FinancialFact.calendar_quarter"
+        STRING accession_number "SEC filing ID | FinancialFact.accession_number"
+        STRING form "10-K/10-Q/10-K-A | FinancialFact.form"
+        DATE filed_date "SEC filing date | FinancialFact.filed_date"
+        BOOLEAN is_amendment "Form ends in /A (derived) | FinancialFact.is_amendment"
+        BOOLEAN is_superseded "Later filing exists (derived) | FinancialFact.is_superseded"
+        STRING superseded_by "Superseding accession | FinancialFact.superseded_by"
+        TIMESTAMPTZ promoted_at "When written to base | FinancialFact.promoted_at"
+    }
+    base_fiscal_calendar {
+        STRING calendar_id PK "SHA-256 of grain | FiscalCalendar.calendar_id"
+        INTEGER cik "Company | FiscalCalendar.cik"
+        STRING entity_id FK "FK to entity_mappings | FiscalCalendar.entity_id"
+        INTEGER fiscal_year "e.g. 2024 | FiscalCalendar.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3/Q4 | FiscalCalendar.fiscal_period"
+        STRING fiscal_year_end "MMDD from entity | FiscalCalendar.fiscal_year_end"
+        DATE period_start "Earliest observed start | FiscalCalendar.period_start"
+        DATE period_end "Latest observed end | FiscalCalendar.period_end"
+        INTEGER calendar_year "Calendar year of end | FiscalCalendar.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter of end | FiscalCalendar.calendar_quarter"
+        INTEGER duration_days "Period length (derived) | FiscalCalendar.duration_days"
+        BOOLEAN is_annual "fiscal_period is FY | FiscalCalendar.is_annual"
+    }
+    base_amendment_tracking {
+        STRING tracking_id PK "UUID | AmendmentTracking.tracking_id"
+        INTEGER cik "Company | AmendmentTracking.cik"
+        STRING concept "Amended XBRL concept | AmendmentTracking.concept"
+        STRING unit "Measurement unit | AmendmentTracking.unit"
+        DATE start_date "Period start | AmendmentTracking.start_date"
+        DATE end_date "Period end | AmendmentTracking.end_date"
+        STRING original_accession "Superseded filing | AmendmentTracking.original_accession"
+        DATE original_filed_date "When original filed | AmendmentTracking.original_filed_date"
+        DOUBLE original_val "Original value | AmendmentTracking.original_val"
+        STRING amendment_accession "Superseding filing | AmendmentTracking.amendment_accession"
+        DATE amendment_filed_date "When amendment filed | AmendmentTracking.amendment_filed_date"
+        DOUBLE amendment_val "Corrected value | AmendmentTracking.amendment_val"
+        DOUBLE val_change "Absolute change (derived) | AmendmentTracking.val_change"
+        DOUBLE val_change_pct "Pct change (derived) | AmendmentTracking.val_change_pct"
+        STRING amendment_form "10-K-A or 10-Q-A | AmendmentTracking.amendment_form"
+        TIMESTAMPTZ detected_at "When detected | AmendmentTracking.detected_at"
+    }
+    base_entity_mappings ||--o{ base_financial_facts : "entity_id"
+    base_concept_mappings ||--o{ base_financial_facts : "concept"
+    base_financial_facts }o--|| base_fiscal_calendar : "cik + fiscal_year + fiscal_period"
+    base_financial_facts ||--o{ base_amendment_tracking : "supersession pairs"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Conformed Facts -->
+      <div class="model-group fade-in">
+        <h3>Conformed Facts</h3>
+        <p class="model-desc">The most important architectural decision in the pipeline. Resolves competing XBRL concepts to produce exactly one authoritative value per (company, metric, year, period). 28,849 rows from 547K base facts.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Conformed Facts &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    FINANCIAL_FACT ||--o{ CONFORMED_FINANCIAL_FACT : "selected as winner"
+    COMPANY ||--o{ CONFORMED_FINANCIAL_FACT : "has authoritative values for"
+    FINANCIAL_BUSINESS_TERM ||--o{ CONFORMED_FINANCIAL_FACT : "measured by"
+    FISCAL_PERIOD ||--o{ CONFORMED_FINANCIAL_FACT : "reported in"
+    SEC_FILING ||--o{ CONFORMED_FINANCIAL_FACT : "sourced from"
+    CONCEPT_PRIORITY_RULE ||--o{ CONFORMED_FINANCIAL_FACT : "governs selection of"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Conformed Facts &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    ConformedFinancialFact {
+        identifier conformed_id PK
+        identifier source_fact_id FK
+        identifier entity_id FK
+        identifier cik
+        text canonical_name
+        text ticker
+        identifier business_term_id FK
+        text business_term
+        text financial_statement
+        text category
+        text source_concept
+        number val
+        text unit
+        number fiscal_year
+        text fiscal_period
+        text fiscal_year_end
+        date period_end_date
+        number calendar_year
+        number calendar_quarter
+        identifier accession_number
+        date filed_date
+        number competing_fact_count
+        text selection_reason
+        timestamp promoted_at
+        date load_date
+    }
+    ConceptPriorityRule {
+        identifier business_term_id PK
+        text business_term
+        list primary_concepts
+        text primary_unit
+    }
+    FinancialFact {
+        identifier fact_id PK
+    }
+    Entity {
+        identifier entity_id PK
+    }
+    Concept {
+        identifier mapping_id PK
+        identifier business_term_id
+    }
+    FinancialFact ||--o| ConformedFinancialFact : "selected as winner"
+    Entity ||--o{ ConformedFinancialFact : "has authoritative values for"
+    Concept ||--o{ ConformedFinancialFact : "classified by"
+    ConceptPriorityRule ||--o{ ConformedFinancialFact : "governs selection of"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Conformed Facts &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    base_conformed_facts {
+        STRING conformed_id PK "SHA-256 of grain fields | ConformedFinancialFact.conformed_id"
+        STRING source_fact_id FK "FK to financial_facts | ConformedFinancialFact.source_fact_id"
+        STRING entity_id FK "FK to entity_mappings | ConformedFinancialFact.entity_id"
+        INTEGER cik "SEC company identifier | ConformedFinancialFact.cik"
+        STRING canonical_name "Normalized company name | ConformedFinancialFact.canonical_name"
+        STRING ticker "Stock ticker symbol | ConformedFinancialFact.ticker"
+        STRING business_term_id FK "FK to business glossary | ConformedFinancialFact.business_term_id"
+        STRING business_term "Human-readable BT name | ConformedFinancialFact.business_term"
+        STRING financial_statement "Statement classification | ConformedFinancialFact.financial_statement"
+        STRING category "Financial subcategory | ConformedFinancialFact.category"
+        STRING source_concept "Winning XBRL concept | ConformedFinancialFact.source_concept"
+        DOUBLE val "Financial value | ConformedFinancialFact.val"
+        STRING unit "Measurement unit | ConformedFinancialFact.unit"
+        INTEGER fiscal_year "Fiscal year (grain) | ConformedFinancialFact.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3/Q4 (grain) | ConformedFinancialFact.fiscal_period"
+        STRING fiscal_year_end "MMDD format | ConformedFinancialFact.fiscal_year_end"
+        DATE period_end_date "Reporting period end | ConformedFinancialFact.period_end_date"
+        INTEGER calendar_year "Calendar year of end | ConformedFinancialFact.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter of end | ConformedFinancialFact.calendar_quarter"
+        STRING accession_number "SEC filing ID | ConformedFinancialFact.accession_number"
+        DATE filed_date "SEC filing date | ConformedFinancialFact.filed_date"
+        INTEGER competing_fact_count "Candidate facts for grain | ConformedFinancialFact.competing_fact_count"
+        STRING selection_reason "Why this fact won | ConformedFinancialFact.selection_reason"
+        TIMESTAMPTZ promoted_at "When written to base | ConformedFinancialFact.promoted_at"
+        DATE load_date "Pipeline run date | ConformedFinancialFact.load_date"
+    }
+    base_financial_facts {
+        STRING fact_id PK "SHA-256 of grain fields | FinancialFact.fact_id"
+    }
+    base_entity_mappings {
+        STRING mapping_id PK "Stable ID | EntityMapping.mapping_id"
+    }
+    base_concept_mappings {
+        STRING mapping_id PK "Stable ID | ConceptMapping.mapping_id"
+        STRING business_term_id "BT reference | ConceptMapping.business_term_id"
+    }
+    base_financial_facts ||--o| base_conformed_facts : "source_fact_id"
+    base_entity_mappings ||--o{ base_conformed_facts : "entity_id"
+    base_concept_mappings ||--o{ base_conformed_facts : "business_term_id"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- CONSUMABLE ZONE -->
+      <!-- ============================================================ -->
+      <div class="zone-section fade-in">
+        <h2><span class="zone-badge zone-badge--consumable">Consumable</span> Consumable Zone Models</h2>
+        <p>The consumable zone builds purpose-built analytical tables. Each table answers a specific class of questions &mdash; cross-company comparison, ratios, growth trends, peer rankings, and amendment patterns. All are intentionally denormalized for single-query access.</p>
+      </div>
+
+      <!-- Company Financials -->
+      <div class="model-group fade-in">
+        <h3>Company Financials</h3>
+        <p class="model-desc">The core consumable table. One row per company per business term per fiscal period. Eliminates XBRL complexity &mdash; consumers query "Apple's revenue in FY2024" without knowing about concepts, supersession, or fiscal calendars. ~27K rows from 547K base facts.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Company Financials &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    COMPANY ||--o{ COMPANY_FINANCIAL : "has metrics"
+    BUSINESS_TERM ||--o{ COMPANY_FINANCIAL : "classifies"
+    FISCAL_PERIOD ||--o{ COMPANY_FINANCIAL : "measured in"
+    SEC_FILING ||--|| COMPANY_FINANCIAL : "sourced from"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Company Financials &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    CompanyFinancials {
+        identifier record_id PK
+        identifier cik
+        identifier entity_id
+        text ticker
+        text canonical_name
+        text sector
+        identifier business_term_id
+        text business_term
+        text financial_statement
+        text category
+        number val
+        text unit
+        text source_concept
+        number fiscal_year
+        text fiscal_period
+        text fiscal_year_end
+        date period_end_date
+        number calendar_year
+        number calendar_quarter
+        identifier accession_number
+        date filed_date
+        number companies_reporting
+        timestamp promoted_at
+        date load_date
+    }
+    EntityMappings {
+        identifier entity_id PK
+        identifier cik
+        text canonical_name
+        text ticker
+        text sic_code
+        text fiscal_year_end
+    }
+    ConceptMappings {
+        identifier mapping_id PK
+        text concept
+        identifier business_term_id
+        text business_term
+        text financial_statement
+        text category
+        number tier
+    }
+    EntityMappings ||--o{ CompanyFinancials : "provides company metadata"
+    ConceptMappings ||--o{ CompanyFinancials : "provides term metadata"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Company Financials &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    base_entity_mappings {
+        STRING mapping_id PK "Stable ID | EntityMapping.mapping_id"
+        INTEGER cik "SEC company identifier | EntityMapping.cik"
+        STRING canonical_name "Normalized name | EntityMapping.canonical_name"
+        STRING ticker "Stock ticker | EntityMapping.ticker"
+        STRING sic_code "SIC industry code | EntityMapping.sic_code"
+        STRING fiscal_year_end "MMDD | EntityMapping.fiscal_year_end"
+    }
+    base_financial_facts {
+        STRING fact_id PK "SHA-256 of grain | FinancialFact.fact_id"
+        INTEGER cik "SEC company ID | FinancialFact.cik"
+        STRING business_term_id "BT-XXX reference | FinancialFact.business_term_id"
+        STRING concept "XBRL concept | FinancialFact.concept"
+        DOUBLE val "Reported value | FinancialFact.val"
+        STRING unit "USD or USD/shares | FinancialFact.unit"
+        INTEGER tier "Match tier 1/2/3 | FinancialFact.tier"
+        BOOLEAN is_superseded "Superseded flag | FinancialFact.is_superseded"
+    }
+    consumable_company_financials {
+        STRING record_id PK "SHA-256 of grain fields | CompanyFinancials.record_id"
+        INTEGER cik "SEC company identifier | CompanyFinancials.cik"
+        STRING entity_id "Resolved entity ref | CompanyFinancials.entity_id"
+        STRING ticker "Stock ticker (denorm) | CompanyFinancials.ticker"
+        STRING canonical_name "Normalized name (denorm) | CompanyFinancials.canonical_name"
+        STRING sector "SIC-to-sector (derived) | CompanyFinancials.sector"
+        STRING business_term_id "BT-XXX reference | CompanyFinancials.business_term_id"
+        STRING business_term "Human-readable name (denorm) | CompanyFinancials.business_term"
+        STRING financial_statement "Statement type (denorm) | CompanyFinancials.financial_statement"
+        STRING category "Subcategory (denorm) | CompanyFinancials.category"
+        DOUBLE val "Selected financial value | CompanyFinancials.val"
+        STRING unit "USD or USD/shares | CompanyFinancials.unit"
+        STRING source_concept "Selected XBRL concept | CompanyFinancials.source_concept"
+        INTEGER fiscal_year "Fiscal year | CompanyFinancials.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3 | CompanyFinancials.fiscal_period"
+        STRING fiscal_year_end "MMDD (denorm) | CompanyFinancials.fiscal_year_end"
+        DATE period_end_date "Reporting period end | CompanyFinancials.period_end_date"
+        INTEGER calendar_year "Calendar year of end | CompanyFinancials.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter of end | CompanyFinancials.calendar_quarter"
+        STRING accession_number "Source filing ID | CompanyFinancials.accession_number"
+        DATE filed_date "SEC filing date | CompanyFinancials.filed_date"
+        INTEGER companies_reporting "Coverage count | CompanyFinancials.companies_reporting"
+        TIMESTAMPTZ promoted_at "When written to consumable | CompanyFinancials.promoted_at"
+        DATE load_date "System date tracking | CompanyFinancials.load_date"
+    }
+    base_entity_mappings ||--o{ consumable_company_financials : "cik -> sector, fiscal_year_end"
+    base_financial_facts ||--o{ consumable_company_financials : "filtered + collision-resolved"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Financial Ratios -->
+      <div class="model-group fade-in">
+        <h3>Financial Ratios</h3>
+        <p class="model-desc">7 computed ratios (gross, operating, net margins; debt-to-equity; R&amp;D intensity; SGA ratio; CapEx-to-revenue) that normalize for company size. Both component values stored for full audit transparency. ~7K rows.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Financial Ratios &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    COMPANY ||--o{ FINANCIAL_RATIO : "has ratios"
+    RATIO_DEFINITION ||--o{ FINANCIAL_RATIO : "classifies"
+    NUMERATOR_TERM ||--|| FINANCIAL_RATIO : "provides numerator"
+    DENOMINATOR_TERM ||--|| FINANCIAL_RATIO : "provides denominator"
+    FISCAL_PERIOD ||--o{ FINANCIAL_RATIO : "measured in"
+    COMPANY_FINANCIAL ||--o{ FINANCIAL_RATIO : "derived from"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Financial Ratios &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    FinancialRatios {
+        identifier record_id PK
+        identifier cik
+        identifier entity_id
+        text ticker
+        text canonical_name
+        text sector
+        identifier ratio_id
+        text ratio_name
+        number ratio_value
+        identifier numerator_bt_id
+        text numerator_bt_name
+        number numerator_val
+        identifier denominator_bt_id
+        text denominator_bt_name
+        number denominator_val
+        number fiscal_year
+        text fiscal_period
+        text fiscal_year_end
+        date period_end_date
+        number calendar_year
+        number calendar_quarter
+        number companies_reporting
+        timestamp promoted_at
+        date load_date
+    }
+    CompanyFinancials {
+        identifier record_id PK
+        identifier cik
+        identifier business_term_id
+        number val
+        text business_term
+    }
+    CompanyFinancials ||--o{ FinancialRatios : "numerator + denominator join"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Financial Ratios &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    consumable_company_financials {
+        STRING record_id PK "SHA-256 of grain | CompanyFinancials.record_id"
+        INTEGER cik "SEC company ID | CompanyFinancials.cik"
+        STRING business_term_id "BT-XXX ref | CompanyFinancials.business_term_id"
+        STRING business_term "Term name | CompanyFinancials.business_term"
+        DOUBLE val "Financial value | CompanyFinancials.val"
+    }
+    consumable_financial_ratios {
+        STRING record_id PK "SHA-256 of grain fields | FinancialRatios.record_id"
+        INTEGER cik "SEC company identifier | FinancialRatios.cik"
+        STRING entity_id "Resolved entity ref | FinancialRatios.entity_id"
+        STRING ticker "Stock ticker (denorm) | FinancialRatios.ticker"
+        STRING canonical_name "Normalized name (denorm) | FinancialRatios.canonical_name"
+        STRING sector "Industry sector (denorm) | FinancialRatios.sector"
+        STRING ratio_id "RATIO-001 to 007 | FinancialRatios.ratio_id"
+        STRING ratio_name "Human-readable name | FinancialRatios.ratio_name"
+        DOUBLE ratio_value "num / denom | FinancialRatios.ratio_value"
+        STRING numerator_bt_id "Numerator BT-XXX | FinancialRatios.numerator_bt_id"
+        STRING numerator_bt_name "Numerator term name | FinancialRatios.numerator_bt_name"
+        DOUBLE numerator_val "Numerator value | FinancialRatios.numerator_val"
+        STRING denominator_bt_id "Denominator BT-XXX | FinancialRatios.denominator_bt_id"
+        STRING denominator_bt_name "Denominator term name | FinancialRatios.denominator_bt_name"
+        DOUBLE denominator_val "Denominator value | FinancialRatios.denominator_val"
+        INTEGER fiscal_year "Fiscal year | FinancialRatios.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3 | FinancialRatios.fiscal_period"
+        STRING fiscal_year_end "MMDD (denorm) | FinancialRatios.fiscal_year_end"
+        DATE period_end_date "Reporting period end | FinancialRatios.period_end_date"
+        INTEGER calendar_year "Calendar year of end | FinancialRatios.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter | FinancialRatios.calendar_quarter"
+        INTEGER companies_reporting "Coverage count | FinancialRatios.companies_reporting"
+        TIMESTAMPTZ promoted_at "When written | FinancialRatios.promoted_at"
+        DATE load_date "System date | FinancialRatios.load_date"
+    }
+    consumable_company_financials ||--o{ consumable_financial_ratios : "numerator + denominator join on (cik, bt_id, fy, fp)"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Period-Over-Period Growth -->
+      <div class="model-group fade-in">
+        <h3>Period-Over-Period Growth</h3>
+        <p class="model-desc">Transforms absolute values into trend signals: YoY absolute change, YoY percentage change, and 5-year CAGR. Growth types are rows, not columns, so adding new types is a config change. ~71K rows.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Period-Over-Period &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    COMPANY ||--o{ GROWTH_METRIC : "has growth metrics"
+    BUSINESS_TERM ||--o{ GROWTH_METRIC : "measured for"
+    GROWTH_TYPE ||--o{ GROWTH_METRIC : "classifies"
+    FISCAL_PERIOD ||--o{ GROWTH_METRIC : "measured in"
+    COMPANY_FINANCIAL ||--o{ GROWTH_METRIC : "derived from"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Period-Over-Period &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    PeriodOverPeriod {
+        identifier record_id PK
+        identifier cik
+        identifier entity_id
+        text ticker
+        text canonical_name
+        text sector
+        identifier business_term_id
+        text business_term
+        text financial_statement
+        text category
+        number fiscal_year
+        text fiscal_period
+        text fiscal_year_end
+        date period_end_date
+        number calendar_year
+        number calendar_quarter
+        text growth_type
+        number growth_value
+        number current_val
+        number prior_val
+        number base_val
+        number base_fiscal_year
+        number companies_reporting
+        timestamp promoted_at
+        date load_date
+    }
+    CompanyFinancials {
+        identifier record_id PK
+        identifier cik
+        identifier business_term_id
+        number val
+        text business_term
+    }
+    CompanyFinancials ||--o{ PeriodOverPeriod : "current + prior/base period join"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Period-Over-Period &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    consumable_company_financials {
+        STRING record_id PK "SHA-256 of grain | CompanyFinancials.record_id"
+        INTEGER cik "SEC company ID | CompanyFinancials.cik"
+        STRING business_term_id "BT-XXX ref | CompanyFinancials.business_term_id"
+        STRING business_term "Term name | CompanyFinancials.business_term"
+        DOUBLE val "Financial value | CompanyFinancials.val"
+    }
+    consumable_period_over_period {
+        STRING record_id PK "SHA-256 of grain fields | PeriodOverPeriod.record_id"
+        INTEGER cik "SEC company identifier | PeriodOverPeriod.cik"
+        STRING entity_id "Resolved entity ref | PeriodOverPeriod.entity_id"
+        STRING ticker "Stock ticker (denorm) | PeriodOverPeriod.ticker"
+        STRING canonical_name "Normalized name (denorm) | PeriodOverPeriod.canonical_name"
+        STRING sector "Industry sector (denorm) | PeriodOverPeriod.sector"
+        STRING business_term_id "BT-XXX ref | PeriodOverPeriod.business_term_id"
+        STRING business_term "Term name (denorm) | PeriodOverPeriod.business_term"
+        STRING financial_statement "Statement type | PeriodOverPeriod.financial_statement"
+        STRING category "Term category | PeriodOverPeriod.category"
+        INTEGER fiscal_year "Current fiscal year | PeriodOverPeriod.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3 | PeriodOverPeriod.fiscal_period"
+        STRING fiscal_year_end "MMDD (denorm) | PeriodOverPeriod.fiscal_year_end"
+        DATE period_end_date "Current period end | PeriodOverPeriod.period_end_date"
+        INTEGER calendar_year "Calendar year of end | PeriodOverPeriod.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter | PeriodOverPeriod.calendar_quarter"
+        STRING growth_type "yoy_change etc | PeriodOverPeriod.growth_type"
+        DOUBLE growth_value "Computed growth | PeriodOverPeriod.growth_value"
+        DOUBLE current_val "Current period value | PeriodOverPeriod.current_val"
+        DOUBLE prior_val "Prior period value | PeriodOverPeriod.prior_val"
+        DOUBLE base_val "Base value for CAGR | PeriodOverPeriod.base_val"
+        INTEGER base_fiscal_year "Base year for CAGR | PeriodOverPeriod.base_fiscal_year"
+        INTEGER companies_reporting "Coverage count | PeriodOverPeriod.companies_reporting"
+        TIMESTAMPTZ promoted_at "When written | PeriodOverPeriod.promoted_at"
+        DATE load_date "System date | PeriodOverPeriod.load_date"
+    }
+    consumable_company_financials ||--o{ consumable_period_over_period : "self-join on (cik, bt_id, fp) across fiscal years"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Peer Comparison -->
+      <div class="model-group fade-in">
+        <h3>Peer Comparison</h3>
+        <p class="model-desc">Answers "is this number good?" by ranking companies within their sector. Dense ranking, sector averages, medians, and percentiles for both absolute values and ratios. Minimum 2-company threshold. ~28K rows.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Peer Comparison &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    COMPANY ||--o{ PEER_COMPARISON : "ranked in"
+    SECTOR ||--o{ PEER_COMPARISON : "defines peer group"
+    METRIC ||--o{ PEER_COMPARISON : "ranked on"
+    COMPANY_FINANCIAL ||--o{ PEER_COMPARISON : "source (absolute values)"
+    FINANCIAL_RATIO ||--o{ PEER_COMPARISON : "source (ratio values)"
+    FISCAL_PERIOD ||--o{ PEER_COMPARISON : "measured in"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Peer Comparison &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    PeerComparison {
+        identifier record_id PK
+        identifier cik
+        identifier entity_id
+        text ticker
+        text canonical_name
+        text sector
+        text metric_source
+        identifier metric_id
+        text metric_name
+        number metric_value
+        number sector_rank
+        number sector_avg
+        number sector_median
+        number sector_percentile
+        number peer_count
+        number fiscal_year
+        text fiscal_period
+        text fiscal_year_end
+        date period_end_date
+        number calendar_year
+        number calendar_quarter
+        timestamp promoted_at
+        date load_date
+    }
+    CompanyFinancials {
+        identifier record_id PK
+        identifier cik
+        identifier business_term_id
+        number val
+    }
+    FinancialRatios {
+        identifier record_id PK
+        identifier cik
+        identifier ratio_id
+        number ratio_value
+    }
+    CompanyFinancials ||--o{ PeerComparison : "absolute value source"
+    FinancialRatios ||--o{ PeerComparison : "ratio value source"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Peer Comparison &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    consumable_company_financials {
+        STRING record_id PK "SHA-256 of grain"
+        INTEGER cik "SEC company ID"
+        STRING business_term_id "BT-XXX ref"
+        STRING business_term "Term name"
+        DOUBLE val "Financial value"
+        STRING sector "Industry sector"
+    }
+    consumable_financial_ratios {
+        STRING record_id PK "SHA-256 of grain"
+        INTEGER cik "SEC company ID"
+        STRING ratio_id "RATIO-XXX ref"
+        STRING ratio_name "Ratio name"
+        DOUBLE ratio_value "Computed ratio"
+        STRING sector "Industry sector"
+    }
+    consumable_peer_comparison {
+        STRING record_id PK "SHA-256 of grain fields | PeerComparison.record_id"
+        INTEGER cik "SEC company identifier | PeerComparison.cik"
+        STRING entity_id "Resolved entity ref | PeerComparison.entity_id"
+        STRING ticker "Stock ticker (denorm) | PeerComparison.ticker"
+        STRING canonical_name "Normalized name (denorm) | PeerComparison.canonical_name"
+        STRING sector "Industry sector (denorm) | PeerComparison.sector"
+        STRING metric_source "company_financials or financial_ratios | PeerComparison.metric_source"
+        STRING metric_id "BT-XXX or RATIO-XXX | PeerComparison.metric_id"
+        STRING metric_name "Human-readable name | PeerComparison.metric_name"
+        DOUBLE metric_value "Company value | PeerComparison.metric_value"
+        INTEGER sector_rank "Rank in sector (1=highest) | PeerComparison.sector_rank"
+        DOUBLE sector_avg "Sector mean | PeerComparison.sector_avg"
+        DOUBLE sector_median "Sector median | PeerComparison.sector_median"
+        DOUBLE sector_percentile "0.0 to 1.0 | PeerComparison.sector_percentile"
+        INTEGER peer_count "Companies in group | PeerComparison.peer_count"
+        INTEGER fiscal_year "Fiscal year | PeerComparison.fiscal_year"
+        STRING fiscal_period "FY/Q1/Q2/Q3 | PeerComparison.fiscal_period"
+        STRING fiscal_year_end "MMDD (denorm) | PeerComparison.fiscal_year_end"
+        DATE period_end_date "Reporting period end | PeerComparison.period_end_date"
+        INTEGER calendar_year "Calendar year of end | PeerComparison.calendar_year"
+        INTEGER calendar_quarter "Calendar quarter | PeerComparison.calendar_quarter"
+        TIMESTAMPTZ promoted_at "When written | PeerComparison.promoted_at"
+        DATE load_date "System date | PeerComparison.load_date"
+    }
+    consumable_company_financials ||--o{ consumable_peer_comparison : "absolute values ranked by sector"
+    consumable_financial_ratios ||--o{ consumable_peer_comparison : "ratio values ranked by sector"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Amendment Analysis -->
+      <div class="model-group fade-in">
+        <h3>Amendment Analysis</h3>
+        <p class="model-desc">Precomputed summaries of SEC filing amendment patterns per company per year. Frequency, magnitude, timing, and diversity of restatements. Reduces 264K amendment tracking rows to ~371 summary rows.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Amendment Analysis &mdash; Entity Relationships</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    COMPANY ||--o{ AMENDMENT_ANALYSIS : "has annual summaries"
+    AMENDMENT_TRACKING ||--o{ AMENDMENT_ANALYSIS : "aggregated into"
+    FISCAL_YEAR ||--o{ AMENDMENT_ANALYSIS : "scoped by"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--logical">Logical</span> Amendment Analysis &mdash; Attributes &amp; Types</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    AmendmentAnalysis {
+        identifier record_id PK
+        identifier cik
+        identifier entity_id
+        text ticker
+        text canonical_name
+        text sector
+        number fiscal_year
+        number amendment_count
+        number distinct_concepts
+        number distinct_filings
+        number mean_abs_change
+        number median_abs_change
+        number max_abs_change
+        number mean_pct_change
+        number median_pct_change
+        number total_val_impact
+        text largest_concept
+        number largest_change
+        number days_to_amend_avg
+        number days_to_amend_median
+        timestamp promoted_at
+        date load_date
+    }
+    AmendmentTracking {
+        identifier tracking_id PK
+        identifier cik
+        text concept
+        number val_change
+        number val_change_pct
+        date end_date
+        date original_filed_date
+        date amendment_filed_date
+    }
+    CompanyFinancials {
+        identifier record_id PK
+        identifier cik
+        identifier entity_id
+        text ticker
+        text canonical_name
+        text sector
+    }
+    AmendmentTracking ||--o{ AmendmentAnalysis : "aggregated into"
+    CompanyFinancials ||--o{ AmendmentAnalysis : "provides metadata"</pre>
+          </div>
+        </details>
+
+        <details class="model-details">
+          <summary><span class="model-level-badge model-level-badge--physical">Physical</span> Amendment Analysis &mdash; Iceberg Columns</summary>
+          <div class="detail-content">
+            <pre class="mermaid">erDiagram
+    base_amendment_tracking {
+        STRING tracking_id PK "UUID | AmendmentTracking.tracking_id"
+        INTEGER cik "SEC company ID | AmendmentTracking.cik"
+        STRING concept "XBRL concept | AmendmentTracking.concept"
+        DOUBLE val_change "Value change | AmendmentTracking.val_change"
+        DOUBLE val_change_pct "Pct change | AmendmentTracking.val_change_pct"
+        DATE end_date "Period end | AmendmentTracking.end_date"
+        DATE original_filed_date "Original filing | AmendmentTracking.original_filed_date"
+        DATE amendment_filed_date "Amendment filing | AmendmentTracking.amendment_filed_date"
+        STRING amendment_accession "Amendment accession | AmendmentTracking.amendment_accession"
+    }
+    consumable_company_financials {
+        STRING record_id PK "SHA-256 of grain | CompanyFinancials.record_id"
+        INTEGER cik "SEC company ID | CompanyFinancials.cik"
+        STRING entity_id "Resolved entity | CompanyFinancials.entity_id"
+        STRING ticker "Stock ticker | CompanyFinancials.ticker"
+        STRING canonical_name "Normalized name | CompanyFinancials.canonical_name"
+        STRING sector "Industry sector | CompanyFinancials.sector"
+    }
+    consumable_amendment_analysis {
+        STRING record_id PK "SHA-256 of grain fields | AmendmentAnalysis.record_id"
+        INTEGER cik "SEC company identifier | AmendmentAnalysis.cik"
+        STRING entity_id "Resolved entity ref | AmendmentAnalysis.entity_id"
+        STRING ticker "Stock ticker (denorm) | AmendmentAnalysis.ticker"
+        STRING canonical_name "Normalized name (denorm) | AmendmentAnalysis.canonical_name"
+        STRING sector "Industry sector (denorm) | AmendmentAnalysis.sector"
+        INTEGER fiscal_year "Year of end_date | AmendmentAnalysis.fiscal_year"
+        INTEGER amendment_count "COUNT amendments | AmendmentAnalysis.amendment_count"
+        INTEGER distinct_concepts "COUNT DISTINCT concepts | AmendmentAnalysis.distinct_concepts"
+        INTEGER distinct_filings "COUNT DISTINCT filings | AmendmentAnalysis.distinct_filings"
+        DOUBLE mean_abs_change "AVG ABS val_change | AmendmentAnalysis.mean_abs_change"
+        DOUBLE median_abs_change "MEDIAN ABS val_change | AmendmentAnalysis.median_abs_change"
+        DOUBLE max_abs_change "MAX ABS val_change | AmendmentAnalysis.max_abs_change"
+        DOUBLE mean_pct_change "AVG ABS pct (nullable) | AmendmentAnalysis.mean_pct_change"
+        DOUBLE median_pct_change "MEDIAN ABS pct (nullable) | AmendmentAnalysis.median_pct_change"
+        DOUBLE total_val_impact "SUM ABS val_change | AmendmentAnalysis.total_val_impact"
+        STRING largest_concept "Concept w/ max change | AmendmentAnalysis.largest_concept"
+        DOUBLE largest_change "Max ABS val_change | AmendmentAnalysis.largest_change"
+        DOUBLE days_to_amend_avg "AVG days to amend | AmendmentAnalysis.days_to_amend_avg"
+        DOUBLE days_to_amend_median "MEDIAN days to amend | AmendmentAnalysis.days_to_amend_median"
+        TIMESTAMPTZ promoted_at "When written | AmendmentAnalysis.promoted_at"
+        DATE load_date "System date | AmendmentAnalysis.load_date"
+    }
+    base_amendment_tracking ||--o{ consumable_amendment_analysis : "aggregated by (cik, YEAR(end_date))"
+    consumable_company_financials ||--o{ consumable_amendment_analysis : "metadata join on cik"</pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- AI-READY ZONE -->
+      <!-- ============================================================ -->
+      <div class="zone-section fade-in">
+        <h2><span class="zone-badge zone-badge--ai-ready">AI-Ready</span> AI-Ready Zone Model</h2>
+        <p>The AI-Ready zone creates no new Iceberg tables. It is a read-only query layer using tool use over DuckDB, consuming the 5 consumable tables directly.</p>
+      </div>
+
+      <!-- AI-Ready Chat Interface -->
+      <div class="model-group fade-in">
+        <h3>Chat Interface</h3>
+        <p class="model-desc">Claude-powered conversational interface using tool use (not RAG). 7 validated Python tool functions query DuckDB in-memory over the 5 consumable Iceberg tables. Zero infrastructure beyond what the pipeline already uses.</p>
+
+        <details class="model-details" open>
+          <summary><span class="model-level-badge model-level-badge--conceptual">Conceptual</span> Chat Interface &mdash; Architecture</summary>
+          <div class="detail-content">
+            <pre class="mermaid">graph TB
+    User[User Question] --> Claude[Claude Agent<br/>tool_use mode]
+    Claude --> T1[get_company_metric]
+    Claude --> T2[get_company_profile]
+    Claude --> T3[compare_companies]
+    Claude --> T4[rank_companies]
+    Claude --> T5[get_company_trend]
+    Claude --> T6[get_sector_summary]
+    Claude --> T7[get_ratio]
+
+    T1 --> DB[(DuckDB In-Memory)]
+    T2 --> DB
+    T3 --> DB
+    T4 --> DB
+    T5 --> DB
+    T6 --> DB
+    T7 --> DB
+
+    DB --> ICE1[company_financials<br/>26,894 rows]
+    DB --> ICE2[financial_ratios<br/>6,544 rows]
+    DB --> ICE3[period_over_period<br/>65,445 rows]
+    DB --> ICE4[peer_comparison<br/>26,559 rows]
+    DB --> ICE5[amendment_analysis<br/>371 rows]</pre>
+          </div>
+        </details>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
+    mermaid.initialize({ startOnLoad: true, theme: theme });
+
+    // Re-initialize mermaid when theme changes
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
+          // Re-render all mermaid diagrams with new theme
+          document.querySelectorAll('.mermaid[data-processed]').forEach(function(el) {
+            el.removeAttribute('data-processed');
+            el.innerHTML = el.getAttribute('data-original') || el.textContent;
+          });
+          mermaid.initialize({ startOnLoad: false, theme: newTheme });
+          mermaid.run();
+        }
+      });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+
+    // Store original mermaid source before first render
+    document.querySelectorAll('.mermaid').forEach(function(el) {
+      el.setAttribute('data-original', el.textContent);
+    });
+  </script>
+</body>
+</html>

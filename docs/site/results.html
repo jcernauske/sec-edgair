@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Results - SEC EDGAIR</title>
+  <meta name="description" content="547K raw facts from 20 companies transformed into 136K governed, AI-ready rows. 88/88 verification checks against real 10-K filings. Architect grade: A. All built by AI agents with human approval.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html" class="active">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">Results</div>
+      <h1>For the executive who wants to know: does this actually work?</h1>
+      <p>Yes. Here are the numbers.</p>
+    </div>
+
+    <div class="container">
+
+      <h2>The Pipeline in Numbers</h2>
+
+      <div class="metric-grid fade-in">
+        <div class="metric-card">
+          <div class="metric-value">547,398</div>
+          <div class="metric-label">Raw Facts Ingested</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">20</div>
+          <div class="metric-label">Companies</div>
+          <div class="metric-detail">8 sectors, all large-cap US public</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">17</div>
+          <div class="metric-label">Years of Data</div>
+          <div class="metric-detail">FY2009 through FY2026</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">3,285 &rarr; 25</div>
+          <div class="metric-label">XBRL Concepts Normalized</div>
+          <div class="metric-detail">To business terms</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">136,257</div>
+          <div class="metric-label">Consumable Rows</div>
+          <div class="metric-detail">Across 5 analytical tables</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">14</div>
+          <div class="metric-label">Iceberg Tables</div>
+          <div class="metric-detail">Raw, base, consumable, governance</div>
+        </div>
+      </div>
+
+      <h2>Verification: 88/88 Against Real 10-K Filings</h2>
+
+      <p>The pipeline's output is verified against actual numbers from SEC annual reports. Not against expected values we made up. Against the real 10-K filings that public companies submitted to the SEC.</p>
+
+      <h3>Cross-Company Verification <span class="badge badge--pass">57/57</span></h3>
+
+      <p>All 20 companies verified for Revenue and Net Income. Select companies verified across Total Assets, EPS, Operating Income, Operating Cash Flow, Capital Expenditures, and Stockholders Equity.</p>
+
+      <p>Every fiscal year-end pattern is tested: December (JPMorgan, Goldman Sachs), September (Apple, Visa), June (Microsoft, P&amp;G), January (Walmart).</p>
+
+      <h3>All-Metrics Deep Dive <span class="badge badge--pass">31/31</span></h3>
+
+      <p>All 25 business terms and 7 computed ratios verified for Apple FY2023 against the official 10-K filing.</p>
+
+      <p>Revenue: $383.3B. Net Income: $97.0B. Gross Margin: 44.1%. Operating Margin: 29.8%. Every metric matches.</p>
+
+      <h3>Negative Verification <span class="badge badge--pass">10/10</span></h3>
+
+      <p>It is not enough to prove correct data exists. You must also prove incorrect data is absent.</p>
+
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Check</th><th>What It Proves</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>No duplicate grains</td><td>Collision resolution produced exactly one fact per (company, metric, year, period)</td></tr>
+            <tr><td>No superseded fact leaks</td><td>Supersession filter removed all replaced filings</td></tr>
+            <tr><td>No null business terms</td><td>Tag normalization mapped every fact that should be mapped</td></tr>
+            <tr><td>No wrong-unit values</td><td>Unit filter removed USD/shares values from USD metrics</td></tr>
+            <tr><td>No fiscal year collisions</td><td>Apple's Revenue does not appear in two different fiscal years for the same period</td></tr>
+            <tr><td>No orphan ratios</td><td>Every ratio has matching component metrics</td></tr>
+            <tr><td>Cross-zone row alignment</td><td>Consumable row counts match base conformed_facts 1:1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Governance Artifacts Produced</h2>
+
+      <p>All generated by AI agents. All reviewed and approved by a human.</p>
+
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Artifact</th><th>Count</th><th>What It Is</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Business terms</td><td>54</td><td>Structured glossary with CDE/PII flags, source tiers, approval status</td></tr>
+            <tr><td>Critical Data Elements</td><td>31</td><td>Fields tagged as business-critical across all tables</td></tr>
+            <tr><td>DQ rules</td><td>128</td><td>SQL-based rules across 9 dimensions, executed against real data</td></tr>
+            <tr><td>Data models</td><td>28</td><td>Conceptual, logical, physical &mdash; with Mermaid ER diagrams</td></tr>
+            <tr><td>Lineage event files</td><td>13</td><td>OpenLineage-format transformation records, from runtime events</td></tr>
+            <tr><td>Runtime lineage events</td><td>11 promotes</td><td>START/COMPLETE/FAIL to governance.lineage_events Iceberg table</td></tr>
+            <tr><td>Session logs</td><td>38</td><td>Full transparency on every decision and mistake</td></tr>
+            <tr><td>Specs delivered</td><td>28</td><td>Every feature specified before built</td></tr>
+            <tr><td>Tests</td><td>466</td><td>Unit + integration, including tests against real Iceberg data</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>The Architect Review</h2>
+
+      <div class="meme-container fade-in">
+        <img src="assets/img/obama-medal.webp" alt="Obama giving himself a medal meme">
+        <p class="caption">Claude has reviewed his work and finds it amazing.</p>
+      </div>
+
+      <p>A @principal-data-architect <em>agent</em> reviewed the full pipeline twice. Yes &mdash; an AI agent grading other AI agents' work. We are fully aware of the optics.</p>
+
+      <p>But here's the thing: the findings were real, the fixes were structural, and the re-review validated that the fixes actually worked. The value isn't "an impartial human said it's good." The value is that a systematic architectural review caught real problems that were then systematically fixed. Read the findings and judge for yourself.</p>
+
+      <div class="review-timeline fade-in">
+        <div class="review-step">
+          <div class="review-grade review-grade--b">First Review: B+</div>
+          <p><strong>What was good:</strong> 4-zone architecture, verification rigor (88/88), DQ rules encoding real domain knowledge, business glossary design.</p>
+          <p style="margin-top: var(--space-sm);"><strong>What was wrong:</strong></p>
+          <ul>
+            <li>In-memory dedup would not scale beyond 20 companies</li>
+            <li>Consumable promotes had no DQ gates</li>
+            <li>Anomaly detection hardcoded to Boeing only</li>
+            <li>Lineage was "documentation masquerading as lineage"</li>
+            <li>No negative testing</li>
+            <li>Concept priority rules buried in Python code</li>
+          </ul>
+        </div>
+        <div class="review-step">
+          <div class="review-grade" style="color: var(--accent);">What Was Fixed</div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Finding</th><th>Fix</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>In-memory dedup</td><td>DuckDB anti-join via <code>filter_existing_records()</code></td></tr>
+                <tr><td>Missing DQ gates</td><td><code>validate_after_write()</code> on all consumable CLI builds</td></tr>
+                <tr><td>Hardcoded anomaly detection</td><td>Generic rules: any company with negative equity gets flagged</td></tr>
+                <tr><td>Static lineage</td><td>Runtime events to <code>governance.lineage_events</code> Iceberg table</td></tr>
+                <tr><td>No negative testing</td><td><code>verify_negative.py</code> with 10 targeted absence checks</td></tr>
+                <tr><td>Buried config</td><td><code>concept-priority-rules.json</code> governance artifact</td></tr>
+                <tr><td>Missing amendment tool</td><td><code>get_amendment_summary</code> (tool #8)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="review-step">
+          <div class="review-grade review-grade--a">Re-Review: A</div>
+          <blockquote>
+            <p>&ldquo;The remediation work is thorough, well-targeted, and high-quality.&rdquo;</p>
+          </blockquote>
+          <blockquote>
+            <p>&ldquo;Would I stake my reputation on it? On the data quality, verification rigor, and architectural soundness &mdash; yes.&rdquo;</p>
+          </blockquote>
+          <blockquote>
+            <p>&ldquo;The AI-agent-driven methodology continues to impress. The fact that a review &rarr; remediation &rarr; re-review cycle this comprehensive was executed coherently across architecture, governance, code quality, testing, and now semantic data quality &mdash; with 129 DQ rules, 10 negative checks, a new base zone table, runtime lineage, and dedup optimization &mdash; is strong evidence that the agent pipeline produces disciplined engineering output, not just code.&rdquo;</p>
+          </blockquote>
+        </div>
+      </div>
+
+      <h2>What This Proves</h2>
+
+      <p>The conventional wisdom says: clean up your data first, then use AI.</p>
+
+      <p>This project inverts it. AI agents did the cleaning:</p>
+
+      <ul class="fade-in">
+        <li><strong>@data-steward</strong> proposed 54 business terms from raw XBRL data</li>
+        <li><strong>@semantic-modeler</strong> proposed 28 data models (conceptual &rarr; logical &rarr; physical)</li>
+        <li><strong>@dq-rule-writer</strong> wrote 128 DQ rules from EDA evidence</li>
+        <li><strong>@data-analyst</strong> profiled every dataset before rules were written</li>
+        <li><strong>@lineage-tracker</strong> captured transformation lineage in OpenLineage format</li>
+        <li><strong>@cde-tagger</strong> mapped 31 Critical Data Elements across all tables</li>
+        <li><strong>@doc-generator</strong> produced the data dictionary and data contracts</li>
+        <li><strong>@insight-manager</strong> analyzed zone transitions and recommended the next data products</li>
+      </ul>
+
+      <p>A human reviewed and approved. The agents authored. The result: 88/88 verification checks against real 10-K filings, an A from the architect, and a natural language chat interface over governed financial data.</p>
+
+      <p><strong>AI is not just the consumer of clean data. It is the tool that makes data clean.</strong></p>
+
+      <h2>The 20 Companies</h2>
+
+      <div class="sector-grid fade-in">
+        <div class="sector-card">
+          <div class="sector-name">Technology</div>
+          <div class="sector-companies">Apple, Microsoft, Alphabet, Intel, Netflix, Tesla</div>
+        </div>
+        <div class="sector-card">
+          <div class="sector-name">Financials</div>
+          <div class="sector-companies">JPMorgan Chase, Goldman Sachs, Berkshire Hathaway, Visa</div>
+        </div>
+        <div class="sector-card">
+          <div class="sector-name">Healthcare</div>
+          <div class="sector-companies">UnitedHealth, Pfizer, Johnson &amp; Johnson</div>
+        </div>
+        <div class="sector-card">
+          <div class="sector-name">Consumer Staples</div>
+          <div class="sector-companies">Procter &amp; Gamble, Walmart</div>
+        </div>
+        <div class="sector-card">
+          <div class="sector-name">Consumer Discretionary</div>
+          <div class="sector-companies">Amazon</div>
+        </div>
+        <div class="sector-card">
+          <div class="sector-name">Industrials</div>
+          <div class="sector-companies">Boeing, Caterpillar</div>
+        </div>
+        <div class="sector-card">
+          <div class="sector-name">Energy</div>
+          <div class="sector-companies">ExxonMobil, Chevron</div>
+        </div>
+      </div>
+
+      <p>Cross-sector variety for demonstrating entity resolution, tag normalization, and fiscal calendar differences. Includes all 4 fiscal year-end patterns (Dec, Sep, Jun, Jan).</p>
+
+      <h2>What is not claimed</h2>
+
+      <ul>
+        <li>This is not production-ready at scale. The architect said so, and we agree.</li>
+        <li>Incremental refresh, monitoring, and concurrent access safety are not built.</li>
+        <li>The AI-Ready chat covers ~80% of common financial questions. Multi-step analytical questions require multiple queries.</li>
+        <li>The Reasonableness DQ bounds are wide ([-100, 100] for most ratios) &mdash; they catch catastrophic failures, not subtle issues.</li>
+      </ul>
+
+      <p>We are transparent about limitations because the project's value is in the methodology, not in claiming perfection.</p>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
