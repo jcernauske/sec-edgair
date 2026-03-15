@@ -1,6 +1,6 @@
 # Spec: Generic Concept Normalization
 
-## Status: 🟡 DRAFT
+## Status: 🟢 COMPLETE
 
 | Status | Meaning |
 |--------|---------|

@@ -1,0 +1,232 @@
+{
+  "mapping_metadata": {
+    "name": "xbrl-us-gaap",
+    "taxonomy": "us-gaap",
+    "version": "2024",
+    "description": "XBRL US GAAP concept to business term mappings",
+    "term_count": 25,
+    "rule_count": 150
+  },
+  "business_terms": {
+    "BT-024": {
+      "name": "Total Assets",
+      "financial_statement": "balance_sheet",
+      "category": "assets"
+    },
+    "BT-027": {
+      "name": "Total Liabilities",
+      "financial_statement": "balance_sheet",
+      "category": "liabilities"
+    },
+    "BT-028": {
+      "name": "Total Stockholders Equity",
+      "financial_statement": "balance_sheet",
+      "category": "equity"
+    },
+    "BT-029": {
+      "name": "Cash and Cash Equivalents",
+      "financial_statement": "balance_sheet",
+      "category": "assets"
+    },
+    "BT-030": {
+      "name": "Accounts Receivable",
+      "financial_statement": "balance_sheet",
+      "category": "assets"
+    },
+    "BT-031": {
+      "name": "Inventory",
+      "financial_statement": "balance_sheet",
+      "category": "assets"
+    },
+    "BT-032": {
+      "name": "Property Plant and Equipment",
+      "financial_statement": "balance_sheet",
+      "category": "assets"
+    },
+    "BT-033": {
+      "name": "Goodwill",
+      "financial_statement": "balance_sheet",
+      "category": "assets"
+    },
+    "BT-022": {
+      "name": "Revenue",
+      "financial_statement": "income_statement",
+      "category": "revenue"
+    },
+    "BT-034": {
+      "name": "Cost of Revenue",
+      "financial_statement": "income_statement",
+      "category": "expenses"
+    },
+    "BT-035": {
+      "name": "Gross Profit",
+      "financial_statement": "income_statement",
+      "category": "profit"
+    },
+    "BT-036": {
+      "name": "Operating Income",
+      "financial_statement": "income_statement",
+      "category": "profit"
+    },
+    "BT-023": {
+      "name": "Net Income",
+      "financial_statement": "income_statement",
+      "category": "profit"
+    },
+    "BT-037": {
+      "name": "Income Tax Expense",
+      "financial_statement": "income_statement",
+      "category": "expenses"
+    },
+    "BT-038": {
+      "name": "Research and Development Expense",
+      "financial_statement": "income_statement",
+      "category": "expenses"
+    },
+    "BT-039": {
+      "name": "Selling General and Administrative Expense",
+      "financial_statement": "income_statement",
+      "category": "expenses"
+    },
+    "BT-040": {
+      "name": "Operating Cash Flow",
+      "financial_statement": "cash_flow",
+      "category": "operating"
+    },
+    "BT-041": {
+      "name": "Investing Cash Flow",
+      "financial_statement": "cash_flow",
+      "category": "investing"
+    },
+    "BT-042": {
+      "name": "Financing Cash Flow",
+      "financial_statement": "cash_flow",
+      "category": "financing"
+    },
+    "BT-043": {
+      "name": "Capital Expenditures",
+      "financial_statement": "cash_flow",
+      "category": "investing"
+    },
+    "BT-044": {
+      "name": "Earnings Per Share Basic",
+      "financial_statement": "per_share",
+      "category": "eps"
+    },
+    "BT-045": {
+      "name": "Earnings Per Share Diluted",
+      "financial_statement": "per_share",
+      "category": "eps"
+    },
+    "BT-046": {
+      "name": "Dividends Per Share",
+      "financial_statement": "per_share",
+      "category": "dividends"
+    },
+    "BT-047": {
+      "name": "Comprehensive Income",
+      "financial_statement": "other",
+      "category": "comprehensive_income"
+    },
+    "BT-048": {
+      "name": "Retained Earnings",
+      "financial_statement": "other",
+      "category": "equity"
+    }
+  },
+  "exact_mappings": {
+    "Assets": ["BT-024", "balance_sheet", "assets"],
+    "CashAndCashEquivalentsAtCarryingValue": ["BT-029", "balance_sheet", "assets"],
+    "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents": ["BT-029", "balance_sheet", "cash"],
+    "AccountsReceivableNetCurrent": ["BT-030", "balance_sheet", "receivables"],
+    "AccountsReceivableNet": ["BT-030", "balance_sheet", "receivables"],
+    "InventoryNet": ["BT-031", "balance_sheet", "inventory"],
+    "PropertyPlantAndEquipmentNet": ["BT-032", "balance_sheet", "ppe"],
+    "Goodwill": ["BT-033", "balance_sheet", "goodwill"],
+    "Liabilities": ["BT-027", "balance_sheet", "liabilities"],
+    "LiabilitiesAndStockholdersEquity": ["BT-027", "balance_sheet", "liabilities"],
+    "StockholdersEquity": ["BT-028", "balance_sheet", "equity"],
+    "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest": ["BT-028", "balance_sheet", "equity"],
+    "RetainedEarningsAccumulatedDeficit": ["BT-048", "other", "retained_earnings"],
+    "Revenues": ["BT-022", "income_statement", "revenue"],
+    "RevenueFromContractWithCustomerExcludingAssessedTax": ["BT-022", "income_statement", "revenue"],
+    "SalesRevenueNet": ["BT-022", "income_statement", "revenue"],
+    "SalesRevenueGoodsNet": ["BT-022", "income_statement", "revenue"],
+    "CostOfRevenue": ["BT-034", "income_statement", "cost_of_revenue"],
+    "CostOfGoodsAndServicesSold": ["BT-034", "income_statement", "cost_of_revenue"],
+    "CostOfGoodsSold": ["BT-034", "income_statement", "cost_of_revenue"],
+    "GrossProfit": ["BT-035", "income_statement", "gross_profit"],
+    "OperatingIncomeLoss": ["BT-036", "income_statement", "operating_income"],
+    "NetIncomeLoss": ["BT-023", "income_statement", "net_income"],
+    "IncomeTaxExpenseBenefit": ["BT-037", "income_statement", "income_tax"],
+    "ResearchAndDevelopmentExpense": ["BT-038", "income_statement", "research_and_development"],
+    "SellingGeneralAndAdministrativeExpense": ["BT-039", "income_statement", "sga"],
+    "GeneralAndAdministrativeExpense": ["BT-039", "income_statement", "sga"],
+    "NetCashProvidedByUsedInOperatingActivities": ["BT-040", "cash_flow", "operating"],
+    "NetCashProvidedByUsedInInvestingActivities": ["BT-041", "cash_flow", "investing"],
+    "NetCashProvidedByUsedInFinancingActivities": ["BT-042", "cash_flow", "financing"],
+    "PaymentsToAcquirePropertyPlantAndEquipment": ["BT-043", "cash_flow", "capex"],
+    "EarningsPerShareBasic": ["BT-044", "per_share", "eps"],
+    "EarningsPerShareDiluted": ["BT-045", "per_share", "eps"],
+    "CommonStockDividendsPerShareDeclared": ["BT-046", "per_share", "dividends"],
+    "CommonStockDividendsPerShareCashPaid": ["BT-046", "per_share", "dividends"],
+    "ComprehensiveIncomeNetOfTax": ["BT-047", "other", "comprehensive_income"],
+    "OtherComprehensiveIncomeLossNetOfTax": ["BT-047", "other", "comprehensive_income"]
+  },
+  "prefix_rules": [
+    {"prefix": "RevenueFromContract", "business_term_id": "BT-022", "financial_statement": "income_statement", "category": "revenue"},
+    {"prefix": "SalesRevenue", "business_term_id": "BT-022", "financial_statement": "income_statement", "category": "revenue"},
+    {"prefix": "CostOfGoods", "business_term_id": "BT-034", "financial_statement": "income_statement", "category": "cost_of_revenue"},
+    {"prefix": "CostOfRevenue", "business_term_id": "BT-034", "financial_statement": "income_statement", "category": "cost_of_revenue"},
+    {"prefix": "CashAndCashEquivalents", "business_term_id": "BT-029", "financial_statement": "balance_sheet", "category": "cash"},
+    {"prefix": "CashCashEquivalents", "business_term_id": "BT-029", "financial_statement": "balance_sheet", "category": "cash"},
+    {"prefix": "AccountsReceivable", "business_term_id": "BT-030", "financial_statement": "balance_sheet", "category": "receivables"},
+    {"prefix": "Inventory", "business_term_id": "BT-031", "financial_statement": "balance_sheet", "category": "inventory"},
+    {"prefix": "PropertyPlantAndEquipment", "business_term_id": "BT-032", "financial_statement": "balance_sheet", "category": "ppe"},
+    {"prefix": "GoodwillAcquired", "business_term_id": "BT-033", "financial_statement": "balance_sheet", "category": "goodwill"},
+    {"prefix": "GoodwillImpairment", "business_term_id": "BT-033", "financial_statement": "balance_sheet", "category": "goodwill"},
+    {"prefix": "EarningsPerShare", "business_term_id": "BT-044", "financial_statement": "per_share", "category": "eps"},
+    {"prefix": "CommonStockDividendsPerShare", "business_term_id": "BT-046", "financial_statement": "per_share", "category": "dividends"},
+    {"prefix": "DividendsCommonStock", "business_term_id": "BT-046", "financial_statement": "per_share", "category": "dividends"},
+    {"prefix": "ResearchAndDevelopment", "business_term_id": "BT-038", "financial_statement": "income_statement", "category": "research_and_development"},
+    {"prefix": "SellingGeneralAndAdministrative", "business_term_id": "BT-039", "financial_statement": "income_statement", "category": "sga"},
+    {"prefix": "ComprehensiveIncome", "business_term_id": "BT-047", "financial_statement": "other", "category": "comprehensive_income"},
+    {"prefix": "OtherComprehensiveIncome", "business_term_id": "BT-047", "financial_statement": "other", "category": "comprehensive_income"},
+    {"prefix": "RetainedEarnings", "business_term_id": "BT-048", "financial_statement": "other", "category": "retained_earnings"}
+  ],
+  "pattern_rules": [
+    {"pattern": "(?i).*Revenue.*(?!Deferred|Remaining|Recognized)", "business_term_id": "BT-022", "financial_statement": "income_statement", "category": "revenue"},
+    {"pattern": "(?i).*NetIncome.*", "business_term_id": "BT-023", "financial_statement": "income_statement", "category": "net_income"},
+    {"pattern": "(?i).*OperatingIncome.*", "business_term_id": "BT-036", "financial_statement": "income_statement", "category": "operating_income"},
+    {"pattern": "(?i).*IncomeTax(?!Reconciliation|Credits|Receivable|Deferred).*ExpenseBenefit.*", "business_term_id": "BT-037", "financial_statement": "income_statement", "category": "income_tax"},
+    {"pattern": "(?i).*CapitalExpenditure.*", "business_term_id": "BT-043", "financial_statement": "cash_flow", "category": "capex"}
+  ],
+  "heuristic_categories": {
+    "Tax": {"financial_statement": "income_statement", "category": "tax"},
+    "Lease": {"financial_statement": "balance_sheet", "category": "leases"},
+    "Debt": {"financial_statement": "balance_sheet", "category": "debt"},
+    "Stock": {"financial_statement": "balance_sheet", "category": "equity"},
+    "Share": {"financial_statement": "per_share", "category": "shares"},
+    "Depreciation": {"financial_statement": "income_statement", "category": "depreciation"},
+    "Amortization": {"financial_statement": "income_statement", "category": "amortization"},
+    "Interest": {"financial_statement": "income_statement", "category": "interest"},
+    "Derivative": {"financial_statement": "balance_sheet", "category": "derivatives"},
+    "Segment": {"financial_statement": "other", "category": "segment"},
+    "Pension": {"financial_statement": "balance_sheet", "category": "pension"},
+    "Impairment": {"financial_statement": "income_statement", "category": "impairment"},
+    "Restructuring": {"financial_statement": "income_statement", "category": "restructuring"},
+    "Acquisition": {"financial_statement": "balance_sheet", "category": "acquisitions"},
+    "Receivable": {"financial_statement": "balance_sheet", "category": "receivables"},
+    "Payable": {"financial_statement": "balance_sheet", "category": "payables"},
+    "Asset": {"financial_statement": "balance_sheet", "category": "assets"},
+    "Liability": {"financial_statement": "balance_sheet", "category": "liabilities"},
+    "Equity": {"financial_statement": "balance_sheet", "category": "equity"},
+    "Revenue": {"financial_statement": "income_statement", "category": "revenue"},
+    "Expense": {"financial_statement": "income_statement", "category": "expenses"},
+    "Income": {"financial_statement": "income_statement", "category": "income"},
+    "Cash": {"financial_statement": "cash_flow", "category": "cash"},
+    "Operating": {"financial_statement": "income_statement", "category": "operating"},
+    "Investing": {"financial_statement": "cash_flow", "category": "investing"},
+    "Financing": {"financial_statement": "cash_flow", "category": "financing"}
+  }
+}
