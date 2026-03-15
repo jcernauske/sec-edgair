@@ -1823,6 +1823,457 @@
           "updated_by": "@doc-generator"
         }
       ]
+    },
+    {
+      "table_name": "consumable.peer_comparison",
+      "zone": "consumable",
+      "description": "Sector-level peer ranking table. One row per (company, metric, fiscal year, fiscal period, metric source). Ranks companies within their sector and provides sector average, median, and percentile. Sources: consumable.company_financials (absolute values) and consumable.financial_ratios (ratio values). Only includes sectors with 2+ companies.",
+      "spec_reference": "docs/specs/consumable-peer-comparison.md",
+      "row_grain": "One peer comparison entry for one company on one metric in one fiscal period from one source: (cik, metric_id, fiscal_year, fiscal_period, metric_source).",
+      "fields": [
+        {
+          "field_name": "record_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic SHA-256 hash of grain fields (cik, metric_id, fiscal_year, fiscal_period, metric_source), truncated to 16 chars. Primary key.",
+          "dq_rules": [
+            "CONS-PC-001"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key from source tables.",
+          "business_term_reference": "BT-001",
+          "dq_rules": [
+            "CONS-PC-003"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to entity_mappings.mapping_id.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Stock ticker symbol (denormalized).",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company name (denormalized).",
+          "business_term_reference": "BT-005",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Industry sector. Defines the peer group for ranking.",
+          "business_term_reference": "BT-049",
+          "dq_rules": [
+            "CONS-PC-009"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "metric_source",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Source of the metric: 'company_financials' (absolute values) or 'financial_ratios' (ratio values).",
+          "business_term_reference": "BT-053",
+          "dq_rules": [
+            "CONS-PC-002"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "metric_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Metric identifier: business_term_id (BT-XXX) for company_financials source, ratio_id (RATIO-XXX) for financial_ratios source.",
+          "business_term_reference": "BT-013",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "metric_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable metric name (e.g., 'Revenue', 'Net Margin').",
+          "business_term_reference": "BT-013",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "metric_value",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "The company's value for this metric.",
+          "dq_rules": [
+            "CONS-PC-004"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector_rank",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Dense rank within sector (1 = highest value). Ties get same rank.",
+          "business_term_reference": "BT-053",
+          "dq_rules": [
+            "CONS-PC-004",
+            "CONS-PC-005",
+            "CONS-PC-008"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector_avg",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Arithmetic mean of metric_value across sector peers.",
+          "business_term_reference": "BT-053",
+          "dq_rules": [
+            "CONS-PC-004"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector_median",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Median of metric_value across sector peers. Middle value for odd count, average of two middle values for even count.",
+          "business_term_reference": "BT-053",
+          "dq_rules": [
+            "CONS-PC-004"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector_percentile",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Percentile within sector: (peer_count - rank) / (peer_count - 1). Range: 0.0 (lowest) to 1.0 (highest).",
+          "business_term_reference": "BT-053",
+          "dq_rules": [
+            "CONS-PC-004",
+            "CONS-PC-006",
+            "CONS-PC-008"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "peer_count",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Number of companies in the sector with this metric for this period. Minimum 2.",
+          "business_term_reference": "BT-053",
+          "dq_rules": [
+            "CONS-PC-007",
+            "CONS-PC-010"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Fiscal year of the reporting period.",
+          "business_term_reference": "BT-018",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal period type: FY, Q1, Q2, Q3.",
+          "business_term_reference": "BT-018",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Company's fiscal year end (MMDD format, denormalized).",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "period_end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "End date of the reporting period.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year of period_end_date.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_quarter",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar quarter (1-4) of period_end_date.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "promoted_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this row was written to the consumable zone.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "load_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "System date when the row was produced. Used for pipeline auditing.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        }
+      ]
+    },
+    {
+      "table_name": "consumable.amendment_analysis",
+      "zone": "consumable",
+      "description": "Company amendment pattern summary per fiscal year. Aggregates amendment frequency, magnitude, and timing from base.amendment_tracking, enriched with company metadata from consumable.company_financials. One row per (cik, fiscal_year).",
+      "spec_reference": "docs/specs/consumable-amendment-analysis.md",
+      "row_grain": "One summary row per company per fiscal year. Only years with amendments produce rows.",
+      "fields": [
+        {
+          "field_name": "record_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic SHA-256 hash of (cik, fiscal_year), truncated to 16 hex chars. Enables idempotent re-runs.",
+          "dq_rules": ["CONS-AA-001"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key — unique numeric identifier for the company.",
+          "business_term_reference": "BT-001",
+          "dq_rules": ["CONS-AA-002", "CONS-AA-009"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Resolved entity reference from consumable.company_financials.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Stock ticker symbol, denormalized from company_financials.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company name, denormalized from company_financials.",
+          "business_term_reference": "BT-005",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Industry sector, denormalized from company_financials.",
+          "business_term_reference": "BT-049",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year derived from end_date of the period being amended.",
+          "business_term_reference": "BT-018",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "amendment_count",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "COUNT(*) of amendments for this company in this fiscal year.",
+          "business_term_reference": "BT-054",
+          "dq_rules": ["CONS-AA-003", "CONS-AA-004"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "distinct_concepts",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "COUNT(DISTINCT concept) — number of unique XBRL concepts amended.",
+          "business_term_reference": "BT-054",
+          "dq_rules": ["CONS-AA-008"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "distinct_filings",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "COUNT(DISTINCT amendment_accession) — number of distinct amendment filings.",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mean_abs_change",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "AVG(ABS(val_change)) — average absolute magnitude of value changes.",
+          "business_term_reference": "BT-054",
+          "dq_rules": ["CONS-AA-005"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "median_abs_change",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "MEDIAN(ABS(val_change)) — median absolute magnitude of value changes.",
+          "business_term_reference": "BT-054",
+          "dq_rules": ["CONS-AA-006", "CONS-AA-007"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "max_abs_change",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "MAX(ABS(val_change)) — largest single absolute value change.",
+          "business_term_reference": "BT-054",
+          "dq_rules": ["CONS-AA-007", "CONS-AA-010"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mean_pct_change",
+          "data_type": "DOUBLE",
+          "nullable": true,
+          "definition": "AVG(ABS(val_change_pct)) excluding nulls. Null when all amendments in group have null val_change_pct (original_val was 0).",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "median_pct_change",
+          "data_type": "DOUBLE",
+          "nullable": true,
+          "definition": "MEDIAN(ABS(val_change_pct)) excluding nulls. Null when all amendments in group have null val_change_pct.",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "total_val_impact",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "SUM(ABS(val_change)) — total dollar magnitude of all amendments in this company/year.",
+          "business_term_reference": "BT-054",
+          "dq_rules": ["CONS-AA-010"],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "largest_concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "XBRL concept with the single largest ABS(val_change) in this company/year.",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "largest_change",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "The MAX(ABS(val_change)) value — the largest single amendment magnitude.",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "days_to_amend_avg",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "AVG(amendment_filed_date - original_filed_date) in days. Average time between original and amendment filing.",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "days_to_amend_median",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "MEDIAN(amendment_filed_date - original_filed_date) in days. Median time between original and amendment filing.",
+          "business_term_reference": "BT-054",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "promoted_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this row was written to the consumable zone.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "load_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "System date for pipeline auditing.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        }
+      ]
     }
   ]
 }

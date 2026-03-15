@@ -1,0 +1,161 @@
+{
+  "eventType": "COMPLETE",
+  "eventTime": "2026-03-15T12:00:00.000Z",
+  "producer": "https://github.com/jcernauske/sec_edgair",
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "run": {
+    "runId": "consumable-peer-comparison-build-001",
+    "facets": {
+      "processing_engine": {
+        "name": "SEC EDGAIR Pipeline",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "job": {
+    "namespace": "sec_edgair",
+    "name": "consumable.peer_comparison.build",
+    "facets": {
+      "documentation": {
+        "description": "Compute sector-level peer rankings from consumable.company_financials and consumable.financial_ratios. For each (company, metric, year, period, source), computes rank, sector avg, sector median, and percentile within the company's sector."
+      },
+      "sourceCode": {
+        "type": "PYTHON",
+        "url": "src/consumable/peer_comparison/build.py"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.company_financials",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "cik", "type": "INTEGER"},
+            {"name": "business_term_id", "type": "STRING"},
+            {"name": "business_term", "type": "STRING"},
+            {"name": "val", "type": "DOUBLE"},
+            {"name": "sector", "type": "STRING"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"},
+            {"name": "entity_id", "type": "STRING"},
+            {"name": "ticker", "type": "STRING"},
+            {"name": "canonical_name", "type": "STRING"},
+            {"name": "fiscal_year_end", "type": "STRING"},
+            {"name": "period_end_date", "type": "DATE"},
+            {"name": "calendar_year", "type": "INTEGER"},
+            {"name": "calendar_quarter", "type": "INTEGER"}
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.financial_ratios",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "cik", "type": "INTEGER"},
+            {"name": "ratio_id", "type": "STRING"},
+            {"name": "ratio_name", "type": "STRING"},
+            {"name": "ratio_value", "type": "DOUBLE"},
+            {"name": "sector", "type": "STRING"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"},
+            {"name": "entity_id", "type": "STRING"},
+            {"name": "ticker", "type": "STRING"},
+            {"name": "canonical_name", "type": "STRING"},
+            {"name": "fiscal_year_end", "type": "STRING"},
+            {"name": "period_end_date", "type": "DATE"},
+            {"name": "calendar_year", "type": "INTEGER"},
+            {"name": "calendar_quarter", "type": "INTEGER"}
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.peer_comparison",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "record_id", "type": "STRING", "description": "SHA-256 hash of (cik, metric_id, fiscal_year, fiscal_period, metric_source)"},
+            {"name": "cik", "type": "INTEGER"},
+            {"name": "entity_id", "type": "STRING"},
+            {"name": "ticker", "type": "STRING"},
+            {"name": "canonical_name", "type": "STRING"},
+            {"name": "sector", "type": "STRING"},
+            {"name": "metric_source", "type": "STRING", "description": "company_financials or financial_ratios"},
+            {"name": "metric_id", "type": "STRING", "description": "BT-XXX or RATIO-XXX"},
+            {"name": "metric_name", "type": "STRING"},
+            {"name": "metric_value", "type": "DOUBLE"},
+            {"name": "sector_rank", "type": "INTEGER", "description": "Dense rank within sector (1 = highest)"},
+            {"name": "sector_avg", "type": "DOUBLE", "description": "Arithmetic mean across sector peers"},
+            {"name": "sector_median", "type": "DOUBLE", "description": "Median across sector peers"},
+            {"name": "sector_percentile", "type": "DOUBLE", "description": "(peer_count - rank) / (peer_count - 1)"},
+            {"name": "peer_count", "type": "INTEGER", "description": "Distinct companies in group"}
+          ]
+        },
+        "columnLineage": {
+          "fields": {
+            "record_id": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "SHA-256 hash of (cik, metric_id, fiscal_year, fiscal_period, metric_source), truncated to 16 chars"
+            },
+            "metric_value": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+              ],
+              "transformationType": "DIRECT",
+              "transformationDescription": "val from company_financials or ratio_value from financial_ratios, depending on metric_source"
+            },
+            "sector_rank": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+              ],
+              "transformationType": "AGGREGATION",
+              "transformationDescription": "Dense rank by metric_value DESC within (sector, metric_id, fiscal_year, fiscal_period, metric_source) group"
+            },
+            "sector_avg": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+              ],
+              "transformationType": "AGGREGATION",
+              "transformationDescription": "AVG(metric_value) within group"
+            },
+            "sector_median": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+              ],
+              "transformationType": "AGGREGATION",
+              "transformationDescription": "Median of sorted metric_values within group"
+            },
+            "sector_percentile": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "(peer_count - sector_rank) / (peer_count - 1). Produces 1.0 for rank 1, 0.0 for last rank."
+            },
+            "peer_count": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "cik"},
+                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "cik"}
+              ],
+              "transformationType": "AGGREGATION",
+              "transformationDescription": "COUNT(DISTINCT cik) within group"
+            },
+            "metric_source": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "Set to 'company_financials' for rows from company_financials, 'financial_ratios' for rows from financial_ratios"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

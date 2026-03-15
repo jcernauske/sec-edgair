@@ -1,0 +1,128 @@
+{
+  "spec": "consumable-peer-comparison",
+  "tables": [
+    "consumable.peer_comparison"
+  ],
+  "rules": [
+    {
+      "rule_id": "CONS-PC-001",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "record_id is unique (no duplicate grain)",
+      "sql": "SELECT record_id, COUNT(*) FROM consumable.peer_comparison GROUP BY record_id HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "record_id is a deterministic SHA-256 hash of the grain (cik, metric_id, fiscal_year, fiscal_period, metric_source). Duplicates indicate a computation or dedup guard bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-002",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "Every row has valid metric_source (company_financials or financial_ratios)",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE metric_source NOT IN ('company_financials', 'financial_ratios')",
+      "threshold": "result = 0",
+      "rationale": "Only two metric sources exist. Unknown metric_source values indicate a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-003",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every row has valid cik (exists in source tables)",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison pc WHERE NOT EXISTS (SELECT 1 FROM consumable.company_financials cf WHERE cf.cik = pc.cik) AND NOT EXISTS (SELECT 1 FROM consumable.financial_ratios fr WHERE fr.cik = pc.cik)",
+      "threshold": "result = 0",
+      "rationale": "All peer comparison CIKs must exist in at least one source table. Orphan CIKs indicate a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-004",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No null metric_value, sector_rank, sector_avg, sector_median, sector_percentile",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE metric_value IS NULL OR sector_rank IS NULL OR sector_avg IS NULL OR sector_median IS NULL OR sector_percentile IS NULL",
+      "threshold": "result = 0",
+      "rationale": "Every peer comparison row must have all computed fields populated. Null values indicate the build pipeline failed to compute statistics.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-005",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "sector_rank is between 1 and peer_count (inclusive)",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE sector_rank < 1 OR sector_rank > peer_count",
+      "threshold": "result = 0",
+      "rationale": "Dense ranking guarantees rank is between 1 and peer_count. Values outside this range indicate a ranking bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-006",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "sector_percentile is between 0.0 and 1.0 (inclusive)",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE sector_percentile < 0.0 OR sector_percentile > 1.0",
+      "threshold": "result = 0",
+      "rationale": "The percentile formula produces values in [0.0, 1.0]. Values outside this range indicate a computation bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-007",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "peer_count >= 2 for every row (minimum peer threshold)",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE peer_count < 2",
+      "threshold": "result = 0",
+      "rationale": "The build pipeline filters out groups with fewer than 2 companies. Any row with peer_count < 2 indicates the filter failed.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-008",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "sector_rank 1 has sector_percentile 1.0",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE sector_rank = 1 AND sector_percentile != 1.0",
+      "threshold": "result = 0",
+      "rationale": "The percentile formula for rank 1 is (peer_count - 1) / (peer_count - 1) = 1.0. Any deviation indicates a computation bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-009",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "No single-company sectors (Energy, Industrials, Communication Services excluded)",
+      "sql": "SELECT COUNT(*) FROM consumable.peer_comparison WHERE sector IN ('Energy', 'Industrials', 'Communication Services')",
+      "threshold": "result = 0",
+      "rationale": "These sectors have only 1 company each. Peer comparison requires 2+ companies. Any rows from these sectors indicate a filter bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-PC-010",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "peer_count matches actual distinct CIKs per (sector, metric_id, fiscal_year, fiscal_period, metric_source)",
+      "sql": "SELECT pc.sector, pc.metric_id, pc.fiscal_year, pc.fiscal_period, pc.metric_source, pc.peer_count, COUNT(DISTINCT pc.cik) AS actual_count FROM consumable.peer_comparison pc GROUP BY pc.sector, pc.metric_id, pc.fiscal_year, pc.fiscal_period, pc.metric_source, pc.peer_count HAVING pc.peer_count != COUNT(DISTINCT pc.cik)",
+      "threshold": "result_count = 0",
+      "rationale": "peer_count is a denormalized aggregate. It must match the actual count of distinct CIKs for each group.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "run_id": "a5b15fc8",
+  "spec": "consumable-amendment-analysis",
+  "executed_at": "2026-03-15T05:32:14.860458+00:00",
+  "rules_total": 10,
+  "rules_passed": 10,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "CONS-AA-001",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.855448+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-002",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.856666+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-003",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.857066+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-004",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.857646+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-005",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.858022+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-006",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.858411+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-007",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.858798+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-008",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.859168+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-009",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.859673+00:00"
+    },
+    {
+      "rule_id": "CONS-AA-010",
+      "spec": "consumable-amendment-analysis",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:14.860017+00:00"
+    }
+  ]
+}

@@ -199,13 +199,13 @@ Detailed scorecards per spec: [`governance/dq-scorecards/`](governance/dq-scorec
 
 ## Business Glossary
 
-52 business terms defined across three source tiers — all approved:
+54 business terms defined across three source tiers — all approved:
 
 | Source | Terms | Approved By | Description |
 |--------|-------|-------------|-------------|
 | XBRL Taxonomy | 25 | Auto (external standard) | Financial reporting metrics (Revenue, Net Income, etc.) |
 | SEC EDGAR | 7 | Auto (external standard) | Filing types, entity identifiers, regulatory concepts |
-| Project-Specific | 20 | human:jeff / auto | Pipeline concepts + derived metrics (ratios, growth, sectors) |
+| Project-Specific | 22 | human:jeff / auto | Pipeline concepts + derived metrics (ratios, growth, sectors, peer comparison, amendments) |
 
 ### Entity Terms
 | Term | Definition | Source |
@@ -689,13 +689,36 @@ erDiagram
 
 > Full model: [consumable-period-over-period-conceptual.md](governance/models/consumable-period-over-period-conceptual.md)
 
+### Conceptual: Peer Comparison
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ PEER_RANKING : "ranked in"
+    SECTOR ||--o{ PEER_RANKING : "groups"
+    METRIC ||--o{ PEER_RANKING : "measured by"
+    FISCAL_PERIOD ||--o{ PEER_RANKING : "measured in"
+```
+
+> Full model: [consumable-peer-comparison-conceptual.md](governance/models/consumable-peer-comparison-conceptual.md)
+
+### Conceptual: Amendment Analysis
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ AMENDMENT_SUMMARY : "has amendment patterns"
+    FISCAL_YEAR ||--o{ AMENDMENT_SUMMARY : "summarized by"
+    AMENDMENT_TRACKING ||--o{ AMENDMENT_SUMMARY : "aggregated from"
+```
+
+> Full model: [consumable-amendment-analysis-conceptual.md](governance/models/consumable-amendment-analysis-conceptual.md)
+
 ## Quick Start
 
 ```bash
 # Install
 uv sync
 
-# Run tests (281 tests)
+# Run tests (326 tests)
 uv run pytest
 
 # Data quality — execute rules against real Iceberg data
@@ -726,6 +749,8 @@ uv run python -m src.base.bitemporal.cli validate
 uv run python -m src.consumable.company_financials.cli all
 uv run python -m src.consumable.financial_ratios.cli all
 uv run python -m src.consumable.period_over_period.cli all
+uv run python -m src.consumable.peer_comparison.cli all
+uv run python -m src.consumable.amendment_analysis.cli all
 ```
 
 ## Project Structure
@@ -743,21 +768,23 @@ src/                            Source code organized by zone
     company_financials/          Cross-company financial comparison table
     financial_ratios/            Computed financial ratios (margins, leverage)
     period_over_period/          YoY growth, CAGR, trend analysis
+    peer_comparison/             Sector rankings, percentiles, peer stats
+    amendment_analysis/          Restatement patterns and magnitude analysis
 data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
-  business-glossary.json        52 business terms (XBRL, SEC EDGAR, project-specific)
+  business-glossary.json        54 business terms (XBRL, SEC EDGAR, project-specific)
   cde-catalog.json              31 Critical Data Element definitions
-  data-dictionary.json          11 table schemas with field-level docs
+  data-dictionary.json          13 table schemas with field-level docs
   models/                       Data models (conceptual, logical, physical) with Mermaid diagrams
   lineage/                      OpenLineage events
   eda/                          EDA reports from @data-analyst
-  dq-rules/                     Data quality rule definitions (72 rules, JSON + SQL)
+  dq-rules/                     Data quality rule definitions (92 rules, JSON + SQL)
   dq-results/                   Timestamped DQ execution results
   dq-scorecards/                DQ scorecards from real data execution
   audit-trail/                  Design decision logs
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (281 passing)
+tests/                          Tests organized by zone (326 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```

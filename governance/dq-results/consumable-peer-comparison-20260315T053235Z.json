@@ -1,0 +1,132 @@
+{
+  "run_id": "55a4b9b7",
+  "spec": "consumable-peer-comparison",
+  "executed_at": "2026-03-15T05:32:35.605087+00:00",
+  "rules_total": 10,
+  "rules_passed": 10,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "CONS-PC-001",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.596018+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-002",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.596553+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-003",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.598166+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-004",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.598629+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-005",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.599032+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-006",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.599605+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-007",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.600129+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-008",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.600594+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-009",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.601165+00:00"
+    },
+    {
+      "rule_id": "CONS-PC-010",
+      "spec": "consumable-peer-comparison",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 3,
+      "error": null,
+      "executed_at": "2026-03-15T05:32:35.604560+00:00"
+    }
+  ]
+}

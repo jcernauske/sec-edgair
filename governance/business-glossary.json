@@ -1,8 +1,8 @@
 {
   "glossary_metadata": {
     "version": "2.0",
-    "last_updated": "2026-03-14",
-    "term_count": 52,
+    "last_updated": "2026-03-15",
+    "term_count": 54,
     "sources": {
       "xbrl-taxonomy": "US GAAP XBRL Taxonomy \u2014 authoritative financial reporting standard. Auto-approved.",
       "sec-edgar": "SEC EDGAR documentation \u2014 filing types, entity identifiers, regulatory concepts. Auto-approved.",
@@ -1312,6 +1312,63 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": "Derived metric, not a primary data element.",
+      "pii_rationale": null
+    },
+    {
+      "term_id": "BT-053",
+      "term": "Peer Comparison",
+      "definition": "A sector-level ranking of a company's financial metric relative to its industry peers. Includes the company's rank (1 = highest value, dense ranking), sector average, sector median, percentile (0.0 to 1.0), and peer count. Computed from both absolute financial values (company_financials) and ratio values (financial_ratios). Requires a minimum of 2 companies per sector group.",
+      "source": "project-specific",
+      "source_reference": "docs/specs/consumable-peer-comparison.md",
+      "synonyms": [
+        "Sector Ranking",
+        "Peer Ranking",
+        "Sector Peer Analysis"
+      ],
+      "related_terms": [
+        "BT-013",
+        "BT-049",
+        "BT-051"
+      ],
+      "category": "financial",
+      "owner": "Finance / Data Governance",
+      "status": "approved",
+      "approved_by": "auto (REQUIRE_HUMAN_APPROVAL gate)",
+      "approved_at": "2026-03-15T12:00:00Z",
+      "used_in_models": [
+        "consumable-peer-comparison"
+      ],
+      "is_cde": false,
+      "is_pii": false,
+      "cde_rationale": "Derived metric, not a primary data element.",
+      "pii_rationale": null
+    },
+    {
+      "term_id": "BT-054",
+      "term": "Amendment Analysis",
+      "definition": "A summary of amendment/restatement patterns for a company in a fiscal year. Captures amendment frequency (count, distinct concepts, distinct filings), magnitude (mean, median, max absolute change; percentage change stats), total dollar impact, largest amended concept, and timing (days between original and amendment filing). Derived from base.amendment_tracking aggregated by (cik, fiscal_year).",
+      "source": "project-specific",
+      "source_reference": "docs/specs/consumable-amendment-analysis.md",
+      "synonyms": [
+        "Restatement Analysis",
+        "Amendment Summary",
+        "Filing Amendment Pattern"
+      ],
+      "related_terms": [
+        "BT-011",
+        "BT-013"
+      ],
+      "category": "financial",
+      "owner": "Finance / Data Governance",
+      "status": "approved",
+      "approved_by": "auto (REQUIRE_HUMAN_APPROVAL gate)",
+      "approved_at": "2026-03-15T06:00:00Z",
+      "used_in_models": [
+        "consumable-amendment-analysis"
+      ],
+      "is_cde": false,
+      "is_pii": false,
+      "cde_rationale": "Derived metric summarizing amendment patterns, not a primary data element.",
       "pii_rationale": null
     }
   ]

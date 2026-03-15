@@ -1,0 +1,128 @@
+{
+  "spec": "consumable-amendment-analysis",
+  "tables": [
+    "consumable.amendment_analysis"
+  ],
+  "rules": [
+    {
+      "rule_id": "CONS-AA-001",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "record_id is unique (no duplicate grain)",
+      "sql": "SELECT record_id, COUNT(*) FROM consumable.amendment_analysis GROUP BY record_id HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "record_id is a deterministic SHA-256 hash of the grain (cik, fiscal_year). Duplicates indicate a computation or dedup guard bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-002",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every row has valid cik (exists in consumable.company_financials)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis aa WHERE NOT EXISTS (SELECT 1 FROM consumable.company_financials cf WHERE cf.cik = aa.cik)",
+      "threshold": "result = 0",
+      "rationale": "All amendment analysis CIKs must exist in the source company_financials table. Orphan CIKs indicate a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-003",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No null amendment_count (every row has a count)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE amendment_count IS NULL",
+      "threshold": "result = 0",
+      "rationale": "Every summary row must have an amendment count. Null indicates a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-004",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "amendment_count > 0 (no zero-amendment rows)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE amendment_count <= 0",
+      "threshold": "result = 0",
+      "rationale": "Only years with amendments produce rows. A row with amendment_count=0 should not exist.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-005",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "mean_abs_change >= 0 (magnitude is non-negative)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE mean_abs_change < 0",
+      "threshold": "result = 0",
+      "rationale": "ABS() ensures all magnitude stats are non-negative. A negative value indicates the build pipeline failed to apply ABS.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-006",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "median_abs_change >= 0 (magnitude is non-negative)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE median_abs_change < 0",
+      "threshold": "result = 0",
+      "rationale": "ABS() ensures all magnitude stats are non-negative.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-007",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "max_abs_change >= median_abs_change (max is at least as large)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE max_abs_change < median_abs_change",
+      "threshold": "result = 0",
+      "rationale": "The maximum must be at least as large as the median. Violation indicates a computation bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-008",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "distinct_concepts <= amendment_count (can't have more distinct concepts than amendments)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE distinct_concepts > amendment_count",
+      "threshold": "result = 0",
+      "rationale": "Each amendment has exactly one concept. Distinct concepts cannot exceed total amendment count.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-009",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 20 companies represented in the table",
+      "sql": "SELECT 20 - COUNT(DISTINCT cik) FROM consumable.amendment_analysis",
+      "threshold": "result = 0",
+      "rationale": "EDA confirms all 20 companies have amendment data. Missing companies indicate a build or join bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-AA-010",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "total_val_impact >= max_abs_change (total is at least as large as max)",
+      "sql": "SELECT COUNT(*) FROM consumable.amendment_analysis WHERE total_val_impact < max_abs_change",
+      "threshold": "result = 0",
+      "rationale": "total_val_impact is the sum of all absolute changes. It must be at least as large as the single largest change.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T00:00:00Z"
+    }
+  ]
+}
