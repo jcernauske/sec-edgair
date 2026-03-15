@@ -275,7 +275,7 @@ class TestExecuteSqlRule:
             "spec": "test",
         }
         result = execute_sql_rule(rule, con_with_data)
-        expected_keys = {"rule_id", "spec", "passed", "raw_value", "threshold", "detail", "violations", "execution_time_ms", "error", "executed_at"}
+        expected_keys = {"rule_id", "spec", "category", "passed", "raw_value", "threshold", "detail", "violations", "execution_time_ms", "error", "executed_at"}
         assert expected_keys == set(result.keys())
 
 
