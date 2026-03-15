@@ -41,6 +41,7 @@ PRIMARY_CONCEPTS: dict[str, list[str]] = {
     "BT-022": [
         "Revenues",
         "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "RevenuesNetOfInterestExpense",
         "SalesRevenueNet",
     ],
     "BT-034": [
