@@ -231,6 +231,102 @@
       "status": "active",
       "proposed_by": "@dq-rule-writer",
       "proposed_at": "2026-03-15T15:59:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-020",
+      "category": "Reasonableness",
+      "priority": "P1",
+      "description": "Revenue (BT-022) should be positive for non-financial companies",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts WHERE business_term_id = 'BT-022' AND val < 0 AND cik NOT IN (19617, 886982, 1067983, 1403161)",
+      "threshold": "result <= 2",
+      "rationale": "EDA: 1,326/1,329 Revenue values (99.77%) are positive. 3 negative values exist: Apple ($-29M), Microsoft ($-6B), Goldman Sachs ($-4.7B). Goldman Sachs excluded as financial. Apple and Microsoft negatives are legitimate quarterly adjustments (revenue reclassifications). Threshold set to <= 2 to accommodate these known cases. Growth beyond 2 would indicate a new data issue. Financial CIKs excluded: JPM (19617), GS (886982), BRK (1067983), Visa (1403161).",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-021",
+      "category": "Reasonableness",
+      "priority": "P0",
+      "description": "Total Assets (BT-024) must be positive",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts WHERE business_term_id = 'BT-024' AND val <= 0",
+      "threshold": "result = 0",
+      "rationale": "EDA: All 1,298 Total Assets values are positive (100%). Zero or negative total assets is definitionally impossible for a going concern. This is a hard constraint regardless of sector.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-022",
+      "category": "Reasonableness",
+      "priority": "P1",
+      "description": "Per-share metrics (BT-044, BT-045, BT-046) magnitude < 10,000",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts WHERE business_term_id IN ('BT-044', 'BT-045', 'BT-046') AND ABS(val) >= 10000",
+      "threshold": "result = 0",
+      "rationale": "EDA: BT-044 (EPS Basic) ranges from -$20.88 to $5,265 \u2014 the high end is Berkshire Hathaway Class A shares (legitimate). BT-045 (EPS Diluted) ranges from -$20.88 to $59.45. BT-046 (DPS) ranges from $0 to $14. Threshold of 10,000 accommodates Berkshire's Class A EPS ($5,265 max observed) with a 90% buffer while catching unit-filtering bugs that would produce billion-dollar EPS values.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-023",
+      "category": "Reasonableness",
+      "priority": "P1",
+      "description": "USD metrics magnitude should be < 10 trillion",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts WHERE unit = 'USD' AND ABS(val) >= 10000000000000",
+      "threshold": "result = 0",
+      "rationale": "EDA: The largest absolute USD value is $4.56 trillion (Total Assets, likely JPMorgan or Berkshire). No single company metric has ever exceeded $10T. Values beyond this threshold indicate unit/scale errors (e.g., reporting in cents instead of dollars). The 10T bound gives a 2.2x buffer over the observed maximum.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-024",
+      "category": "Reasonableness",
+      "priority": "P1",
+      "description": "Each company's metrics for a given period should come from <= 4 distinct accession numbers",
+      "sql": "SELECT cik, fiscal_year, fiscal_period, COUNT(DISTINCT accession_number) AS acc_cnt FROM base.conformed_facts GROUP BY cik, fiscal_year, fiscal_period HAVING COUNT(DISTINCT accession_number) > 4",
+      "threshold": "result_count = 0",
+      "rationale": "EDA: Distribution is 218 groups with 1 accession, 931 with 2, 220 with 3, and 45 with 4. Spec proposed <= 3 but real data shows 45 legitimate groups with 4 accessions (e.g., Boeing FY2011, JPMorgan FY2018). Threshold adjusted to <= 4 to avoid false positives. >4 would indicate collision resolution drew from too many source filings.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-025",
+      "category": "Accuracy",
+      "priority": "P0",
+      "description": "No superseded facts in conformed_facts (source fact must not be superseded)",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts cf JOIN base.financial_facts ff ON cf.source_fact_id = ff.fact_id WHERE ff.is_superseded = true",
+      "threshold": "result = 0",
+      "rationale": "EDA: 0 superseded facts found in conformed_facts (verified via join to financial_facts). Supersession filter is the first pipeline step \u2014 269,962 superseded facts (49.3% of source) must be excluded. If even one leaks through, the entire conformation is suspect. Complements BASE-CF-019 (Completeness) with an explicit Accuracy dimension check.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-026",
+      "category": "Accuracy",
+      "priority": "P0",
+      "description": "No null business_term_id values in conformed_facts",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts WHERE business_term_id IS NULL",
+      "threshold": "result = 0",
+      "rationale": "EDA: 0 null business_term_id values found. The conformation pipeline filters out facts that don't map to a business term. Null BT leakage means unmapped XBRL concepts pollute the conformed table, breaking all downstream joins and aggregations.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "BASE-CF-027",
+      "category": "Accuracy",
+      "priority": "P0",
+      "description": "No facts with wrong unit per business term (USD for dollar metrics, USD/shares for per-share)",
+      "sql": "SELECT COUNT(*) FROM base.conformed_facts WHERE (business_term_id IN ('BT-044', 'BT-045', 'BT-046') AND unit != 'USD/shares') OR (business_term_id NOT IN ('BT-044', 'BT-045', 'BT-046') AND unit != 'USD')",
+      "threshold": "result = 0",
+      "rationale": "EDA: All 25 business terms have exactly 1 distinct unit each \u2014 per-share terms (BT-044, 045, 046) use USD/shares, all others use USD. Zero violations found. A wrong-unit value (e.g., USD/shares on a Revenue metric) would produce magnitudes off by orders of magnitude. Complements BASE-CF-011 (Consistency) with an explicit Accuracy dimension check.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
     }
   ]
 }

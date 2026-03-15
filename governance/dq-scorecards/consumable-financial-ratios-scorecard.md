@@ -2,9 +2,9 @@
 **Spec:** consumable-financial-ratios
 **Date:** 2026-03-15
 **Agent:** @dq-engineer
-**Overall Score:** 10/10 rules passing (100%)
-**Data Source:** Production Data Validation (executed 2026-03-15T04:20:58.730875+00:00)
-**Run ID:** d5713894
+**Overall Score:** 15/15 rules passing (100%)
+**Data Source:** Production Data Validation (executed 2026-03-15T17:59:47.226382+00:00)
+**Run ID:** 4a709237
 
 ### Execution Results
 
@@ -20,12 +20,18 @@
 | CONS-FR-008 | Completeness | P0 | All 7 ratios represented in the table | PASS | actual=0.0, threshold=result = 0.0 |
 | CONS-FR-009 | Consistency | P0 | CapEx-to-Revenue (RATIO-007) ratio_value is always >= 0 (abs applied) | PASS | actual=0.0, threshold=result = 0.0 |
 | CONS-FR-010 | Consistency | P0 | Margin ratios (RATIO-001, 002, 003, 005, 006, 007) use Revenue (BT-022) as denominator | PASS | actual=0.0, threshold=result = 0.0 |
+| CONS-FR-011 | Reasonableness | P1 | Gross Margin (RATIO-001) between -1.0 and 1.0 | PASS | actual=0.0, threshold=result = 0.0 |
+| CONS-FR-012 | Reasonableness | P2 | Operating Margin (RATIO-002) between -100.0 and 100.0 | PASS | actual=2.0, threshold=result <= 2.0 |
+| CONS-FR-013 | Reasonableness | P2 | Net Margin (RATIO-003) between -100.0 and 100.0 | PASS | actual=1.0, threshold=result <= 1.0 |
+| CONS-FR-014 | Reasonableness | P2 | CapEx-to-Revenue (RATIO-007) between 0.0 and 100.0 | PASS | actual=2.0, threshold=result <= 2.0 |
+| CONS-FR-015 | Reasonableness | P2 | R&D Intensity (RATIO-005) between -100.0 and 100.0 | PASS | actual=1.0, threshold=result <= 1.0 |
 
 ### Summary by Category
 | Category | Rules | Passing | Rate |
 |----------|-------|---------|------|
 | Completeness | 2 | 2 | 100% |
 | Consistency | 5 | 5 | 100% |
+| Reasonableness | 5 | 5 | 100% |
 | Referential Integrity | 1 | 1 | 100% |
 | Uniqueness | 1 | 1 | 100% |
 | Validity | 1 | 1 | 100% |

@@ -2,9 +2,9 @@
 **Spec:** base-conformed-facts
 **Date:** 2026-03-15
 **Agent:** @dq-engineer
-**Overall Score:** 19/19 rules passing (100%)
-**Data Source:** Production Data Validation (executed 2026-03-15T16:16:09.043999+00:00)
-**Run ID:** d7726af0
+**Overall Score:** 27/27 rules passing (100%)
+**Data Source:** Production Data Validation (executed 2026-03-15T17:59:42.631976+00:00)
+**Run ID:** 36578b2f
 
 ### Execution Results
 
@@ -29,13 +29,23 @@
 | BASE-CF-017 | Freshness | P1 | promoted_at is within the last 7 days (pipeline recency check) | PASS | actual=0.0, threshold=result = 0.0 |
 | BASE-CF-018 | Consistency | P1 | selection_reason distribution is within expected ranges | PASS | actual=0.0, threshold=result = 0.0 |
 | BASE-CF-019 | Completeness | P0 | No superseded facts leak into conformed_facts | PASS | actual=0.0, threshold=result = 0.0 |
+| BASE-CF-020 | Reasonableness | P1 | Revenue (BT-022) should be positive for non-financial companies | PASS | actual=2.0, threshold=result <= 2.0 |
+| BASE-CF-021 | Reasonableness | P0 | Total Assets (BT-024) must be positive | PASS | actual=0.0, threshold=result = 0.0 |
+| BASE-CF-022 | Reasonableness | P1 | Per-share metrics (BT-044, BT-045, BT-046) magnitude < 10,000 | PASS | actual=0.0, threshold=result = 0.0 |
+| BASE-CF-023 | Reasonableness | P1 | USD metrics magnitude should be < 10 trillion | PASS | actual=0.0, threshold=result = 0.0 |
+| BASE-CF-024 | Reasonableness | P1 | Each company's metrics for a given period should come from <= 4 distinct accession numbers | PASS | actual=0, threshold=result_count = 0.0 |
+| BASE-CF-025 | Accuracy | P0 | No superseded facts in conformed_facts (source fact must not be superseded) | PASS | actual=0.0, threshold=result = 0.0 |
+| BASE-CF-026 | Accuracy | P0 | No null business_term_id values in conformed_facts | PASS | actual=0.0, threshold=result = 0.0 |
+| BASE-CF-027 | Accuracy | P0 | No facts with wrong unit per business term (USD for dollar metrics, USD/shares for per-share) | PASS | actual=0.0, threshold=result = 0.0 |
 
 ### Summary by Category
 | Category | Rules | Passing | Rate |
 |----------|-------|---------|------|
+| Accuracy | 3 | 3 | 100% |
 | Completeness | 5 | 5 | 100% |
 | Consistency | 6 | 6 | 100% |
 | Freshness | 1 | 1 | 100% |
+| Reasonableness | 5 | 5 | 100% |
 | Referential Integrity | 1 | 1 | 100% |
 | Uniqueness | 2 | 2 | 100% |
 | Validity | 3 | 3 | 100% |

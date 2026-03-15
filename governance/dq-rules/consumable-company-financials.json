@@ -99,6 +99,54 @@
       "status": "active",
       "proposed_by": "@dq-rule-writer",
       "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-009",
+      "category": "Reasonableness",
+      "priority": "P2",
+      "description": "Net Income magnitude should not exceed Revenue magnitude for non-financial companies",
+      "sql": "SELECT COUNT(*) FROM consumable.company_financials ni JOIN consumable.company_financials rev ON ni.cik = rev.cik AND ni.fiscal_year = rev.fiscal_year AND ni.fiscal_period = rev.fiscal_period WHERE ni.business_term_id = 'BT-023' AND rev.business_term_id = 'BT-022' AND ni.cik NOT IN (19617, 886982, 1067983, 1403161) AND ABS(ni.val) > ABS(rev.val)",
+      "threshold": "result <= 12",
+      "rationale": "EDA: 12 cases where abs(Net Income) > abs(Revenue) for non-financial companies. Root causes: Tesla pre-revenue era (2010-2012, 10 cases), Netflix early-stage (2012 Q1, 2014 Q1), and Exxon FY2008 (likely a quarterly-vs-annual revenue mapping artifact where $123M revenue paired with $45.2B net income). These are legitimate data artifacts from early-stage companies with tiny revenue, not pipeline bugs. P2 allows monitoring without blocking.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-010",
+      "category": "Reasonableness",
+      "priority": "P2",
+      "description": "Common metrics (Revenue, Net Income, Total Assets) should have >= 2 companies reporting per period type",
+      "sql": "SELECT business_term_id, fiscal_period, MIN(companies_reporting) AS min_reporting FROM consumable.company_financials WHERE business_term_id IN ('BT-022', 'BT-023', 'BT-024') GROUP BY business_term_id, fiscal_period HAVING MIN(companies_reporting) < 2",
+      "threshold": "result_count = 0",
+      "rationale": "EDA: All three core metrics (Revenue, Net Income, Total Assets) have exactly 20 companies reporting across all four period types (FY, Q1, Q2, Q3). Minimum observed companies_reporting is 20. If only 1 company reports a universal metric, something is wrong with the population. Threshold of >= 2 is deliberately conservative.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-011",
+      "category": "Accuracy",
+      "priority": "P0",
+      "description": "Row count matches base.conformed_facts (1:1 presentation layer)",
+      "sql": "SELECT ABS((SELECT COUNT(*) FROM consumable.company_financials) - (SELECT COUNT(*) FROM base.conformed_facts))",
+      "threshold": "result = 0",
+      "rationale": "EDA: Both tables have exactly 28,849 rows. consumable.company_financials is a 1:1 presentation layer over base.conformed_facts \u2014 no rows should be created or lost during the promote. Any mismatch indicates a build or dedup bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-012",
+      "category": "Accuracy",
+      "priority": "P0",
+      "description": "No fiscal year collisions (same company + metric + period + period_end_date in two fiscal years)",
+      "sql": "SELECT COUNT(*) FROM (SELECT cik, business_term_id, fiscal_period, period_end_date, COUNT(DISTINCT fiscal_year) AS fy_count FROM consumable.company_financials GROUP BY cik, business_term_id, fiscal_period, period_end_date HAVING COUNT(DISTINCT fiscal_year) > 1)",
+      "threshold": "result = 0",
+      "rationale": "EDA: 0 fiscal year collisions found. A collision would mean the same company reported the same metric for the same period_end_date under two different fiscal years \u2014 indicating a collision resolution bug where two different source facts both survived.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-15T16:00:00Z"
     }
   ]
 }

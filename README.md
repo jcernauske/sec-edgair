@@ -1,8 +1,8 @@
 # SEC EDGAIR
 
 ![Tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)
-![DQ Rules](https://img.shields.io/badge/DQ%20rules-111%20(110%20pass%2C%201%20P1)-brightgreen)
-![Architect Agent Review](https://img.shields.io/badge/architect%20agent%20review-A---blue)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-128%20(127%20pass%2C%201%20P1)-brightgreen)
+![Architect Agent Review](https://img.shields.io/badge/architect%20agent%20review-A-blue)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Verified](https://img.shields.io/badge/verified-88%2F88%20vs%2010--K-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
@@ -35,7 +35,7 @@ SEC EDGAR XBRL → Raw → Base → Consumable → AI-Ready Chat
 
 Each zone is governed by AI agents that produce lineage, data quality rules, business term mappings, and audit trails as a byproduct of the transformation work. Every spec follows a mandatory agent pipeline: @data-analyst (EDA) → @dq-rule-writer (rules from evidence) → @dq-engineer (execute + gate) → @staff-engineer (final review).
 
-Principal Data Architect Agent review: [full review (A-)](governance/reviews/principal-data-architect-re-review.md)
+Principal Data Architect Agent review: [full review (A)](governance/reviews/principal-data-architect-re-review.md)
 
 ## What's Built
 
@@ -120,10 +120,14 @@ All 20 companies verified for Revenue + Net Income, plus Total Assets, EPS, Oper
 ### All-Metrics Deep Dive (31 checks)
 All 24 business terms + 7 computed ratios verified for Apple FY2023 against the official 10-K filing.
 
+### Negative Verification (10 checks)
+Proves incorrect data is absent: no duplicate grains, no superseded fact leaks, no wrong-unit values, no fiscal year collisions, no orphan ratios, row count alignment across zones.
+
 ```bash
 # Run verification
-PYTHONPATH=. uv run python scripts/verify.py           # 57 cross-company checks
-PYTHONPATH=. uv run python scripts/verify_all_metrics.py  # 31 all-metrics checks
+PYTHONPATH=. uv run python scripts/verify.py               # 57 cross-company checks
+PYTHONPATH=. uv run python scripts/verify_all_metrics.py    # 31 all-metrics checks
+PYTHONPATH=. uv run python scripts/verify_negative.py       # 10 negative checks
 ```
 
 ## Governance
@@ -133,27 +137,27 @@ Every transformation produces governance artifacts automatically:
 - **54 business terms** in `governance/business-glossary.json` (25 XBRL + 7 SEC EDGAR + 22 project-specific)
 - **31 CDEs** in `governance/cde-catalog.json`
 - **14 Iceberg tables** documented in `governance/data-dictionary.json`
-- **111 DQ rules** with execution engine and scorecards (110 pass, 1 P1 advisory)
+- **128 DQ rules** across 9 dimensions with execution engine and scorecards (127 pass, 1 P1 advisory)
 - **DQ gates enforced on all promote paths** — P0 failures block writes
 - **Runtime lineage** — every promote emits START/COMPLETE/FAIL events to `governance.lineage_events` Iceberg table with snapshot IDs, row counts, DQ results, and duration
 - **Structural lineage docs** in `governance/lineage/` — generated from runtime events via `python -m src.infra.lineage generate-docs`
 - **21 data models** (conceptual, logical, physical) in `governance/models/`
 - **Concept priority rules** governed as data artifact in `governance/conformation/`
-- **Principal Data Architect Agent review** — A- ([full review](governance/reviews/principal-data-architect-re-review.md))
+- **Principal Data Architect Agent review** — A ([full review](governance/reviews/principal-data-architect-re-review.md))
 - **PII:** None detected. All data is public SEC filings.
 
 ## Data Quality
 
-111 SQL-based DQ rules across all specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`.
+128 SQL-based DQ rules across 9 dimensions, executed against real Iceberg tables via `python -m src.infra.dq_runner run`.
 
 ### Latest Results
 
 | Zone | Specs | Rules | Passed | Failed | P0 Gate |
 |------|-------|-------|--------|--------|---------|
 | Raw | 1 | 8 | 8 | 0 | PASS |
-| Base | 5 | 41 | 40 | 1 (P1) | PASS |
-| Consumable | 5 | 62 | 62 | 0 | PASS |
-| **Total** | **11** | **111** | **110** | **1 (P1)** | **PASS** |
+| Base | 5 | 49 | 48 | 1 (P1) | PASS |
+| Consumable | 5 | 71 | 71 | 0 | PASS |
+| **Total** | **11** | **128** | **127** | **1 (P1)** | **PASS** |
 
 The single P1 failure (BASE-BT-003) is advisory — comparative data in newer filings legitimately supersedes older filings' values, which can violate the temporal ordering assumption. Documented and expected.
 

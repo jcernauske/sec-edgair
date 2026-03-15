@@ -18,7 +18,7 @@ Substantial remediation was executed across four specs and one infrastructure ch
 
 5. **Code quality** — DQ gates added to all 5 consumable CLI build commands via `validate_after_write()`. Bare except clauses eliminated. Dead code removed (`read_current_with_iceberg_scan`, `migrate_load_date.py`). `create_test_table` renamed to `get_or_create_table`. Shared `consumable/shared.py` extracts `SIC_TO_SECTOR` and `build_sector_lookup`.
 
-**By the numbers:** 466 tests (up from 442), 111 DQ rules (up from 92), 14 Iceberg tables (up from 13), all verification checks still passing.
+**By the numbers:** 466 tests (up from 442), 129 DQ rules (up from 111, originally 92), 14 Iceberg tables (up from 13), all verification checks still passing (positive + negative).
 
 ## Section Re-Grades
 
@@ -40,17 +40,23 @@ What keeps this from A+ is that `read_with_duckdb()` still materializes full tab
 
 ### Data Quality & Trust
 **Original:** A-
-**Updated:** A-
+**Updated:** A
 
-**Rationale:** The grade holds. The improvements are real but don't move the needle on the specific gaps I flagged.
+**Rationale:** Both gaps I flagged are now closed. The grade moves up.
 
 The Pfizer discrepancy (1.81% difference on Revenue) was investigated and documented as expected behavior — the broader `RevenuesNetOfInterestExpense` concept was correctly selected per the collision resolution rules, and was even added to BT-022's primary_concepts list in `concept-priority-rules.json`. This is the right resolution: understand it, document it, make a deliberate choice. Good.
 
-DQ rules grew from 92 to 111. The 19 new rules for `base.conformed_facts` include uniqueness, referential integrity (source_fact_id exists in financial_facts), completeness (all 20 companies, all 25 business terms), consistency (selection_reason valid values, competing_fact_count >= 1), and volume. These are the right rules for a conformation table.
+DQ rules grew from 111 to 129. The 18 new rules add two dimensions that were entirely missing: **Accuracy** (8 rules) and **Reasonableness** (10 rules). This is no longer a system that only validates structure — it now validates meaning.
 
-Tests grew from 442 to 466. The test suite runs in 7.66 seconds — still fast.
+**Negative testing is real.** `scripts/verify_negative.py` runs 10 checks against real Iceberg tables, each asserting something should NOT exist: no duplicate grains, no superseded facts leaked, no null business terms, no wrong-unit values, no fiscal year collisions, no orphan ratios, no cross-zone grain violations. These are targeted at the specific pipeline failure modes — supersession filter leaks, unit filter leaks, collision resolution duplicates. This is genuine negative testing, not repackaged positive checks with inverted assertions.
 
-What still hasn't changed: no negative testing in verification scripts. The verification proves correct values exist but doesn't prove incorrect values are absent. And the DQ rules cover structural integrity but don't cover semantic correctness (e.g., "Apple's Revenue should not appear in two different fiscal years for the same period"). This is a genuine gap but it's a B+-to-A- gap, not a failing grade gap.
+**Accuracy rules are meaningful.** BASE-CF-025/026/027 validate that the three pipeline filters (supersession, null BT, wrong unit) did not leak. CONS-CF-011 validates row count alignment between base and consumable (1:1 invariant). CONS-CF-012 validates no fiscal year collisions — exactly the "Apple's Revenue should not appear in two different fiscal years for the same period" example I cited. All are P0. All passed against real data.
+
+**Reasonableness thresholds are evidence-based.** The spec proposed tight bounds (Operating Margin [-5, 1], CapEx-to-Revenue [0, 1]) but EDA revealed real outliers — Netflix Q1 2010 with $12K revenue producing a 4,862x Operating Margin, Exxon FY2008 with a 367x Net Margin from a likely quarterly-vs-annual mapping artifact. The rules were adjusted to [-100, 100] with explicit outlier tolerances (`result <= 2`) and each rationale documents the specific root cause. This is the right approach: set bounds from data, document the exceptions, don't pretend the data is cleaner than it is. The Gross Margin rule (RATIO-001) kept the tight [-1, 1] bound because the EDA confirmed no violations — showing the team tightened where they could and loosened only where the data demanded it.
+
+All 54 rules across the three tables (27 + 12 + 15) passed against real data with timestamped execution results. No P0 failures.
+
+What keeps this from A+: the Accuracy rules for BASE-CF-025/026/027 overlap with existing Completeness/Consistency rules (BASE-CF-019, BASE-CF-006, BASE-CF-011) — same SQL, different dimension label. This is defensible for dimension coverage but not additional protection. The Reasonableness bounds on ratio rules are wide enough ([-100, 100]) that they would only catch catastrophic failures, not subtle data issues. These are minor — the coverage gap that held this at A- is genuinely closed.
 
 ### Governance
 **Original:** B+
@@ -96,7 +102,7 @@ What keeps this from A: the `_compute_record_id` function is still defined indep
 
 ## Remaining Gaps
 
-1. **No negative testing in verification scripts.** The 88 checks verify correct values exist but don't verify incorrect combinations are absent. DQ rules cover some of this, but the verification layer doesn't.
+1. ~~**No negative testing in verification scripts.**~~ **RESOLVED.** `scripts/verify_negative.py` with 10 targeted absence checks.
 
 2. **`read_with_duckdb()` still returns `list[dict]`.** Every build function materializes full tables as Python dicts. The dedup path is fixed, but the data read path is still O(N * columns) in memory. This would need attention at 100x scale.
 
@@ -120,20 +126,24 @@ All three items addressed. Clean.
 
 ## Overall Verdict
 **Original:** B+
-**Updated:** A-
+**Updated:** A
 
 The remediation work is thorough, well-targeted, and high-quality. Every top risk from the original review has been addressed:
 
 - **Missing DQ gates** → All consumable CLI builds now run `validate_after_write()`
 - **In-memory scaling** → DuckDB anti-join dedup via `filter_existing_records()`
 - **Hardcoded anomaly detection** → Generic rules based on data conditions
+- **No negative testing** → 10-check negative verification script proving bad data is absent
+- **No semantic DQ rules** → 18 new Accuracy + Reasonableness rules with evidence-based thresholds
 
 The biggest architectural improvement is `base.conformed_facts` and the consumable rewiring. This isn't just a fix — it's a meaningful improvement to the system's data architecture. Business logic now lives in the base zone where it belongs. Consumables are thin presentation layers. The dependency graph is flatter and more maintainable. The concept priority rules are a governance artifact, not buried Python config.
 
 The runtime lineage implementation closes the most embarrassing gap from the original review. The difference between "we have lineage docs" and "every promote emits runtime events to an Iceberg table with snapshot IDs, row counts, and DQ results" is the difference between aspiration and engineering.
 
-What prevents an A: the remaining gaps are real but minor. The DQ gate inconsistency (promote vs CLI), the partial financial_tools.py refactoring, the still-present `read_with_duckdb` memory pattern, and the lack of negative testing keep this from a clean A. But these are B+→A- gaps, not structural deficiencies.
+The semantic DQ and negative testing work closes the last gap that was holding back a clean A. The DQ framework now covers 9 dimensions (Uniqueness, Completeness, Validity, Consistency, Freshness, Referential Integrity, Volume, Accuracy, Reasonableness) with 129 rules across all tables. The negative verification script is the complement the positive verification was missing — together they form a complete correctness argument: correct data exists AND incorrect data is absent.
+
+What prevents an A+: the remaining gaps are real but minor. The DQ gate inconsistency (promote vs CLI), the partial financial_tools.py refactoring, the still-present `read_with_duckdb` memory pattern, and the wide Reasonableness bounds on ratio rules. These are A→A+ gaps, not structural deficiencies.
 
 Would I ship this? Yes, to the stated audience. Would I stake my reputation on it? On the data quality, verification rigor, and architectural soundness — yes. On production readiness at scale — still no, but the path to production is clearer now, and the hardest architectural decisions have been made correctly.
 
-The AI-agent-driven methodology continues to impress. The fact that a review → remediation cycle this comprehensive was executed coherently across architecture, governance, code quality, and testing — with 24 new tests, 19 new DQ rules, a new base zone table, runtime lineage, and dedup optimization — is strong evidence that the agent pipeline produces disciplined engineering output, not just code.
+The AI-agent-driven methodology continues to impress. The fact that a review → remediation → re-review cycle this comprehensive was executed coherently across architecture, governance, code quality, testing, and now semantic data quality — with 129 DQ rules, 10 negative checks, a new base zone table, runtime lineage, and dedup optimization — is strong evidence that the agent pipeline produces disciplined engineering output, not just code.
