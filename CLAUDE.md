@@ -121,10 +121,9 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 # Session Logging
 
 ## Purpose
-Every Claude Code session is logged for three reasons:
+Every Claude Code session is logged for two reasons:
 1. Open source transparency — anyone can see exactly how this project was built
-2. Blog content — the Jeff ↔ Claude interactions are the story
-3. Continuity — pick up where we left off between sessions
+2. Continuity — pick up where we left off between sessions
 
 ## Session Log Location
 All session logs go in `docs/sessions/`
@@ -173,12 +172,10 @@ Append the following to the same session log file:
 | `path/to/file` | Reason |
 
 ## Decisions Made
-[List any judgment calls, trade-offs, or architectural decisions with rationale.
-These are the interesting bits for blog posts.]
+[List any judgment calls, trade-offs, or architectural decisions with rationale.]
 
 ## Problems Encountered
-[Anything that didn't work the first time, workarounds, surprises in the data.
-These are ALSO the interesting bits for blog posts.]
+[Anything that didn't work the first time, workarounds, surprises in the data.]
 
 ## Current State
 [What's working now that wasn't before this session]
@@ -199,6 +196,6 @@ These are ALSO the interesting bits for blog posts.]
 - Be honest in Problems Encountered — the failures are better content than the successes
 - Decisions Made should capture the WHY, not just the WHAT
 - If a session spans multiple specs, log all of them
-- Don't sanitize or polish — raw is better for the blog narrative
+- Don't sanitize or polish — raw is better for transparency
 - Session logs are NEVER deleted, only appended to
 - If you need to reference a previous session, check `docs/sessions/` first

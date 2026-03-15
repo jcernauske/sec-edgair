@@ -775,7 +775,7 @@ Key discoveries during live data verification:
 - [ ] Bulk ZIP scheduled download for full refresh
 - [ ] Monitor SEC EDGAR API for schema changes
 
-### "Collibra Killer" Demo Impact
+### End-to-End Governance Demo Impact
 This spec delivers the first real data into the pipeline. The raw zone table is the starting point for the demo walkthrough: "Here's how we took 50,000 XBRL facts from Apple's SEC filings and turned them into a governed, AI-ready dataset." The CDE mappings (CIK, accession_number) demonstrate that governance starts at ingest, not as an afterthought.
 
 ---

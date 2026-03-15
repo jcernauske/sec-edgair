@@ -524,8 +524,8 @@ N/A — Infrastructure spec. No business data fields to map.
 - [ ] Catalog migration path if we need REST catalog later
 - [ ] Document version-specific behavior (DuckDB version X, PyIceberg version Y)
 
-### "Collibra Killer" Demo Impact
-This spec establishes the Iceberg foundation that makes bitemporal history queryable via snapshots — a core component of the "Collibra Killer" walkthrough. Without working time travel, the demo can't show amendment history.
+### End-to-End Governance Demo Impact
+This spec establishes the Iceberg foundation that makes bitemporal history queryable via snapshots — a core component of the governance walkthrough. Without working time travel, the demo can't show amendment history.
 
 ---
 

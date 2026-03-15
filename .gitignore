@@ -52,3 +52,6 @@ data/governance/
 # DuckDB catalog database (runtime)
 data/catalog/
 data/catalog.db
+
+# Personal/private notes (not for public repo)
+docs/plan/personal-branding-notes.md
