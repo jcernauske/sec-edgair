@@ -2,7 +2,7 @@
 
 ![Tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)
 ![DQ Rules](https://img.shields.io/badge/DQ%20rules-111%20(110%20pass%2C%201%20P1)-brightgreen)
-![Architect Review](https://img.shields.io/badge/architect%20review-A---blue)
+![Architect Agent Review](https://img.shields.io/badge/architect%20agent%20review-A---blue)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Verified](https://img.shields.io/badge/verified-88%2F88%20vs%2010--K-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
@@ -35,7 +35,7 @@ SEC EDGAR XBRL → Raw → Base → Consumable → AI-Ready Chat
 
 Each zone is governed by AI agents that produce lineage, data quality rules, business term mappings, and audit trails as a byproduct of the transformation work. Every spec follows a mandatory agent pipeline: @data-analyst (EDA) → @dq-rule-writer (rules from evidence) → @dq-engineer (execute + gate) → @staff-engineer (final review).
 
-Independent architecture review: [original review (B+)](governance/reviews/principal-data-architect-review.md) | [re-review after remediation (A-)](governance/reviews/principal-data-architect-re-review.md)
+Principal Data Architect Agent review: [full review (A-)](governance/reviews/principal-data-architect-re-review.md)
 
 ## What's Built
 
@@ -139,7 +139,7 @@ Every transformation produces governance artifacts automatically:
 - **Structural lineage docs** in `governance/lineage/` — generated from runtime events via `python -m src.infra.lineage generate-docs`
 - **21 data models** (conceptual, logical, physical) in `governance/models/`
 - **Concept priority rules** governed as data artifact in `governance/conformation/`
-- **Independent architecture review** — A- from @principal-data-architect ([original review](governance/reviews/principal-data-architect-review.md) | [re-review](governance/reviews/principal-data-architect-re-review.md))
+- **Principal Data Architect Agent review** — A- ([full review](governance/reviews/principal-data-architect-re-review.md))
 - **PII:** None detected. All data is public SEC filings.
 
 ## Data Quality
@@ -360,6 +360,6 @@ docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
 tests/                          Tests organized by zone (466 passing)
-governance/reviews/             Independent architecture reviews
+governance/reviews/             Agent architecture reviews
 .claude/agents/                 Agent definitions for Claude Code
 ```
