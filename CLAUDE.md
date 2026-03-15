@@ -61,9 +61,9 @@ The pipeline auto-detects **greenfield** vs **backfill** mode:
 
 #### Greenfield Mode (new tables)
 1. @governance-reviewer — Pre-implementation review (checks model gate below)
-2. @data-steward — Identify and propose **business terms** from spec → **HUMAN APPROVAL GATE** (project-specific terms only; external standard terms auto-approve)
-3. @semantic-modeler — Propose **conceptual model** (referencing approved glossary terms) → **HUMAN APPROVAL GATE**
-4. @semantic-modeler — Propose **logical model** → **HUMAN APPROVAL GATE**
+2. @data-steward — Identify and propose **business terms** from spec → 👁️ **HUMAN APPROVAL GATE** (project-specific terms only; external standard terms auto-approve)
+3. @semantic-modeler — Propose **conceptual model** (referencing approved glossary terms) → 👁️ **HUMAN APPROVAL GATE**
+4. @semantic-modeler — Propose **logical model** → 👁️ **HUMAN APPROVAL GATE**
 5. @data-analyst — EDA on source data (profile what will populate base tables, inform thresholds)
 6. @dq-rule-writer — Write base DQ rules from EDA report + logical model (uniqueness, referential integrity, consistency, coverage)
 7. @semantic-modeler — Generate **physical model** from approved logical
@@ -77,12 +77,12 @@ The pipeline auto-detects **greenfield** vs **backfill** mode:
 
 #### Backfill Mode (existing tables, missing models)
 1. @semantic-modeler — Reverse-engineer **physical model** from existing tables/code
-2. @semantic-modeler — Abstract **logical model** from physical → **HUMAN APPROVAL GATE**
+2. @semantic-modeler — Abstract **logical model** from physical → 👁️ **HUMAN APPROVAL GATE**
 3. @data-analyst — EDA on existing base data (profile actual data state)
 4. @dq-rule-writer — Write base DQ rules from EDA report + logical model
 5. @dq-engineer — Execute rules, produce scorecard
-6. @semantic-modeler — Abstract **conceptual model** from logical → **HUMAN APPROVAL GATE**
-7. @data-steward — Extract **business terms** from conceptual model → **HUMAN APPROVAL GATE** (project-specific terms only)
+6. @semantic-modeler — Abstract **conceptual model** from logical → 👁️ **HUMAN APPROVAL GATE**
+7. @data-steward — Extract **business terms** from conceptual model → 👁️ **HUMAN APPROVAL GATE** (project-specific terms only)
 8. @governance-reviewer — Post-backfill completeness check (verifies models and glossary are consistent with existing implementation)
 9. @staff-engineer — Final review
 

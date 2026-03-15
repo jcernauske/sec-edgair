@@ -71,7 +71,7 @@ As a data engineer building the SEC EDGAIR pipeline, I want CIKs mapped to canon
 - [ ] CLI supports `status`, `approve`, `reject` commands
 - [ ] `promote.py` writes approved mappings to `base.entity_mappings` Iceberg table
 - [ ] Every decision is logged in `base.entity_resolution_audit` Iceberg table
-- [ ] Confidence < 0.7 always requires human approval regardless of toggle
+- [ ] 👁️ Confidence < 0.7 always requires human approval regardless of toggle
 - [ ] All 5 DQ rules pass at 100%
 - [ ] All governance artifacts produced
 
@@ -111,7 +111,7 @@ As a data engineer building the SEC EDGAIR pipeline, I want CIKs mapped to canon
 | confidence_at_action | Double | Yes | Confidence at time of action |
 | timestamp | Timestamptz | Yes | When this action occurred |
 
-### 2.2 Human Approval Gate
+### 2.2 👁️ Human Approval Gate
 
 **Toggle:** `REQUIRE_HUMAN_APPROVAL = True` in config. When True, proposed mappings pause for review. When False, auto-promote (dev/demo mode).
 

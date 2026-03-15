@@ -59,7 +59,7 @@ Principal Data Architect Agent review: [full review (A)](governance/reviews/prin
 
 | Spec | What It Does |
 |------|-------------|
-| `base-entity-resolution` | Maps 20 CIKs to canonical company identities with human approval gate |
+| `base-entity-resolution` | Maps 20 CIKs to canonical company identities with 👁️ human approval gate |
 | `base-xbrl-tag-normalization` | Maps 3,285 XBRL concepts to 25 canonical business terms via tiered matching |
 | `base-financial-facts-model` | 547K enriched facts with supersession, fiscal calendar, amendment tracking |
 | `base-conformed-facts` | One authoritative fact per (company, metric, year, period) — collision resolution, unit filtering, supersession filtering moved from consumable to base |

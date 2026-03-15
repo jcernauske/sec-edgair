@@ -69,7 +69,7 @@ As a data engineer building the SEC EDGAIR pipeline, I want every XBRL concept c
 - [ ] 37 exact-match mappings for highest-frequency concepts
 - [ ] Prefix and pattern rules catch common variants
 - [ ] All 3,285 concepts written to `base.concept_mappings` Iceberg table
-- [ ] Tier 3 (unmapped) bypasses human approval gate
+- [ ] Tier 3 (unmapped) bypasses 👁️ human approval gate
 - [ ] Coverage >= 80% of raw fact instances
 - [ ] All 5 DQ rules pass at 100%
 - [ ] All governance artifacts produced
@@ -129,7 +129,7 @@ First match wins within each tier.
 | **Per-Share (3)** | CDE-027 EPS Basic, CDE-028 EPS Diluted, CDE-029 Dividends Per Share |
 | **Other (2)** | CDE-030 Comprehensive Income, CDE-031 Retained Earnings |
 
-### 2.4 Human Approval Gate
+### 2.4 👁️ Human Approval Gate
 
 Reuses `src/base/entity_resolution/staging.py` — same interface:
 - `REQUIRE_HUMAN_APPROVAL = True` in config

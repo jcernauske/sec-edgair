@@ -37,9 +37,9 @@ All three dependencies are confirmed COMPLETE with existing source code and gove
 
 This is a **greenfield** spec -- `src/base/conformed_facts/` does not exist, and no `base-conformed-facts-*.md` models exist in `governance/models/`. Per the project rules (CLAUDE.md), the greenfield pipeline requires:
 
-1. @data-steward identifies business terms -> HUMAN APPROVAL GATE
-2. @semantic-modeler proposes conceptual model -> HUMAN APPROVAL GATE
-3. @semantic-modeler proposes logical model -> HUMAN APPROVAL GATE
+1. @data-steward identifies business terms -> 👁️ HUMAN APPROVAL GATE
+2. @semantic-modeler proposes conceptual model -> 👁️ HUMAN APPROVAL GATE
+3. @semantic-modeler proposes logical model -> 👁️ HUMAN APPROVAL GATE
 4. @data-analyst performs EDA on source data
 5. @dq-rule-writer writes DQ rules from EDA + logical model
 6. @semantic-modeler generates physical model from approved logical

@@ -246,7 +246,7 @@ CREATE TABLE ...
 
 Save to: `governance/models/[spec-name]-physical.md`
 
-## Human Approval Gate
+## 👁️ Human Approval Gate
 
 The global `REQUIRE_HUMAN_APPROVAL` flag in `src/config.py` controls whether each stage pauses for human review:
 

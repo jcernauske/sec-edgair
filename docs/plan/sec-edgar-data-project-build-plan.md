@@ -353,8 +353,8 @@ Same spec-driven, multi-agent workflow as Arteeoo. Every agent has a defined rol
 
 1. Write a spec (what transformation, why, expected input/output)
 2. Spec reviewed by `@governance-reviewer`
-3. `@data-steward` proposes business terms → human approval gate
-4. `@semantic-modeler` proposes conceptual → logical → physical models → human approval gates
+3. `@data-steward` proposes business terms → 👁️ human approval gate
+4. `@semantic-modeler` proposes conceptual → logical → physical models → 👁️ human approval gates
 5. `@data-analyst` EDA on source data (profiles, distributions, threshold evidence)
 6. `@dq-rule-writer` writes rules from EDA report (never queries data directly)
 7. Implementation by appropriate agent (must match approved physical model)
