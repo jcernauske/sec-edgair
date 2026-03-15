@@ -308,9 +308,9 @@ Between zones (after all specs in a zone are complete, before the next zone's sp
 ### Phase 4 — Consumable Zone (Weeks 9-12)
 
 #### 4A — Core Data Products (from insight report Tier 1)
-- [ ] `consumable-company-financials` — Denormalized comparison table: one row per (company, CDE, fiscal_year, fiscal_period). Current facts only. Filters `is_superseded=false`. The foundation everything else builds on.
-- [ ] `consumable-financial-ratios` — Computed ratios from existing CDEs: gross margin, operating margin, net margin, debt-to-equity, R&D intensity, SGA ratio, capex-to-revenue. Derived from company financials.
-- [ ] `consumable-period-over-period` — YoY change, sequential change, CAGR for each (company, CDE). Time-series analysis layer.
+- [x] `consumable-company-financials` (🟢 COMPLETE) — 26,894 rows, 20 companies, 25 business terms, FY2009-2026. One row per (company, business term, fiscal_year, fiscal_period). Concept collision resolution via primary concept preference. 8 DQ rules, all passing.
+- [ ] `consumable-financial-ratios` — Computed ratios from existing business terms: gross margin, operating margin, net margin, debt-to-equity, R&D intensity, SGA ratio, capex-to-revenue. Derived from company financials.
+- [ ] `consumable-period-over-period` — YoY change, sequential change, CAGR for each (company, business term). Time-series analysis layer.
 - [ ] `consumable-amendment-analysis` — Amendment frequency, magnitude, patterns per company. Unique insight about corporate reporting quality.
 - [ ] **Milestone:** Four queryable consumable tables — cross-company comparison, ratios, growth, amendment intelligence
 
@@ -320,7 +320,7 @@ Between zones (after all specs in a zone are complete, before the next zone's sp
 
 #### 4C — External Data Enrichment (from insight report — highest-value external source)
 - [ ] `raw-ingest-stock-prices` — Daily stock prices for all 20 tickers (Yahoo Finance or Alpha Vantage). New raw data source. Join on (ticker, date).
-- [ ] `consumable-valuation-ratios` — P/E, P/B, P/S, dividend yield. Requires stock prices + existing EPS/equity/revenue CDEs.
+- [ ] `consumable-valuation-ratios` — P/E, P/B, P/S, dividend yield. Requires stock prices + existing EPS/equity/revenue business terms.
 - [ ] Consider: FRED API integration for macro indicators (GDP, CPI, rates) — join on date for macro-adjusted analysis.
 
 #### 4D — Demo & Documentation
@@ -329,7 +329,7 @@ Between zones (after all specs in a zone are complete, before the next zone's sp
 - [ ] **Milestone:** Full consumable zone with data products, external enrichment, governance, and demo-ready walkthrough
 
 ### Phase 5 — AI-Ready Zone (Weeks 11-13)
-- [ ] Semantic embeddings — vectorize entities, facts, CDEs
+- [ ] Semantic embeddings — vectorize entities, facts, business terms
 - [ ] Grounding documents — structured fact sheets per company per quarter
 - [ ] Intelligent chunking — context-window-optimized documents with metadata
 - [ ] Evaluation datasets — verified Q&A pairs with source lineage
