@@ -1,0 +1,38 @@
+[
+  {
+    "mapping_id": "TN-0001",
+    "concept": "Assets",
+    "business_term": "Total Assets",
+    "business_term_id": "BT-024",
+    "financial_statement": "balance_sheet",
+    "category": "assets",
+    "tier": 1,
+    "confidence": 1.0,
+    "mapping_method": "exact_match",
+    "status": "approved",
+    "mapped_by": "@tag-normalizer",
+    "mapped_at": "2026-03-14T00:00:00+00:00",
+    "reasoning": "Exact match",
+    "evidence": "{}",
+    "approved_by": "human:jeff",
+    "approved_at": "2026-03-15T06:41:07.720268+00:00"
+  },
+  {
+    "mapping_id": "TN-0002",
+    "concept": "Revenues",
+    "business_term": "Revenue",
+    "business_term_id": "BT-022",
+    "financial_statement": "income_statement",
+    "category": "revenue",
+    "tier": 1,
+    "confidence": 1.0,
+    "mapping_method": "exact_match",
+    "status": "approved",
+    "mapped_by": "@tag-normalizer",
+    "mapped_at": "2026-03-14T00:00:00+00:00",
+    "reasoning": "Exact match",
+    "evidence": "{}",
+    "approved_by": "human:jeff",
+    "approved_at": "2026-03-15T06:41:07.720268+00:00"
+  }
+]

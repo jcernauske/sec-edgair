@@ -32,6 +32,60 @@ def _calendar_quarter(d: datetime.date) -> int:
     return (d.month - 1) // 3 + 1
 
 
+def _derive_fiscal_year(end_date: datetime.date, fiscal_year_end_mmdd: str | None) -> int:
+    """Derive fiscal year from end_date and company's fiscal year end.
+
+    The XBRL 'fy' field reflects the filing year, not the reporting year.
+    We must derive the actual fiscal year from end_date instead.
+
+    For December FY companies: FY = end_date.year
+    For non-December: FY = end_date.year if end_date.month <= FY end month,
+                      else end_date.year + 1
+    """
+    if not fiscal_year_end_mmdd:
+        return end_date.year
+
+    fy_end_month = int(fiscal_year_end_mmdd[:2])
+
+    if fy_end_month == 12:
+        return end_date.year
+
+    # Non-December FY: if end_date is after the FY end month,
+    # it belongs to the NEXT fiscal year
+    if end_date.month > fy_end_month:
+        return end_date.year + 1
+    else:
+        return end_date.year
+
+
+def _derive_fiscal_period(
+    start_date: datetime.date | None,
+    end_date: datetime.date,
+    xbrl_fp: str | None,
+) -> str:
+    """Derive fiscal period from duration, falling back to XBRL fp.
+
+    XBRL fp is unreliable (some quarterly data tagged as FY).
+    Use duration to disambiguate:
+      ~360-366 days = FY
+      ~180-185 days = cumulative (Q2 or Q3 YTD) — use xbrl_fp
+      ~270-275 days = cumulative (Q3 YTD) — use xbrl_fp
+      ~88-93 days = single quarter — use xbrl_fp
+    """
+    if start_date is None:
+        # Instant/balance sheet items — no duration. Trust XBRL fp.
+        return xbrl_fp or "FY"
+
+    duration = (end_date - start_date).days
+
+    if duration >= 350:
+        return "FY"
+
+    # For sub-annual periods, trust the XBRL fp since it correctly
+    # identifies Q1/Q2/Q3 even when fy is wrong
+    return xbrl_fp or "FY"
+
+
 def _is_amendment(form: str) -> bool:
     """Check if the form type indicates an amendment."""
     return form.endswith("/A") if form else False
@@ -143,8 +197,8 @@ def build_financial_facts(
             "val": float(r["val"]),
             "start_date": start_date,
             "end_date": end_date,
-            "fiscal_year": r.get("fiscal_year") or end_date.year,
-            "fiscal_period": r.get("fiscal_period") or "FY",
+            "fiscal_year": _derive_fiscal_year(end_date, entity.get("fiscal_year_end")),
+            "fiscal_period": _derive_fiscal_period(start_date, end_date, r.get("fiscal_period")),
             "fiscal_year_end": entity.get("fiscal_year_end"),
             "calendar_year": end_date.year,
             "calendar_quarter": _calendar_quarter(end_date),

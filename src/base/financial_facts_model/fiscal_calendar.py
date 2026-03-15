@@ -13,6 +13,7 @@ from pathlib import Path
 from src.infra.iceberg_setup import get_catalog, read_with_duckdb
 
 from .config import CALENDAR_ID_GRAIN
+from .model import _derive_fiscal_year, _derive_fiscal_period
 
 
 def _compute_calendar_id(cik: int, fiscal_year: int, fiscal_period: str) -> str:
@@ -53,13 +54,6 @@ def build_fiscal_calendar(
     periods: dict[tuple, dict] = {}
 
     for r in raw_records:
-        fy = r.get("fiscal_year")
-        fp = r.get("fiscal_period")
-        if fy is None or fp is None:
-            continue
-
-        key = (r["cik"], fy, fp)
-
         start = r.get("start_date")
         end = r.get("end_date")
         if end is None:
@@ -70,6 +64,16 @@ def build_fiscal_calendar(
             start = datetime.date.fromisoformat(start)
         if isinstance(end, str):
             end = datetime.date.fromisoformat(end)
+
+        entity = entity_lookup.get(r["cik"])
+        if entity is None:
+            continue
+
+        # Derive fiscal_year and fiscal_period using same logic as financial_facts
+        fy = _derive_fiscal_year(end, entity.get("fiscal_year_end"))
+        fp = _derive_fiscal_period(start, end, r.get("fiscal_period"))
+
+        key = (r["cik"], fy, fp)
 
         if key not in periods:
             periods[key] = {"start_dates": [], "end_dates": []}
