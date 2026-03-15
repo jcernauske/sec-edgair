@@ -46,6 +46,9 @@ data/ai_ready/
 # Entity resolution staging and runtime artifacts
 governance/entity-resolution/
 
+# Governance zone data (runtime lineage Iceberg warehouse)
+data/governance/
+
 # DuckDB catalog database (runtime)
 data/catalog/
 data/catalog.db

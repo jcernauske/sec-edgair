@@ -1,0 +1,132 @@
+{
+  "run_id": "c610770b",
+  "spec": "consumable-financial-ratios",
+  "executed_at": "2026-03-15T16:33:22.411047+00:00",
+  "rules_total": 10,
+  "rules_passed": 10,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "CONS-FR-001",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.400947+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-002",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.402018+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-003",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.403408+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-004",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.404347+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-005",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.405247+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-006",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.406286+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-007",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.407589+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-008",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.408258+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-009",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.409216+00:00"
+    },
+    {
+      "rule_id": "CONS-FR-010",
+      "spec": "consumable-financial-ratios",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T16:33:22.410635+00:00"
+    }
+  ]
+}

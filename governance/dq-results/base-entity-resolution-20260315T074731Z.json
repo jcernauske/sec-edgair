@@ -1,0 +1,84 @@
+{
+  "run_id": "b0310680",
+  "spec": "base-entity-resolution",
+  "executed_at": "2026-03-15T07:47:31.072190+00:00",
+  "rules_total": 6,
+  "rules_passed": 5,
+  "rules_failed": 1,
+  "rules_errored": 1,
+  "p0_passed": false,
+  "results": [
+    {
+      "rule_id": "BASE-ER-001",
+      "spec": "base-entity-resolution",
+      "passed": false,
+      "raw_value": null,
+      "threshold": "result = 0",
+      "detail": null,
+      "violations": null,
+      "execution_time_ms": 0,
+      "error": "Catalog Error: Table with name raw_xbrl_company_facts does not exist!\nDid you mean \"pragma_database_list\"?\n\nLINE 1: SELECT COUNT(DISTINCT r.cik) as unmapped FROM raw_xbrl_company_facts r LEFT JOIN base_entity_mappings...\n                                                      ^",
+      "executed_at": "2026-03-15T07:47:31.066575+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-002",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T07:47:31.067552+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-003",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T07:47:31.068722+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-004",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T07:47:31.069586+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-005",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T07:47:31.070502+00:00"
+    },
+    {
+      "rule_id": "BASE-ER-006",
+      "spec": "base-entity-resolution",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T07:47:31.071741+00:00"
+    }
+  ]
+}
