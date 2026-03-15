@@ -2,7 +2,7 @@
 
 ![Tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)
 ![DQ Rules](https://img.shields.io/badge/DQ%20rules-111%20(110%20pass%2C%201%20P1)-brightgreen)
-![Architect Review](https://img.shields.io/badge/architect%20review-B%2B-blue)
+![Architect Review](https://img.shields.io/badge/architect%20review-A---blue)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Verified](https://img.shields.io/badge/verified-88%2F88%20vs%2010--K-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
@@ -137,7 +137,7 @@ Every transformation produces governance artifacts automatically:
 - **Structural lineage docs** in `governance/lineage/` — generated from runtime events via `python -m src.infra.lineage generate-docs`
 - **21 data models** (conceptual, logical, physical) in `governance/models/`
 - **Concept priority rules** governed as data artifact in `governance/conformation/`
-- **Independent architecture review** — B+ from @principal-data-architect ([full review](governance/reviews/principal-data-architect-review.md))
+- **Independent architecture review** — A- from @principal-data-architect ([original review](governance/reviews/principal-data-architect-review.md) | [re-review](governance/reviews/principal-data-architect-re-review.md))
 - **PII:** None detected. All data is public SEC filings.
 
 ## Data Quality
