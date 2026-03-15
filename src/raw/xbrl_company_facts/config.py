@@ -1,5 +1,6 @@
 """Configuration for XBRL Company Facts ingestion."""
 
+import os
 from pathlib import Path
 
 # Companies — CIK → company name
@@ -27,8 +28,8 @@ DEFAULT_CIKS: dict[int, str] = {
 }
 
 # SEC EDGAR requires an identifying User-Agent.
-# Update this with a real contact email before running live fetches.
-USER_AGENT = "SEC-EDGAIR your-email@example.com"
+# Set SEC_EDGAIR_USER_AGENT in .env or environment (e.g. "SEC-EDGAIR you@example.com")
+USER_AGENT = os.environ.get("SEC_EDGAIR_USER_AGENT", "SEC-EDGAIR (no contact email set)")
 
 # Rate limiting: SEC allows ≤10 requests/second
 RATE_LIMIT_SLEEP = 0.1

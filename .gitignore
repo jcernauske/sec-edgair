@@ -53,5 +53,8 @@ data/governance/
 data/catalog/
 data/catalog.db
 
+# Environment variables
+.env
+
 # Personal/private notes (not for public repo)
 docs/plan/personal-branding-notes.md
