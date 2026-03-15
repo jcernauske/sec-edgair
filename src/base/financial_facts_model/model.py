@@ -124,6 +124,65 @@ def _apply_supersession(facts: list[dict]) -> list[dict]:
     return facts
 
 
+def _apply_ttm_dedup(facts: list[dict]) -> list[dict]:
+    """Mark trailing-twelve-month duplicates as superseded.
+
+    XBRL quarterly filings often include TTM (trailing twelve month) values
+    tagged as FY. These have ~365-day durations but start on non-standard dates
+    (e.g., Apr 1 for a Dec-FY company). When multiple non-superseded FY rows
+    exist for the same (cik, concept, unit, fiscal_year) with different
+    start_dates, prefer the one whose end_date month matches the company's
+    fiscal_year_end month.
+    """
+    # Group non-superseded FY facts by (cik, concept, unit, fiscal_year)
+    groups: dict[tuple, list[dict]] = {}
+    for f in facts:
+        if f.get("is_superseded") or f.get("fiscal_period") != "FY":
+            continue
+        if f.get("start_date") is None:
+            continue
+        key = (f["cik"], f["concept"], f["unit"], f["fiscal_year"])
+        groups.setdefault(key, []).append(f)
+
+    for group in groups.values():
+        if len(group) <= 1:
+            continue
+
+        # Check if they have different start_dates (TTM vs true annual)
+        starts = {f["start_date"] for f in group}
+        if len(starts) <= 1:
+            continue
+
+        # Prefer the row whose end_date month matches fiscal_year_end
+        fy_end = group[0].get("fiscal_year_end")
+        if not fy_end:
+            continue
+
+        fy_end_month = int(fy_end[:2])
+
+        best = None
+        for f in group:
+            end = f["end_date"]
+            if isinstance(end, str):
+                end = datetime.date.fromisoformat(end)
+            if end.month == fy_end_month or (fy_end_month == 12 and end.month == 12):
+                best = f
+                break
+
+        if best is None:
+            # No exact month match — pick the one with latest end_date
+            # (most likely the true annual filing)
+            best = max(group, key=lambda f: f["end_date"])
+
+        # Mark all others as superseded (TTM dedup, not filing supersession)
+        for f in group:
+            if f is not best:
+                f["is_superseded"] = True
+                f["superseded_by"] = best.get("accession_number")
+
+    return facts
+
+
 def build_financial_facts(
     *,
     raw_records: list[dict] | None = None,
@@ -214,6 +273,7 @@ def build_financial_facts(
         facts.append(fact)
 
     _apply_supersession(facts)
+    _apply_ttm_dedup(facts)
 
     return facts
 

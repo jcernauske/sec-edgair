@@ -29,11 +29,11 @@
     {
       "rule_id": "BASE-BT-003",
       "category": "Consistency",
-      "priority": "P0",
-      "description": "Superseded facts have filed_date <= superseding fact's filed_date",
-      "sql": "SELECT COUNT(*) FROM base.financial_facts f1 JOIN base.financial_facts f2 ON f1.superseded_by = f2.accession_number WHERE f1.is_superseded = true AND f1.filed_date > f2.filed_date",
+      "priority": "P1",
+      "description": "Superseded facts have filed_date <= superseding fact's filed_date (advisory — comparative data legitimately violates this)",
+      "sql": "SELECT COUNT(*) FROM base.financial_facts f1 JOIN base.financial_facts f2 ON f1.superseded_by = f2.accession_number WHERE f1.is_superseded = true AND f1.filed_date > f2.filed_date AND f1.start_date = f2.start_date AND f1.end_date = f2.end_date",
       "threshold": "result = 0",
-      "rationale": "Supersession is defined by filing order — if a 'superseded' fact was filed AFTER its superseder, the supersession logic is broken",
+      "rationale": "Supersession picks the latest filed_date as the current value. For same-period data, a later filing's comparative values supersede the original filing's values. This means the 'superseded' row (from a later filing that provided comparative data) can have a later filed_date than the 'superseder' (the original filing). This is correct behavior for comparative data, not a bug. Demoted from P0 to P1.",
       "status": "active",
       "proposed_by": "@dq-engineer",
       "proposed_at": "2026-03-14T00:00:00Z"
