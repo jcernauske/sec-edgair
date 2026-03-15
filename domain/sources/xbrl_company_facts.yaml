@@ -1,0 +1,47 @@
+# Source Config: XBRL Company Facts
+#
+# Extracted from src/raw/xbrl_company_facts/config.py
+
+name: xbrl_company_facts
+namespace: raw
+table: xbrl_company_facts
+
+fetch:
+  api:
+    url_template: "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik_padded}.json"
+    headers:
+      User-Agent: "${SEC_EDGAIR_USER_AGENT}"
+    rate_limit_seconds: 0.1
+  bulk:
+    url: "https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip"
+
+entities:
+  320193: "Apple Inc."
+  19617: "JPMorgan Chase & Co."
+  789019: "Microsoft Corp."
+  1018724: "Amazon.com Inc."
+  1652044: "Alphabet Inc."
+  1326801: "Meta Platforms Inc."
+  1318605: "Tesla Inc."
+  1067983: "Berkshire Hathaway Inc."
+  200406: "Johnson & Johnson"
+  104169: "Walmart Inc."
+  34088: "Exxon Mobil Corp."
+  1403161: "Visa Inc."
+  731766: "UnitedHealth Group Inc."
+  80424: "Procter & Gamble Co."
+  21344: "Coca-Cola Co."
+  78003: "Pfizer Inc."
+  1065280: "Netflix Inc."
+  886982: "Goldman Sachs Group Inc."
+  12927: "Boeing Co."
+  50863: "Intel Corp."
+
+dedup_grain:
+  - cik
+  - accession_number
+  - concept
+  - unit
+  - end_date
+
+cache_dir: data/raw/json_cache

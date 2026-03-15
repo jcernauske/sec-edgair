@@ -1,0 +1,29 @@
+# Domain Manifest: SEC EDGAR
+#
+# This file tells the framework HOW to acquire data.
+# It does NOT define what the data means — that's discovered through EDA.
+
+name: sec-edgar
+version: "1.0"
+description: "SEC EDGAR XBRL financial data"
+
+sources:
+  - name: xbrl_company_facts
+    source_config: domain/sources/xbrl_company_facts.yaml
+    fetcher: domain/sources/fetchers/api_fetcher.py
+    flattener: domain/flatten/xbrl_flattener.py
+
+# Optional hints — accelerators, not requirements.
+# If missing, the pipeline discovers these from EDA.
+hints:
+  entity_id_field: cik
+  time_field: end_date
+  glossary:
+    inherit:
+      - standard:xbrl-us-gaap
+      - standard:sec-edgar
+  concept_mappings: domain/concept-mappings/
+  metrics: domain/metrics/
+  grouping_taxonomy: domain/grouping-taxonomy/
+  anomaly_rules: domain/anomaly-rules/
+  chat_context: domain/chat-context/system_prompt.md

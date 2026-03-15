@@ -1,6 +1,6 @@
 # Spec: Domain Manifest and Loader
 
-## Status: 🟡 DRAFT
+## Status: 🟠 IMPLEMENTATION
 
 | Status | Meaning |
 |--------|---------|
