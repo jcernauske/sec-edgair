@@ -107,44 +107,91 @@ def _allocate_budget(target_count: int, rng: random.Random) -> dict[str, int]:
 
 
 def _gen_completeness(row: dict, cid: str, row_id: str, rng: random.Random) -> Corruption:
-    """Null out a required field."""
-    required_fields = ["cik", "entity_name", "taxonomy", "concept", "unit",
-                       "end_date", "val", "accession_number", "form",
-                       "filed_date", "ingested_at", "source_url",
-                       "source_method", "load_date"]
-    target = rng.choice(required_fields)
+    """Null out a required OR optional field."""
+    strategy = rng.choice(["null_required", "null_optional"])
+    if strategy == "null_required":
+        required_fields = ["cik", "entity_name", "taxonomy", "concept", "unit",
+                           "end_date", "val", "accession_number", "form",
+                           "filed_date", "ingested_at", "source_url",
+                           "source_method", "load_date"]
+        target = rng.choice(required_fields)
+    else:
+        # Null out optional fields that should still be mostly populated
+        optional_fields = ["label", "description", "start_date", "fiscal_year",
+                           "fiscal_period", "frame"]
+        target = rng.choice(optional_fields)
     original = str(row.get(target))
     row[target] = None
     return Corruption(
         corruption_id=cid, dimension="completeness",
-        strategy="null_required_field",
+        strategy=f"null_{strategy.split('_')[1]}_field",
         description=f"Set {target} to NULL on injected row",
         field_name=target, original_value=original, corrupted_value=None,
         row_identifier=row_id,
-        expected_detection=f"Any DQ rule checking NOT NULL on {target}",
+        expected_detection=f"Any DQ rule checking NOT NULL or population rate on {target}",
     )
 
 
 def _gen_validity(row: dict, cid: str, row_id: str, rng: random.Random) -> Corruption:
     """Insert invalid values in constrained fields."""
-    strategies = [
-        ("fiscal_period", "Q9", "Invalid fiscal period"),
-        ("form", "99-Z", "Invalid SEC form type"),
-        ("unit", "", "Empty unit string"),
-        ("taxonomy", "fake-gaap-2099", "Invalid taxonomy"),
-        ("source_method", "", "Empty source method"),
-    ]
-    target, bad_val, desc = rng.choice(strategies)
-    original = str(row.get(target))
-    row[target] = bad_val
-    return Corruption(
-        corruption_id=cid, dimension="validity",
-        strategy="invalid_field_value",
-        description=f"{desc}: {target}={bad_val!r}",
-        field_name=target, original_value=original, corrupted_value=bad_val,
-        row_identifier=row_id,
-        expected_detection=f"Any DQ rule validating allowed values for {target}",
-    )
+    strategy = rng.choice(["bad_enum", "nan_inf", "future_filed_date", "bad_end_date_range"])
+    if strategy == "bad_enum":
+        enum_strategies = [
+            ("fiscal_period", "Q9", "Invalid fiscal period"),
+            ("form", "99-Z", "Invalid SEC form type"),
+            ("unit", "", "Empty unit string"),
+            ("taxonomy", "fake-gaap-2099", "Invalid taxonomy"),
+            ("source_method", "", "Empty source method"),
+        ]
+        target, bad_val, desc = rng.choice(enum_strategies)
+        original = str(row.get(target))
+        row[target] = bad_val
+        return Corruption(
+            corruption_id=cid, dimension="validity",
+            strategy="invalid_field_value",
+            description=f"{desc}: {target}={bad_val!r}",
+            field_name=target, original_value=original, corrupted_value=bad_val,
+            row_identifier=row_id,
+            expected_detection=f"Any DQ rule validating allowed values for {target}",
+        )
+    elif strategy == "nan_inf":
+        original = str(row.get("val"))
+        bad_val = float("nan") if rng.random() < 0.5 else float("inf")
+        row["val"] = bad_val
+        label = "NaN" if bad_val != bad_val else "Inf"  # NaN != NaN
+        return Corruption(
+            corruption_id=cid, dimension="validity",
+            strategy=f"inject_{label.lower()}",
+            description=f"Set val to {label} (was {original})",
+            field_name="val", original_value=original, corrupted_value=label,
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking isnan(val) or isinf(val)",
+        )
+    elif strategy == "future_filed_date":
+        original = str(row.get("filed_date"))
+        row["filed_date"] = datetime.date(2099, 6, 15)
+        return Corruption(
+            corruption_id=cid, dimension="validity",
+            strategy="future_filed_date",
+            description=f"Set filed_date to 2099-06-15 (was {original})",
+            field_name="filed_date", original_value=original,
+            corrupted_value="2099-06-15",
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking filed_date <= CURRENT_DATE",
+        )
+    else:
+        # end_date wildly far from filed_date (>6 years)
+        original = str(row.get("end_date"))
+        row["end_date"] = row.get("filed_date", datetime.date(2024, 1, 1)) + datetime.timedelta(days=3650)
+        return Corruption(
+            corruption_id=cid, dimension="validity",
+            strategy="end_date_far_from_filed",
+            description=f"Set end_date 10 years after filed_date (was {original})",
+            field_name="end_date", original_value=original,
+            corrupted_value=str(row["end_date"]),
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking end_date proximity to filed_date",
+        )
 
 
 def _gen_uniqueness(row: dict, cid: str, row_id: str, rng: random.Random) -> Corruption:
@@ -163,8 +210,24 @@ def _gen_uniqueness(row: dict, cid: str, row_id: str, rng: random.Random) -> Cor
 
 def _gen_consistency(row: dict, cid: str, row_id: str, rng: random.Random) -> Corruption:
     """Create contradictory field combinations."""
-    strategies = rng.choice(["date_inversion", "fy_mismatch"])
-    if strategies == "date_inversion":
+    strategies = rng.choice(["date_inversion", "fy_mismatch", "end_date_filed_gap"])
+    if strategies == "end_date_filed_gap":
+        # end_date more than 6 years after filed_date
+        filed = row.get("filed_date", datetime.date(2024, 1, 1))
+        if isinstance(filed, str):
+            filed = datetime.date.fromisoformat(filed)
+        original = str(row.get("end_date"))
+        row["end_date"] = filed + datetime.timedelta(days=4000)  # ~11 years
+        return Corruption(
+            corruption_id=cid, dimension="consistency",
+            strategy="end_date_filed_gap",
+            description=f"Set end_date 11 years after filed_date (was {original})",
+            field_name="end_date,filed_date",
+            original_value=original, corrupted_value=str(row["end_date"]),
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking end_date proximity to filed_date",
+        )
+    elif strategies == "date_inversion":
         # start_date after end_date
         row["start_date"] = datetime.date(2099, 12, 31)
         row["end_date"] = datetime.date(2000, 1, 1)
@@ -193,29 +256,49 @@ def _gen_consistency(row: dict, cid: str, row_id: str, rng: random.Random) -> Co
 
 
 def _gen_accuracy(row: dict, cid: str, row_id: str, rng: random.Random) -> Corruption:
-    """Plausible but wrong values."""
-    strategies = rng.choice(["tiny_revenue", "negative_absolute"])
-    if strategies == "tiny_revenue":
+    """Plausible but wrong values — targets specific high-value concepts."""
+    strategy = rng.choice(["tiny_large_cap", "negative_absolute", "penny_on_concept"])
+    if strategy == "tiny_large_cap":
+        # Force a known large-cap concept so accuracy rules can catch it
         original = str(row.get("val"))
-        row["val"] = 1.0  # $1 revenue for a Fortune 500
+        row["concept"] = rng.choice(["Assets", "Liabilities", "StockholdersEquity", "Revenues", "CostOfRevenue"])
+        row["unit"] = "USD"
+        row["fiscal_period"] = "FY"
+        row["val"] = rng.uniform(1, 500)  # Suspiciously small for a Fortune 500
         return Corruption(
             corruption_id=cid, dimension="accuracy",
             strategy="implausible_value",
-            description=f"Set val to $1 (was {original})",
-            field_name="val", original_value=original, corrupted_value="1.0",
+            description=f"Set {row['concept']} to ${row['val']:.0f} on FY/USD row (was {original})",
+            field_name="val,concept,unit,fiscal_period", original_value=original,
+            corrupted_value=str(row["val"]),
             row_identifier=row_id,
-            expected_detection="Any DQ rule checking value plausibility or statistical outliers",
+            expected_detection="Any DQ rule checking value plausibility for large-cap concepts",
         )
-    else:
+    elif strategy == "negative_absolute":
+        # Force a concept that should never be negative
         original = str(row.get("val"))
+        row["concept"] = rng.choice(["Assets", "Revenues", "CashAndCashEquivalentsAtCarryingValue"])
         row["val"] = -abs(float(original)) if original and original != "None" else -999.0
         return Corruption(
             corruption_id=cid, dimension="accuracy",
             strategy="negative_absolute_metric",
-            description=f"Negated val to {row['val']} (was {original})",
-            field_name="val", original_value=original, corrupted_value=str(row["val"]),
+            description=f"Negated {row['concept']} to {row['val']} (was {original})",
+            field_name="val,concept", original_value=original,
+            corrupted_value=str(row["val"]),
             row_identifier=row_id,
-            expected_detection="Any DQ rule checking for unexpected negative values",
+            expected_detection="Any DQ rule checking for unexpected negative values on absolute concepts",
+        )
+    else:
+        # Inject a penny value on a random row
+        original = str(row.get("val"))
+        row["val"] = 0.01
+        return Corruption(
+            corruption_id=cid, dimension="accuracy",
+            strategy="penny_value",
+            description=f"Set val to $0.01 (was {original})",
+            field_name="val", original_value=original, corrupted_value="0.01",
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking for suspiciously small values",
         )
 
 
@@ -259,9 +342,9 @@ def _gen_reasonableness(row: dict, cid: str, row_id: str, rng: random.Random) ->
 
 
 def _gen_freshness(row: dict, cid: str, row_id: str, rng: random.Random) -> Corruption:
-    """Stale or future timestamps."""
-    strategies = rng.choice(["future_ingest", "ancient_filed"])
-    if strategies == "future_ingest":
+    """Stale or future timestamps — hit both ingested_at and filed_date."""
+    strategy = rng.choice(["future_ingest", "ancient_filed", "future_filed", "ancient_ingest"])
+    if strategy == "future_ingest":
         original = str(row.get("ingested_at"))
         row["ingested_at"] = datetime.datetime(2099, 1, 1, tzinfo=datetime.timezone.utc)
         return Corruption(
@@ -273,7 +356,7 @@ def _gen_freshness(row: dict, cid: str, row_id: str, rng: random.Random) -> Corr
             row_identifier=row_id,
             expected_detection="Any DQ rule checking ingested_at is not in the future",
         )
-    else:
+    elif strategy == "ancient_filed":
         original = str(row.get("filed_date"))
         row["filed_date"] = datetime.date(1900, 1, 1)
         return Corruption(
@@ -284,6 +367,30 @@ def _gen_freshness(row: dict, cid: str, row_id: str, rng: random.Random) -> Corr
             corrupted_value="1900-01-01",
             row_identifier=row_id,
             expected_detection="Any DQ rule checking filed_date recency or range",
+        )
+    elif strategy == "future_filed":
+        original = str(row.get("filed_date"))
+        row["filed_date"] = datetime.date(2099, 3, 15)
+        return Corruption(
+            corruption_id=cid, dimension="freshness",
+            strategy="future_filed_date",
+            description=f"Set filed_date to 2099-03-15 (was {original})",
+            field_name="filed_date", original_value=original,
+            corrupted_value="2099-03-15",
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking filed_date <= CURRENT_DATE",
+        )
+    else:
+        original = str(row.get("ingested_at"))
+        row["ingested_at"] = datetime.datetime(1990, 1, 1, tzinfo=datetime.timezone.utc)
+        return Corruption(
+            corruption_id=cid, dimension="freshness",
+            strategy="ancient_ingested_at",
+            description=f"Set ingested_at to 1990-01-01 (was {original})",
+            field_name="ingested_at", original_value=original,
+            corrupted_value="1990-01-01T00:00:00Z",
+            row_identifier=row_id,
+            expected_detection="Any DQ rule checking ingested_at staleness",
         )
 
 
