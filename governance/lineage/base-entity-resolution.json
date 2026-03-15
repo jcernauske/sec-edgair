@@ -1,7 +1,7 @@
 [
   {
     "eventType": "COMPLETE",
-    "eventTime": "2026-03-14T12:00:00Z",
+    "eventTime": "2026-03-15T12:14:57Z",
     "run": {
       "runId": "base-er-001",
       "facets": {
@@ -11,7 +11,17 @@
         },
         "secEdgair_agentAttribution": {
           "agentId": "@entity-resolver",
-          "reasoning": "Resolve CIK → canonical company identity from raw.xbrl_company_facts into base.entity_mappings with human approval gate"
+          "reasoning": "Resolve CIK \u2192 canonical company identity from raw.xbrl_company_facts into base.entity_mappings with human approval gate"
+        },
+        "secEdgair_runtimeLineage": {
+          "lastRunId": "82f6ad37-da63-49e2-9ec4-f79a1b5094e4",
+          "lastEventTime": "2026-03-15T12:14:57Z",
+          "rowCount": 2,
+          "snapshotId": 7797964369249271216,
+          "durationMs": 50,
+          "dqRulesPassed": 5,
+          "dqRulesTotal": 6,
+          "dqP0Passed": false
         }
       }
     },
@@ -35,8 +45,14 @@
           "description": "Raw XBRL fact observations with entity names as-received from SEC EDGAR",
           "schema": {
             "fields": [
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "entity_name", "type": "STRING"}
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "entity_name",
+                "type": "STRING"
+              }
             ]
           }
         }
@@ -49,35 +65,95 @@
         "facets": {
           "schema": {
             "fields": [
-              {"name": "mapping_id", "type": "STRING"},
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "canonical_name", "type": "STRING"},
-              {"name": "raw_entity_name", "type": "STRING"},
-              {"name": "ticker", "type": "STRING"},
-              {"name": "sic_code", "type": "STRING"},
-              {"name": "fiscal_year_end", "type": "STRING"},
-              {"name": "confidence", "type": "DOUBLE"},
-              {"name": "resolution_method", "type": "STRING"},
-              {"name": "status", "type": "STRING"},
-              {"name": "resolved_by", "type": "STRING"},
-              {"name": "approved_by", "type": "STRING"},
-              {"name": "resolved_at", "type": "TIMESTAMPTZ"},
-              {"name": "approved_at", "type": "TIMESTAMPTZ"}
+              {
+                "name": "mapping_id",
+                "type": "STRING"
+              },
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "canonical_name",
+                "type": "STRING"
+              },
+              {
+                "name": "raw_entity_name",
+                "type": "STRING"
+              },
+              {
+                "name": "ticker",
+                "type": "STRING"
+              },
+              {
+                "name": "sic_code",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year_end",
+                "type": "STRING"
+              },
+              {
+                "name": "confidence",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "resolution_method",
+                "type": "STRING"
+              },
+              {
+                "name": "status",
+                "type": "STRING"
+              },
+              {
+                "name": "resolved_by",
+                "type": "STRING"
+              },
+              {
+                "name": "approved_by",
+                "type": "STRING"
+              },
+              {
+                "name": "resolved_at",
+                "type": "TIMESTAMPTZ"
+              },
+              {
+                "name": "approved_at",
+                "type": "TIMESTAMPTZ"
+              }
             ]
           },
           "columnLineage": {
             "fields": {
               "cik": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "cik"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "cik"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "raw_entity_name": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "entity_name"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "entity_name"
+                  }
+                ],
                 "transformationDescription": "Most frequent entity_name per CIK from raw facts",
                 "transformationType": "DERIVED"
               },
               "canonical_name": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "entity_name"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "entity_name"
+                  }
+                ],
                 "transformationDescription": "Normalized from raw_entity_name via KNOWN_ENTITIES lookup or title-case heuristic",
                 "transformationType": "DERIVED"
               },
@@ -111,7 +187,7 @@
         "namespace": "sec-edgair",
         "name": "base.entity_resolution_audit",
         "facets": {
-          "description": "Audit trail of every entity resolution decision — proposals, approvals, rejections"
+          "description": "Audit trail of every entity resolution decision \u2014 proposals, approvals, rejections"
         }
       }
     ],

@@ -1,6 +1,6 @@
 {
   "eventType": "COMPLETE",
-  "eventTime": "2026-03-15T12:00:00.000Z",
+  "eventTime": "2026-03-15T12:14:59Z",
   "producer": "https://github.com/jcernauske/sec_edgair",
   "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
   "run": {
@@ -9,6 +9,16 @@
       "processing_engine": {
         "name": "SEC EDGAIR Pipeline",
         "version": "1.0.0"
+      },
+      "secEdgair_runtimeLineage": {
+        "lastRunId": "39465a48-4b61-4ced-9715-9029be618fdc",
+        "lastEventTime": "2026-03-15T12:14:59Z",
+        "rowCount": 0,
+        "snapshotId": null,
+        "durationMs": 0,
+        "dqRulesPassed": null,
+        "dqRulesTotal": null,
+        "dqP0Passed": null
       }
     }
   },
@@ -32,20 +42,62 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "cik", "type": "INTEGER"},
-            {"name": "business_term_id", "type": "STRING"},
-            {"name": "business_term", "type": "STRING"},
-            {"name": "val", "type": "DOUBLE"},
-            {"name": "sector", "type": "STRING"},
-            {"name": "fiscal_year", "type": "INTEGER"},
-            {"name": "fiscal_period", "type": "STRING"},
-            {"name": "entity_id", "type": "STRING"},
-            {"name": "ticker", "type": "STRING"},
-            {"name": "canonical_name", "type": "STRING"},
-            {"name": "fiscal_year_end", "type": "STRING"},
-            {"name": "period_end_date", "type": "DATE"},
-            {"name": "calendar_year", "type": "INTEGER"},
-            {"name": "calendar_quarter", "type": "INTEGER"}
+            {
+              "name": "cik",
+              "type": "INTEGER"
+            },
+            {
+              "name": "business_term_id",
+              "type": "STRING"
+            },
+            {
+              "name": "business_term",
+              "type": "STRING"
+            },
+            {
+              "name": "val",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "sector",
+              "type": "STRING"
+            },
+            {
+              "name": "fiscal_year",
+              "type": "INTEGER"
+            },
+            {
+              "name": "fiscal_period",
+              "type": "STRING"
+            },
+            {
+              "name": "entity_id",
+              "type": "STRING"
+            },
+            {
+              "name": "ticker",
+              "type": "STRING"
+            },
+            {
+              "name": "canonical_name",
+              "type": "STRING"
+            },
+            {
+              "name": "fiscal_year_end",
+              "type": "STRING"
+            },
+            {
+              "name": "period_end_date",
+              "type": "DATE"
+            },
+            {
+              "name": "calendar_year",
+              "type": "INTEGER"
+            },
+            {
+              "name": "calendar_quarter",
+              "type": "INTEGER"
+            }
           ]
         }
       }
@@ -56,20 +108,62 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "cik", "type": "INTEGER"},
-            {"name": "ratio_id", "type": "STRING"},
-            {"name": "ratio_name", "type": "STRING"},
-            {"name": "ratio_value", "type": "DOUBLE"},
-            {"name": "sector", "type": "STRING"},
-            {"name": "fiscal_year", "type": "INTEGER"},
-            {"name": "fiscal_period", "type": "STRING"},
-            {"name": "entity_id", "type": "STRING"},
-            {"name": "ticker", "type": "STRING"},
-            {"name": "canonical_name", "type": "STRING"},
-            {"name": "fiscal_year_end", "type": "STRING"},
-            {"name": "period_end_date", "type": "DATE"},
-            {"name": "calendar_year", "type": "INTEGER"},
-            {"name": "calendar_quarter", "type": "INTEGER"}
+            {
+              "name": "cik",
+              "type": "INTEGER"
+            },
+            {
+              "name": "ratio_id",
+              "type": "STRING"
+            },
+            {
+              "name": "ratio_name",
+              "type": "STRING"
+            },
+            {
+              "name": "ratio_value",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "sector",
+              "type": "STRING"
+            },
+            {
+              "name": "fiscal_year",
+              "type": "INTEGER"
+            },
+            {
+              "name": "fiscal_period",
+              "type": "STRING"
+            },
+            {
+              "name": "entity_id",
+              "type": "STRING"
+            },
+            {
+              "name": "ticker",
+              "type": "STRING"
+            },
+            {
+              "name": "canonical_name",
+              "type": "STRING"
+            },
+            {
+              "name": "fiscal_year_end",
+              "type": "STRING"
+            },
+            {
+              "name": "period_end_date",
+              "type": "DATE"
+            },
+            {
+              "name": "calendar_year",
+              "type": "INTEGER"
+            },
+            {
+              "name": "calendar_quarter",
+              "type": "INTEGER"
+            }
           ]
         }
       }
@@ -82,21 +176,74 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "record_id", "type": "STRING", "description": "SHA-256 hash of (cik, metric_id, fiscal_year, fiscal_period, metric_source)"},
-            {"name": "cik", "type": "INTEGER"},
-            {"name": "entity_id", "type": "STRING"},
-            {"name": "ticker", "type": "STRING"},
-            {"name": "canonical_name", "type": "STRING"},
-            {"name": "sector", "type": "STRING"},
-            {"name": "metric_source", "type": "STRING", "description": "company_financials or financial_ratios"},
-            {"name": "metric_id", "type": "STRING", "description": "BT-XXX or RATIO-XXX"},
-            {"name": "metric_name", "type": "STRING"},
-            {"name": "metric_value", "type": "DOUBLE"},
-            {"name": "sector_rank", "type": "INTEGER", "description": "Dense rank within sector (1 = highest)"},
-            {"name": "sector_avg", "type": "DOUBLE", "description": "Arithmetic mean across sector peers"},
-            {"name": "sector_median", "type": "DOUBLE", "description": "Median across sector peers"},
-            {"name": "sector_percentile", "type": "DOUBLE", "description": "(peer_count - rank) / (peer_count - 1)"},
-            {"name": "peer_count", "type": "INTEGER", "description": "Distinct companies in group"}
+            {
+              "name": "record_id",
+              "type": "STRING",
+              "description": "SHA-256 hash of (cik, metric_id, fiscal_year, fiscal_period, metric_source)"
+            },
+            {
+              "name": "cik",
+              "type": "INTEGER"
+            },
+            {
+              "name": "entity_id",
+              "type": "STRING"
+            },
+            {
+              "name": "ticker",
+              "type": "STRING"
+            },
+            {
+              "name": "canonical_name",
+              "type": "STRING"
+            },
+            {
+              "name": "sector",
+              "type": "STRING"
+            },
+            {
+              "name": "metric_source",
+              "type": "STRING",
+              "description": "company_financials or financial_ratios"
+            },
+            {
+              "name": "metric_id",
+              "type": "STRING",
+              "description": "BT-XXX or RATIO-XXX"
+            },
+            {
+              "name": "metric_name",
+              "type": "STRING"
+            },
+            {
+              "name": "metric_value",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "sector_rank",
+              "type": "INTEGER",
+              "description": "Dense rank within sector (1 = highest)"
+            },
+            {
+              "name": "sector_avg",
+              "type": "DOUBLE",
+              "description": "Arithmetic mean across sector peers"
+            },
+            {
+              "name": "sector_median",
+              "type": "DOUBLE",
+              "description": "Median across sector peers"
+            },
+            {
+              "name": "sector_percentile",
+              "type": "DOUBLE",
+              "description": "(peer_count - rank) / (peer_count - 1)"
+            },
+            {
+              "name": "peer_count",
+              "type": "INTEGER",
+              "description": "Distinct companies in group"
+            }
           ]
         },
         "columnLineage": {
@@ -107,32 +254,64 @@
             },
             "metric_value": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
-                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "val"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "consumable.financial_ratios",
+                  "field": "ratio_value"
+                }
               ],
               "transformationType": "DIRECT",
               "transformationDescription": "val from company_financials or ratio_value from financial_ratios, depending on metric_source"
             },
             "sector_rank": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
-                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "val"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "consumable.financial_ratios",
+                  "field": "ratio_value"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "Dense rank by metric_value DESC within (sector, metric_id, fiscal_year, fiscal_period, metric_source) group"
             },
             "sector_avg": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
-                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "val"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "consumable.financial_ratios",
+                  "field": "ratio_value"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "AVG(metric_value) within group"
             },
             "sector_median": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
-                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "val"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "consumable.financial_ratios",
+                  "field": "ratio_value"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "Median of sorted metric_values within group"
@@ -143,8 +322,16 @@
             },
             "peer_count": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "cik"},
-                {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "cik"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "cik"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "consumable.financial_ratios",
+                  "field": "cik"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "COUNT(DISTINCT cik) within group"

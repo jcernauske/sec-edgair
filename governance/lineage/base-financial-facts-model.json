@@ -1,7 +1,7 @@
 [
   {
     "eventType": "COMPLETE",
-    "eventTime": "2026-03-14T15:00:00Z",
+    "eventTime": "2026-03-15T12:14:57Z",
     "run": {
       "runId": "base-ffm-001",
       "facets": {
@@ -12,6 +12,16 @@
         "secEdgair_agentAttribution": {
           "agentId": "@financial-facts-model",
           "reasoning": "Join raw XBRL facts with entity_mappings and concept_mappings to produce dimensional financial_facts table, fiscal_calendar dimension, and amendment_tracking audit trail"
+        },
+        "secEdgair_runtimeLineage": {
+          "lastRunId": "58a97f23-c9ad-4302-8aa9-7f0db3713972",
+          "lastEventTime": "2026-03-15T12:14:57Z",
+          "rowCount": 1,
+          "snapshotId": 3928766350501282418,
+          "durationMs": 12,
+          "dqRulesPassed": null,
+          "dqRulesTotal": null,
+          "dqP0Passed": null
         }
       }
     },
@@ -35,18 +45,54 @@
           "description": "Raw XBRL fact observations from SEC EDGAR",
           "schema": {
             "fields": [
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "concept", "type": "STRING"},
-              {"name": "unit", "type": "STRING"},
-              {"name": "val", "type": "DOUBLE"},
-              {"name": "start_date", "type": "DATE"},
-              {"name": "end_date", "type": "DATE"},
-              {"name": "accession_number", "type": "STRING"},
-              {"name": "form", "type": "STRING"},
-              {"name": "filed_date", "type": "DATE"},
-              {"name": "fiscal_year", "type": "INTEGER"},
-              {"name": "fiscal_period", "type": "STRING"},
-              {"name": "taxonomy", "type": "STRING"}
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "concept",
+                "type": "STRING"
+              },
+              {
+                "name": "unit",
+                "type": "STRING"
+              },
+              {
+                "name": "val",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "start_date",
+                "type": "DATE"
+              },
+              {
+                "name": "end_date",
+                "type": "DATE"
+              },
+              {
+                "name": "accession_number",
+                "type": "STRING"
+              },
+              {
+                "name": "form",
+                "type": "STRING"
+              },
+              {
+                "name": "filed_date",
+                "type": "DATE"
+              },
+              {
+                "name": "fiscal_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "fiscal_period",
+                "type": "STRING"
+              },
+              {
+                "name": "taxonomy",
+                "type": "STRING"
+              }
             ]
           }
         }
@@ -58,11 +104,26 @@
           "description": "Canonical entity identities with CIK, ticker, fiscal_year_end",
           "schema": {
             "fields": [
-              {"name": "mapping_id", "type": "STRING"},
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "canonical_name", "type": "STRING"},
-              {"name": "ticker", "type": "STRING"},
-              {"name": "fiscal_year_end", "type": "STRING"}
+              {
+                "name": "mapping_id",
+                "type": "STRING"
+              },
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "canonical_name",
+                "type": "STRING"
+              },
+              {
+                "name": "ticker",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year_end",
+                "type": "STRING"
+              }
             ]
           }
         }
@@ -74,12 +135,30 @@
           "description": "XBRL concept to business term mappings with tier classification",
           "schema": {
             "fields": [
-              {"name": "concept", "type": "STRING"},
-              {"name": "business_term_id", "type": "STRING"},
-              {"name": "business_term", "type": "STRING"},
-              {"name": "financial_statement", "type": "STRING"},
-              {"name": "category", "type": "STRING"},
-              {"name": "tier", "type": "INTEGER"}
+              {
+                "name": "concept",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term_id",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term",
+                "type": "STRING"
+              },
+              {
+                "name": "financial_statement",
+                "type": "STRING"
+              },
+              {
+                "name": "category",
+                "type": "STRING"
+              },
+              {
+                "name": "tier",
+                "type": "INTEGER"
+              }
             ]
           }
         }
@@ -92,48 +171,150 @@
         "facets": {
           "schema": {
             "fields": [
-              {"name": "fact_id", "type": "STRING"},
-              {"name": "entity_id", "type": "STRING"},
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "canonical_name", "type": "STRING"},
-              {"name": "ticker", "type": "STRING"},
-              {"name": "concept", "type": "STRING"},
-              {"name": "business_term_id", "type": "STRING"},
-              {"name": "business_term", "type": "STRING"},
-              {"name": "financial_statement", "type": "STRING"},
-              {"name": "category", "type": "STRING"},
-              {"name": "tier", "type": "INTEGER"},
-              {"name": "taxonomy", "type": "STRING"},
-              {"name": "unit", "type": "STRING"},
-              {"name": "val", "type": "DOUBLE"},
-              {"name": "start_date", "type": "DATE"},
-              {"name": "end_date", "type": "DATE"},
-              {"name": "fiscal_year", "type": "INTEGER"},
-              {"name": "fiscal_period", "type": "STRING"},
-              {"name": "fiscal_year_end", "type": "STRING"},
-              {"name": "calendar_year", "type": "INTEGER"},
-              {"name": "calendar_quarter", "type": "INTEGER"},
-              {"name": "accession_number", "type": "STRING"},
-              {"name": "form", "type": "STRING"},
-              {"name": "filed_date", "type": "DATE"},
-              {"name": "is_amendment", "type": "BOOLEAN"},
-              {"name": "is_superseded", "type": "BOOLEAN"},
-              {"name": "superseded_by", "type": "STRING"},
-              {"name": "promoted_at", "type": "TIMESTAMPTZ"}
+              {
+                "name": "fact_id",
+                "type": "STRING"
+              },
+              {
+                "name": "entity_id",
+                "type": "STRING"
+              },
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "canonical_name",
+                "type": "STRING"
+              },
+              {
+                "name": "ticker",
+                "type": "STRING"
+              },
+              {
+                "name": "concept",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term_id",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term",
+                "type": "STRING"
+              },
+              {
+                "name": "financial_statement",
+                "type": "STRING"
+              },
+              {
+                "name": "category",
+                "type": "STRING"
+              },
+              {
+                "name": "tier",
+                "type": "INTEGER"
+              },
+              {
+                "name": "taxonomy",
+                "type": "STRING"
+              },
+              {
+                "name": "unit",
+                "type": "STRING"
+              },
+              {
+                "name": "val",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "start_date",
+                "type": "DATE"
+              },
+              {
+                "name": "end_date",
+                "type": "DATE"
+              },
+              {
+                "name": "fiscal_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "fiscal_period",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year_end",
+                "type": "STRING"
+              },
+              {
+                "name": "calendar_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "calendar_quarter",
+                "type": "INTEGER"
+              },
+              {
+                "name": "accession_number",
+                "type": "STRING"
+              },
+              {
+                "name": "form",
+                "type": "STRING"
+              },
+              {
+                "name": "filed_date",
+                "type": "DATE"
+              },
+              {
+                "name": "is_amendment",
+                "type": "BOOLEAN"
+              },
+              {
+                "name": "is_superseded",
+                "type": "BOOLEAN"
+              },
+              {
+                "name": "superseded_by",
+                "type": "STRING"
+              },
+              {
+                "name": "promoted_at",
+                "type": "TIMESTAMPTZ"
+              }
             ]
           },
           "columnLineage": {
             "fields": {
               "entity_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.entity_mappings", "field": "mapping_id"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.entity_mappings",
+                    "field": "mapping_id"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "canonical_name": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.entity_mappings", "field": "canonical_name"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.entity_mappings",
+                    "field": "canonical_name"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "business_term_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.concept_mappings", "field": "business_term_id"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.concept_mappings",
+                    "field": "business_term_id"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "fact_id": {
@@ -142,17 +323,35 @@
                 "transformationType": "DERIVED"
               },
               "calendar_year": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "end_date"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "end_date"
+                  }
+                ],
                 "transformationDescription": "Year component of end_date",
                 "transformationType": "DERIVED"
               },
               "calendar_quarter": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "end_date"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "end_date"
+                  }
+                ],
                 "transformationDescription": "Quarter (1-4) derived from month of end_date",
                 "transformationType": "DERIVED"
               },
               "is_amendment": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "form"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "form"
+                  }
+                ],
                 "transformationDescription": "True if form ends with '/A'",
                 "transformationType": "DERIVED"
               },

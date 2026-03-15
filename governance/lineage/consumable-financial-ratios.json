@@ -1,6 +1,6 @@
 {
   "eventType": "COMPLETE",
-  "eventTime": "2026-03-14T16:00:00.000Z",
+  "eventTime": "2026-03-15T12:14:59Z",
   "producer": "https://github.com/jcernauske/sec_edgair",
   "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
   "run": {
@@ -9,6 +9,16 @@
       "processing_engine": {
         "name": "SEC EDGAIR Pipeline",
         "version": "1.0.0"
+      },
+      "secEdgair_runtimeLineage": {
+        "lastRunId": "d2aa59a1-4eca-4475-bcca-2d14f360f8c2",
+        "lastEventTime": "2026-03-15T12:14:59Z",
+        "rowCount": 0,
+        "snapshotId": null,
+        "durationMs": 0,
+        "dqRulesPassed": null,
+        "dqRulesTotal": null,
+        "dqP0Passed": null
       }
     }
   },
@@ -32,20 +42,62 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "cik", "type": "INTEGER"},
-            {"name": "business_term_id", "type": "STRING"},
-            {"name": "business_term", "type": "STRING"},
-            {"name": "val", "type": "DOUBLE"},
-            {"name": "fiscal_year", "type": "INTEGER"},
-            {"name": "fiscal_period", "type": "STRING"},
-            {"name": "entity_id", "type": "STRING"},
-            {"name": "ticker", "type": "STRING"},
-            {"name": "canonical_name", "type": "STRING"},
-            {"name": "sector", "type": "STRING"},
-            {"name": "fiscal_year_end", "type": "STRING"},
-            {"name": "period_end_date", "type": "DATE"},
-            {"name": "calendar_year", "type": "INTEGER"},
-            {"name": "calendar_quarter", "type": "INTEGER"}
+            {
+              "name": "cik",
+              "type": "INTEGER"
+            },
+            {
+              "name": "business_term_id",
+              "type": "STRING"
+            },
+            {
+              "name": "business_term",
+              "type": "STRING"
+            },
+            {
+              "name": "val",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "fiscal_year",
+              "type": "INTEGER"
+            },
+            {
+              "name": "fiscal_period",
+              "type": "STRING"
+            },
+            {
+              "name": "entity_id",
+              "type": "STRING"
+            },
+            {
+              "name": "ticker",
+              "type": "STRING"
+            },
+            {
+              "name": "canonical_name",
+              "type": "STRING"
+            },
+            {
+              "name": "sector",
+              "type": "STRING"
+            },
+            {
+              "name": "fiscal_year_end",
+              "type": "STRING"
+            },
+            {
+              "name": "period_end_date",
+              "type": "DATE"
+            },
+            {
+              "name": "calendar_year",
+              "type": "INTEGER"
+            },
+            {
+              "name": "calendar_quarter",
+              "type": "INTEGER"
+            }
           ]
         }
       }
@@ -58,15 +110,51 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "record_id", "type": "STRING", "description": "SHA-256 hash of (cik, ratio_id, fiscal_year, fiscal_period)"},
-            {"name": "ratio_id", "type": "STRING", "description": "RATIO-001 through RATIO-007"},
-            {"name": "ratio_name", "type": "STRING", "description": "Human-readable ratio name"},
-            {"name": "ratio_value", "type": "DOUBLE", "description": "Computed: numerator_val / denominator_val"},
-            {"name": "numerator_bt_id", "type": "STRING", "description": "Business term ID of numerator"},
-            {"name": "numerator_val", "type": "DOUBLE", "description": "Value from company_financials for numerator BT"},
-            {"name": "denominator_bt_id", "type": "STRING", "description": "Business term ID of denominator"},
-            {"name": "denominator_val", "type": "DOUBLE", "description": "Value from company_financials for denominator BT"},
-            {"name": "companies_reporting", "type": "INTEGER", "description": "COUNT(DISTINCT cik) per (ratio_id, fiscal_period)"}
+            {
+              "name": "record_id",
+              "type": "STRING",
+              "description": "SHA-256 hash of (cik, ratio_id, fiscal_year, fiscal_period)"
+            },
+            {
+              "name": "ratio_id",
+              "type": "STRING",
+              "description": "RATIO-001 through RATIO-007"
+            },
+            {
+              "name": "ratio_name",
+              "type": "STRING",
+              "description": "Human-readable ratio name"
+            },
+            {
+              "name": "ratio_value",
+              "type": "DOUBLE",
+              "description": "Computed: numerator_val / denominator_val"
+            },
+            {
+              "name": "numerator_bt_id",
+              "type": "STRING",
+              "description": "Business term ID of numerator"
+            },
+            {
+              "name": "numerator_val",
+              "type": "DOUBLE",
+              "description": "Value from company_financials for numerator BT"
+            },
+            {
+              "name": "denominator_bt_id",
+              "type": "STRING",
+              "description": "Business term ID of denominator"
+            },
+            {
+              "name": "denominator_val",
+              "type": "DOUBLE",
+              "description": "Value from company_financials for denominator BT"
+            },
+            {
+              "name": "companies_reporting",
+              "type": "INTEGER",
+              "description": "COUNT(DISTINCT cik) per (ratio_id, fiscal_period)"
+            }
           ]
         },
         "columnLineage": {
@@ -77,21 +165,29 @@
             },
             "ratio_value": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "val"
+                }
               ],
               "transformationType": "INDIRECT",
               "transformationDescription": "numerator_val / denominator_val, with abs(numerator) for RATIO-007 (CapEx). Skips zero and negative denominators for abs-numerator ratios."
             },
             "companies_reporting": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "cik"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "cik"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "COUNT(DISTINCT cik) per (ratio_id, fiscal_period) across all fiscal years"
             },
             "ratio_id": {
               "transformationType": "INDIRECT",
-              "transformationDescription": "From RATIO_DEFINITIONS config — maps each (numerator_bt_id, denominator_bt_id) pair to a ratio identifier"
+              "transformationDescription": "From RATIO_DEFINITIONS config \u2014 maps each (numerator_bt_id, denominator_bt_id) pair to a ratio identifier"
             }
           }
         }

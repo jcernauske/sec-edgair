@@ -1,7 +1,7 @@
 [
   {
     "eventType": "COMPLETE",
-    "eventTime": "2026-03-15T16:00:00Z",
+    "eventTime": "2026-03-15T12:14:46Z",
     "run": {
       "runId": "base-cf-001",
       "facets": {
@@ -20,6 +20,16 @@
           "p0Rules": 12,
           "p1Rules": 5,
           "p2Rules": 2
+        },
+        "secEdgair_runtimeLineage": {
+          "lastRunId": "65742090-1cdf-4495-bd5f-2bb8e24cd35d",
+          "lastEventTime": "2026-03-15T12:14:46Z",
+          "rowCount": 28849,
+          "snapshotId": 7868958891799009999,
+          "durationMs": 253,
+          "dqRulesPassed": 19,
+          "dqRulesTotal": 19,
+          "dqP0Passed": true
         }
       }
     },
@@ -78,34 +88,118 @@
           "description": "Dimensional financial facts with entity/concept mappings, amendment tracking, and supersession flags",
           "schema": {
             "fields": [
-              {"name": "fact_id", "type": "STRING"},
-              {"name": "entity_id", "type": "STRING"},
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "canonical_name", "type": "STRING"},
-              {"name": "ticker", "type": "STRING"},
-              {"name": "concept", "type": "STRING"},
-              {"name": "business_term_id", "type": "STRING"},
-              {"name": "business_term", "type": "STRING"},
-              {"name": "financial_statement", "type": "STRING"},
-              {"name": "category", "type": "STRING"},
-              {"name": "tier", "type": "INTEGER"},
-              {"name": "taxonomy", "type": "STRING"},
-              {"name": "unit", "type": "STRING"},
-              {"name": "val", "type": "DOUBLE"},
-              {"name": "start_date", "type": "DATE"},
-              {"name": "end_date", "type": "DATE"},
-              {"name": "fiscal_year", "type": "INTEGER"},
-              {"name": "fiscal_period", "type": "STRING"},
-              {"name": "fiscal_year_end", "type": "STRING"},
-              {"name": "calendar_year", "type": "INTEGER"},
-              {"name": "calendar_quarter", "type": "INTEGER"},
-              {"name": "accession_number", "type": "STRING"},
-              {"name": "form", "type": "STRING"},
-              {"name": "filed_date", "type": "DATE"},
-              {"name": "is_amendment", "type": "BOOLEAN"},
-              {"name": "is_superseded", "type": "BOOLEAN"},
-              {"name": "superseded_by", "type": "STRING"},
-              {"name": "promoted_at", "type": "TIMESTAMPTZ"}
+              {
+                "name": "fact_id",
+                "type": "STRING"
+              },
+              {
+                "name": "entity_id",
+                "type": "STRING"
+              },
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "canonical_name",
+                "type": "STRING"
+              },
+              {
+                "name": "ticker",
+                "type": "STRING"
+              },
+              {
+                "name": "concept",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term_id",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term",
+                "type": "STRING"
+              },
+              {
+                "name": "financial_statement",
+                "type": "STRING"
+              },
+              {
+                "name": "category",
+                "type": "STRING"
+              },
+              {
+                "name": "tier",
+                "type": "INTEGER"
+              },
+              {
+                "name": "taxonomy",
+                "type": "STRING"
+              },
+              {
+                "name": "unit",
+                "type": "STRING"
+              },
+              {
+                "name": "val",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "start_date",
+                "type": "DATE"
+              },
+              {
+                "name": "end_date",
+                "type": "DATE"
+              },
+              {
+                "name": "fiscal_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "fiscal_period",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year_end",
+                "type": "STRING"
+              },
+              {
+                "name": "calendar_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "calendar_quarter",
+                "type": "INTEGER"
+              },
+              {
+                "name": "accession_number",
+                "type": "STRING"
+              },
+              {
+                "name": "form",
+                "type": "STRING"
+              },
+              {
+                "name": "filed_date",
+                "type": "DATE"
+              },
+              {
+                "name": "is_amendment",
+                "type": "BOOLEAN"
+              },
+              {
+                "name": "is_superseded",
+                "type": "BOOLEAN"
+              },
+              {
+                "name": "superseded_by",
+                "type": "STRING"
+              },
+              {
+                "name": "promoted_at",
+                "type": "TIMESTAMPTZ"
+              }
             ]
           }
         }
@@ -114,14 +208,29 @@
         "namespace": "sec-edgair",
         "name": "base.entity_mappings",
         "facets": {
-          "description": "Canonical entity identities — used for fiscal_year_end lookup by CIK",
+          "description": "Canonical entity identities \u2014 used for fiscal_year_end lookup by CIK",
           "schema": {
             "fields": [
-              {"name": "mapping_id", "type": "STRING"},
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "canonical_name", "type": "STRING"},
-              {"name": "ticker", "type": "STRING"},
-              {"name": "fiscal_year_end", "type": "STRING"}
+              {
+                "name": "mapping_id",
+                "type": "STRING"
+              },
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "canonical_name",
+                "type": "STRING"
+              },
+              {
+                "name": "ticker",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year_end",
+                "type": "STRING"
+              }
             ]
           }
         }
@@ -134,130 +243,341 @@
         "facets": {
           "schema": {
             "fields": [
-              {"name": "conformed_id", "type": "STRING"},
-              {"name": "source_fact_id", "type": "STRING"},
-              {"name": "entity_id", "type": "STRING"},
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "canonical_name", "type": "STRING"},
-              {"name": "ticker", "type": "STRING"},
-              {"name": "business_term_id", "type": "STRING"},
-              {"name": "business_term", "type": "STRING"},
-              {"name": "financial_statement", "type": "STRING"},
-              {"name": "category", "type": "STRING"},
-              {"name": "source_concept", "type": "STRING"},
-              {"name": "val", "type": "DOUBLE"},
-              {"name": "unit", "type": "STRING"},
-              {"name": "fiscal_year", "type": "INTEGER"},
-              {"name": "fiscal_period", "type": "STRING"},
-              {"name": "fiscal_year_end", "type": "STRING"},
-              {"name": "period_end_date", "type": "DATE"},
-              {"name": "calendar_year", "type": "INTEGER"},
-              {"name": "calendar_quarter", "type": "INTEGER"},
-              {"name": "accession_number", "type": "STRING"},
-              {"name": "filed_date", "type": "DATE"},
-              {"name": "competing_fact_count", "type": "INTEGER"},
-              {"name": "selection_reason", "type": "STRING"},
-              {"name": "promoted_at", "type": "TIMESTAMPTZ"},
-              {"name": "load_date", "type": "DATE"}
+              {
+                "name": "conformed_id",
+                "type": "STRING"
+              },
+              {
+                "name": "source_fact_id",
+                "type": "STRING"
+              },
+              {
+                "name": "entity_id",
+                "type": "STRING"
+              },
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "canonical_name",
+                "type": "STRING"
+              },
+              {
+                "name": "ticker",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term_id",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term",
+                "type": "STRING"
+              },
+              {
+                "name": "financial_statement",
+                "type": "STRING"
+              },
+              {
+                "name": "category",
+                "type": "STRING"
+              },
+              {
+                "name": "source_concept",
+                "type": "STRING"
+              },
+              {
+                "name": "val",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "unit",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "fiscal_period",
+                "type": "STRING"
+              },
+              {
+                "name": "fiscal_year_end",
+                "type": "STRING"
+              },
+              {
+                "name": "period_end_date",
+                "type": "DATE"
+              },
+              {
+                "name": "calendar_year",
+                "type": "INTEGER"
+              },
+              {
+                "name": "calendar_quarter",
+                "type": "INTEGER"
+              },
+              {
+                "name": "accession_number",
+                "type": "STRING"
+              },
+              {
+                "name": "filed_date",
+                "type": "DATE"
+              },
+              {
+                "name": "competing_fact_count",
+                "type": "INTEGER"
+              },
+              {
+                "name": "selection_reason",
+                "type": "STRING"
+              },
+              {
+                "name": "promoted_at",
+                "type": "TIMESTAMPTZ"
+              },
+              {
+                "name": "load_date",
+                "type": "DATE"
+              }
             ]
           },
           "columnLineage": {
             "fields": {
               "conformed_id": {
                 "inputFields": [
-                  {"namespace": "sec-edgair", "name": "base.financial_facts", "field": "cik"},
-                  {"namespace": "sec-edgair", "name": "base.financial_facts", "field": "business_term_id"},
-                  {"namespace": "sec-edgair", "name": "base.financial_facts", "field": "fiscal_year"},
-                  {"namespace": "sec-edgair", "name": "base.financial_facts", "field": "fiscal_period"}
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "cik"
+                  },
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "business_term_id"
+                  },
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "fiscal_year"
+                  },
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "fiscal_period"
+                  }
                 ],
                 "transformationDescription": "SHA-256 hash of (cik, business_term_id, fiscal_year, fiscal_period), truncated to 16 chars",
                 "transformationType": "DERIVED"
               },
               "source_fact_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "fact_id"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "fact_id"
+                  }
+                ],
                 "transformationDescription": "fact_id of the winning fact after collision resolution",
                 "transformationType": "DIRECT"
               },
               "entity_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "entity_id"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "entity_id"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "cik": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "cik"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "cik"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "canonical_name": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "canonical_name"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "canonical_name"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "ticker": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "ticker"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "ticker"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "business_term_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "business_term_id"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "business_term_id"
+                  }
+                ],
                 "transformationDescription": "Inherited from winning fact, after legacy CDE-XXX to BT-XXX normalization via LEGACY_CDE_TO_BT mapping",
                 "transformationType": "DERIVED"
               },
               "business_term": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "business_term"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "business_term"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "financial_statement": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "financial_statement"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "financial_statement"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "category": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "category"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "category"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "source_concept": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "concept"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "concept"
+                  }
+                ],
                 "transformationDescription": "The XBRL concept from the winning fact after collision resolution",
                 "transformationType": "DIRECT"
               },
               "val": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "val"}],
-                "transformationDescription": "Value from the winning fact — no transformation applied",
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "val"
+                  }
+                ],
+                "transformationDescription": "Value from the winning fact \u2014 no transformation applied",
                 "transformationType": "DIRECT"
               },
               "unit": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "unit"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "unit"
+                  }
+                ],
                 "transformationDescription": "Unit from the winning fact, post-unit-filtering (only rows matching PRIMARY_UNIT per BT survive)",
                 "transformationType": "DIRECT"
               },
               "fiscal_year": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "fiscal_year"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "fiscal_year"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "fiscal_period": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "fiscal_period"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "fiscal_period"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "fiscal_year_end": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.entity_mappings", "field": "fiscal_year_end"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.entity_mappings",
+                    "field": "fiscal_year_end"
+                  }
+                ],
                 "transformationDescription": "Looked up from entity_mappings by CIK join (not from financial_facts)",
                 "transformationType": "DERIVED"
               },
               "period_end_date": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "end_date"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "end_date"
+                  }
+                ],
                 "transformationDescription": "Renamed from end_date to period_end_date",
                 "transformationType": "DIRECT"
               },
               "calendar_year": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "calendar_year"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "calendar_year"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "calendar_quarter": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "calendar_quarter"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "calendar_quarter"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "accession_number": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "accession_number"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "accession_number"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "filed_date": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "filed_date"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "base.financial_facts",
+                    "field": "filed_date"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "competing_fact_count": {

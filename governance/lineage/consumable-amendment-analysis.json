@@ -1,6 +1,6 @@
 {
   "eventType": "COMPLETE",
-  "eventTime": "2026-03-15T06:00:00.000Z",
+  "eventTime": "2026-03-15T12:14:58Z",
   "producer": "https://github.com/jcernauske/sec_edgair",
   "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
   "run": {
@@ -9,6 +9,16 @@
       "processing_engine": {
         "name": "SEC EDGAIR Pipeline",
         "version": "1.0.0"
+      },
+      "secEdgair_runtimeLineage": {
+        "lastRunId": "8a515a84-0476-492f-ab9d-05f6999aba88",
+        "lastEventTime": "2026-03-15T12:14:58Z",
+        "rowCount": 1,
+        "snapshotId": 2200806827906024482,
+        "durationMs": 16,
+        "dqRulesPassed": null,
+        "dqRulesTotal": null,
+        "dqP0Passed": null
       }
     }
   },
@@ -32,14 +42,38 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "cik", "type": "INTEGER"},
-            {"name": "concept", "type": "STRING"},
-            {"name": "end_date", "type": "DATE"},
-            {"name": "val_change", "type": "DOUBLE"},
-            {"name": "val_change_pct", "type": "DOUBLE"},
-            {"name": "original_filed_date", "type": "DATE"},
-            {"name": "amendment_filed_date", "type": "DATE"},
-            {"name": "amendment_accession", "type": "STRING"}
+            {
+              "name": "cik",
+              "type": "INTEGER"
+            },
+            {
+              "name": "concept",
+              "type": "STRING"
+            },
+            {
+              "name": "end_date",
+              "type": "DATE"
+            },
+            {
+              "name": "val_change",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "val_change_pct",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "original_filed_date",
+              "type": "DATE"
+            },
+            {
+              "name": "amendment_filed_date",
+              "type": "DATE"
+            },
+            {
+              "name": "amendment_accession",
+              "type": "STRING"
+            }
           ]
         }
       }
@@ -50,11 +84,26 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "cik", "type": "INTEGER"},
-            {"name": "entity_id", "type": "STRING"},
-            {"name": "ticker", "type": "STRING"},
-            {"name": "canonical_name", "type": "STRING"},
-            {"name": "sector", "type": "STRING"}
+            {
+              "name": "cik",
+              "type": "INTEGER"
+            },
+            {
+              "name": "entity_id",
+              "type": "STRING"
+            },
+            {
+              "name": "ticker",
+              "type": "STRING"
+            },
+            {
+              "name": "canonical_name",
+              "type": "STRING"
+            },
+            {
+              "name": "sector",
+              "type": "STRING"
+            }
           ]
         }
       }
@@ -67,28 +116,116 @@
       "facets": {
         "schema": {
           "fields": [
-            {"name": "record_id", "type": "STRING", "description": "SHA-256 hash of (cik, fiscal_year)"},
-            {"name": "cik", "type": "INTEGER", "description": "SEC company identifier"},
-            {"name": "entity_id", "type": "STRING", "description": "Resolved entity reference"},
-            {"name": "ticker", "type": "STRING", "description": "Stock ticker (denormalized)"},
-            {"name": "canonical_name", "type": "STRING", "description": "Normalized company name"},
-            {"name": "sector", "type": "STRING", "description": "Industry sector"},
-            {"name": "fiscal_year", "type": "INTEGER", "description": "Calendar year of end_date"},
-            {"name": "amendment_count", "type": "INTEGER", "description": "COUNT(*) of amendments"},
-            {"name": "distinct_concepts", "type": "INTEGER", "description": "COUNT(DISTINCT concept)"},
-            {"name": "distinct_filings", "type": "INTEGER", "description": "COUNT(DISTINCT amendment_accession)"},
-            {"name": "mean_abs_change", "type": "DOUBLE", "description": "AVG(ABS(val_change))"},
-            {"name": "median_abs_change", "type": "DOUBLE", "description": "MEDIAN(ABS(val_change))"},
-            {"name": "max_abs_change", "type": "DOUBLE", "description": "MAX(ABS(val_change))"},
-            {"name": "mean_pct_change", "type": "DOUBLE", "description": "AVG(ABS(val_change_pct)) excluding nulls"},
-            {"name": "median_pct_change", "type": "DOUBLE", "description": "MEDIAN(ABS(val_change_pct)) excluding nulls"},
-            {"name": "total_val_impact", "type": "DOUBLE", "description": "SUM(ABS(val_change))"},
-            {"name": "largest_concept", "type": "STRING", "description": "Concept with MAX(ABS(val_change))"},
-            {"name": "largest_change", "type": "DOUBLE", "description": "MAX(ABS(val_change))"},
-            {"name": "days_to_amend_avg", "type": "DOUBLE", "description": "AVG(amendment_filed_date - original_filed_date)"},
-            {"name": "days_to_amend_median", "type": "DOUBLE", "description": "MEDIAN(amendment_filed_date - original_filed_date)"},
-            {"name": "promoted_at", "type": "TIMESTAMPTZ", "description": "When written to consumable zone"},
-            {"name": "load_date", "type": "DATE", "description": "System date"}
+            {
+              "name": "record_id",
+              "type": "STRING",
+              "description": "SHA-256 hash of (cik, fiscal_year)"
+            },
+            {
+              "name": "cik",
+              "type": "INTEGER",
+              "description": "SEC company identifier"
+            },
+            {
+              "name": "entity_id",
+              "type": "STRING",
+              "description": "Resolved entity reference"
+            },
+            {
+              "name": "ticker",
+              "type": "STRING",
+              "description": "Stock ticker (denormalized)"
+            },
+            {
+              "name": "canonical_name",
+              "type": "STRING",
+              "description": "Normalized company name"
+            },
+            {
+              "name": "sector",
+              "type": "STRING",
+              "description": "Industry sector"
+            },
+            {
+              "name": "fiscal_year",
+              "type": "INTEGER",
+              "description": "Calendar year of end_date"
+            },
+            {
+              "name": "amendment_count",
+              "type": "INTEGER",
+              "description": "COUNT(*) of amendments"
+            },
+            {
+              "name": "distinct_concepts",
+              "type": "INTEGER",
+              "description": "COUNT(DISTINCT concept)"
+            },
+            {
+              "name": "distinct_filings",
+              "type": "INTEGER",
+              "description": "COUNT(DISTINCT amendment_accession)"
+            },
+            {
+              "name": "mean_abs_change",
+              "type": "DOUBLE",
+              "description": "AVG(ABS(val_change))"
+            },
+            {
+              "name": "median_abs_change",
+              "type": "DOUBLE",
+              "description": "MEDIAN(ABS(val_change))"
+            },
+            {
+              "name": "max_abs_change",
+              "type": "DOUBLE",
+              "description": "MAX(ABS(val_change))"
+            },
+            {
+              "name": "mean_pct_change",
+              "type": "DOUBLE",
+              "description": "AVG(ABS(val_change_pct)) excluding nulls"
+            },
+            {
+              "name": "median_pct_change",
+              "type": "DOUBLE",
+              "description": "MEDIAN(ABS(val_change_pct)) excluding nulls"
+            },
+            {
+              "name": "total_val_impact",
+              "type": "DOUBLE",
+              "description": "SUM(ABS(val_change))"
+            },
+            {
+              "name": "largest_concept",
+              "type": "STRING",
+              "description": "Concept with MAX(ABS(val_change))"
+            },
+            {
+              "name": "largest_change",
+              "type": "DOUBLE",
+              "description": "MAX(ABS(val_change))"
+            },
+            {
+              "name": "days_to_amend_avg",
+              "type": "DOUBLE",
+              "description": "AVG(amendment_filed_date - original_filed_date)"
+            },
+            {
+              "name": "days_to_amend_median",
+              "type": "DOUBLE",
+              "description": "MEDIAN(amendment_filed_date - original_filed_date)"
+            },
+            {
+              "name": "promoted_at",
+              "type": "TIMESTAMPTZ",
+              "description": "When written to consumable zone"
+            },
+            {
+              "name": "load_date",
+              "type": "DATE",
+              "description": "System date"
+            }
           ]
         },
         "columnLineage": {
@@ -99,51 +236,87 @@
             },
             "fiscal_year": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "end_date"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "end_date"
+                }
               ],
               "transformationType": "INDIRECT",
-              "transformationDescription": "EXTRACT(YEAR FROM end_date) — calendar year of the period being amended"
+              "transformationDescription": "EXTRACT(YEAR FROM end_date) \u2014 calendar year of the period being amended"
             },
             "amendment_count": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "cik"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "cik"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "COUNT(*) per (cik, fiscal_year)"
             },
             "mean_abs_change": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "val_change"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "val_change"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "AVG(ABS(val_change)) per (cik, fiscal_year)"
             },
             "total_val_impact": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "val_change"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "val_change"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "SUM(ABS(val_change)) per (cik, fiscal_year)"
             },
             "largest_concept": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "concept"},
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "val_change"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "concept"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "val_change"
+                }
               ],
               "transformationType": "INDIRECT",
               "transformationDescription": "concept WHERE ABS(val_change) = MAX(ABS(val_change)) per (cik, fiscal_year)"
             },
             "days_to_amend_avg": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "amendment_filed_date"},
-                {"namespace": "sec_edgair", "name": "base.amendment_tracking", "field": "original_filed_date"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "amendment_filed_date"
+                },
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.amendment_tracking",
+                  "field": "original_filed_date"
+                }
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "AVG(amendment_filed_date - original_filed_date) in days per (cik, fiscal_year)"
             },
             "entity_id": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "entity_id"}
+                {
+                  "namespace": "sec_edgair",
+                  "name": "base.conformed_facts",
+                  "field": "entity_id"
+                }
               ],
               "transformationType": "DIRECT",
               "transformationDescription": "Denormalized from conformed_facts metadata lookup by CIK"

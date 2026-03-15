@@ -9,17 +9,24 @@ missing DQ gates in promote code.
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
 
 from pyiceberg.exceptions import NoSuchTableError
 
 from src.infra.dq_runner import validate_after_write
 from src.infra.iceberg_setup import append_data, get_catalog, get_or_create_table, read_with_duckdb
+from src.infra.lineage import emit_complete, emit_fail, emit_start
 
 from .config import CATALOG_PATH, NAMESPACE, TABLE_NAME, WAREHOUSE_PATH
 from .schema import CONFORMED_FACTS_SCHEMA
 
 logger = logging.getLogger(__name__)
+
+_LINEAGE_JOB = "base.conformed_facts"
+_LINEAGE_INPUTS = ["base.financial_facts", "base.entity_mappings"]
+_LINEAGE_OUTPUT = "base.conformed_facts"
+_LINEAGE_PRODUCER = "src/base/conformed_facts/promote.py"
 
 
 def promote_conformed_facts(
@@ -41,70 +48,113 @@ def promote_conformed_facts(
         catalog_path: Override for catalog DB path.
         validate: If True (default), run DQ rules after write.
     """
-    wh = Path(warehouse_path) if warehouse_path else WAREHOUSE_PATH
-    cp = Path(catalog_path) if catalog_path else CATALOG_PATH
-
-    full_table_name = f"{NAMESPACE}.{TABLE_NAME}"
-
-    if not records:
-        logger.warning("No records to promote to %s", full_table_name)
-        return {"table": full_table_name, "promoted": 0}
-
-    catalog = get_catalog(wh, cp)
-
-    # Drop existing table if it exists -- full rebuild each run
+    run_id = emit_start(
+        job_name=_LINEAGE_JOB,
+        input_tables=_LINEAGE_INPUTS,
+        output_table=_LINEAGE_OUTPUT,
+        producer=_LINEAGE_PRODUCER,
+    )
+    start_time = time.monotonic()
     try:
-        catalog.drop_table(full_table_name)
-        logger.info("Dropped existing %s for full rebuild", full_table_name)
-    except NoSuchTableError:
-        pass
+        wh = Path(warehouse_path) if warehouse_path else WAREHOUSE_PATH
+        cp = Path(catalog_path) if catalog_path else CATALOG_PATH
 
-    table = get_or_create_table(catalog, NAMESPACE, TABLE_NAME, CONFORMED_FACTS_SCHEMA)
+        full_table_name = f"{NAMESPACE}.{TABLE_NAME}"
 
-    # Dedup guard: check for any existing conformed_ids (shouldn't exist after drop,
-    # but defensive coding per lakehouse constraints)
-    existing_ids: set[str] = set()
-    try:
-        existing = read_with_duckdb(table)
-        existing_ids = {r["conformed_id"] for r in existing}
-    except NoSuchTableError:
-        pass
+        if not records:
+            logger.warning("No records to promote to %s", full_table_name)
+            result = {"table": full_table_name, "promoted": 0}
+            emit_complete(
+                run_id=run_id, job_name=_LINEAGE_JOB, output_table=_LINEAGE_OUTPUT,
+                producer=_LINEAGE_PRODUCER, row_count=0,
+                duration_ms=int((time.monotonic() - start_time) * 1000),
+            )
+            return result
 
-    original_count = len(records)
-    if existing_ids:
-        records = [r for r in records if r["conformed_id"] not in existing_ids]
-        skipped = original_count - len(records)
-        if skipped:
-            logger.info("Skipping %d record(s) already in %s", skipped, full_table_name)
+        catalog = get_catalog(wh, cp)
 
-    if not records:
-        return {
+        # Drop existing table if it exists -- full rebuild each run
+        try:
+            catalog.drop_table(full_table_name)
+            logger.info("Dropped existing %s for full rebuild", full_table_name)
+        except NoSuchTableError:
+            pass
+
+        table = get_or_create_table(catalog, NAMESPACE, TABLE_NAME, CONFORMED_FACTS_SCHEMA)
+
+        # Dedup guard: check for any existing conformed_ids (shouldn't exist after drop,
+        # but defensive coding per lakehouse constraints)
+        existing_ids: set[str] = set()
+        try:
+            existing = read_with_duckdb(table)
+            existing_ids = {r["conformed_id"] for r in existing}
+        except NoSuchTableError:
+            pass
+
+        original_count = len(records)
+        if existing_ids:
+            records = [r for r in records if r["conformed_id"] not in existing_ids]
+            skipped = original_count - len(records)
+            if skipped:
+                logger.info("Skipping %d record(s) already in %s", skipped, full_table_name)
+
+        if not records:
+            result = {
+                "table": full_table_name,
+                "promoted": 0,
+                "skipped_duplicates": original_count,
+            }
+            emit_complete(
+                run_id=run_id, job_name=_LINEAGE_JOB, output_table=_LINEAGE_OUTPUT,
+                producer=_LINEAGE_PRODUCER, row_count=0, skipped_duplicates=original_count,
+                duration_ms=int((time.monotonic() - start_time) * 1000),
+            )
+            return result
+
+        snapshot_id = append_data(table, records)
+        logger.info("Promoted %d records to %s (snapshot: %s)", len(records), full_table_name, snapshot_id)
+
+        result = {
             "table": full_table_name,
-            "promoted": 0,
-            "skipped_duplicates": original_count,
+            "promoted": len(records),
+            "snapshot_id": snapshot_id,
         }
 
-    snapshot_id = append_data(table, records)
-    logger.info("Promoted %d records to %s (snapshot: %s)", len(records), full_table_name, snapshot_id)
+        # DQ gate: validate after write (principal data architect requirement)
+        if validate:
+            logger.info("Running DQ validation for base-conformed-facts...")
+            dq_result = validate_after_write("base-conformed-facts", catalog=catalog)
+            result["dq_run_id"] = dq_result["run_id"]
+            result["dq_passed"] = dq_result["rules_passed"]
+            result["dq_total"] = dq_result["rules_total"]
+            logger.info(
+                "DQ validation: %d/%d rules passed, P0 gate: %s",
+                dq_result["rules_passed"],
+                dq_result["rules_total"],
+                "PASS" if dq_result["p0_passed"] else "FAIL",
+            )
 
-    result = {
-        "table": full_table_name,
-        "promoted": len(records),
-        "snapshot_id": snapshot_id,
-    }
-
-    # DQ gate: validate after write (principal data architect requirement)
-    if validate:
-        logger.info("Running DQ validation for base-conformed-facts...")
-        dq_result = validate_after_write("base-conformed-facts", catalog=catalog)
-        result["dq_run_id"] = dq_result["run_id"]
-        result["dq_passed"] = dq_result["rules_passed"]
-        result["dq_total"] = dq_result["rules_total"]
-        logger.info(
-            "DQ validation: %d/%d rules passed, P0 gate: %s",
-            dq_result["rules_passed"],
-            dq_result["rules_total"],
-            "PASS" if dq_result["p0_passed"] else "FAIL",
+        emit_complete(
+            run_id=run_id,
+            job_name=_LINEAGE_JOB,
+            output_table=_LINEAGE_OUTPUT,
+            producer=_LINEAGE_PRODUCER,
+            snapshot_id=result.get("snapshot_id"),
+            row_count=result.get("promoted", len(records)),
+            skipped_duplicates=result.get("skipped_duplicates", 0),
+            dq_passed=result.get("dq_passed"),
+            dq_total=result.get("dq_total"),
+            dq_p0_passed=result.get("dq_passed") == result.get("dq_total") if result.get("dq_total") else None,
+            duration_ms=int((time.monotonic() - start_time) * 1000),
         )
-
-    return result
+        return result
+    except Exception as e:
+        emit_fail(
+            run_id=run_id,
+            job_name=_LINEAGE_JOB,
+            output_table=_LINEAGE_OUTPUT,
+            producer=_LINEAGE_PRODUCER,
+            error_message=str(e),
+            duration_ms=int((time.monotonic() - start_time) * 1000),
+        )
+        raise

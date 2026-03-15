@@ -42,7 +42,8 @@ Each zone is governed by AI agents that produce lineage, data quality rules, bus
 | Spec | What It Does |
 |------|-------------|
 | `infra-setup-duckdb-iceberg` | DuckDB + Apache Iceberg local read/write with PyIceberg SqlCatalog |
-| `infra-dq-execution-framework` | DQ execution engine: 92 SQL rules, P0 gating, automatic triggers, dedup guards |
+| `infra-dq-execution-framework` | DQ execution engine: 111 SQL rules, P0 gating, automatic triggers, dedup guards |
+| `infra-runtime-lineage` | Runtime lineage events to Iceberg — every promote emits START/COMPLETE/FAIL with snapshot IDs, row counts, duration |
 | `infra-create-agent-definitions` | 10+ specialized Claude Code agents |
 
 ### Raw Zone
@@ -102,6 +103,9 @@ consumable.peer_comparison          28,633 rows — sector ranks + percentiles
 consumable.amendment_analysis       371 rows — restatement patterns
     ↓
 AI-Ready Chat Interface             8 tool functions → Claude API → natural language answers
+
+governance.lineage_events           Runtime lineage: START/COMPLETE/FAIL per promote
+                                    (snapshot IDs, row counts, DQ results, duration)
 ```
 
 ## Verification
@@ -129,7 +133,8 @@ Every transformation produces governance artifacts automatically:
 - **14 Iceberg tables** documented in `governance/data-dictionary.json`
 - **111 DQ rules** with execution engine and scorecards (110 pass, 1 P1 advisory)
 - **DQ gates enforced on all promote paths** — P0 failures block writes
-- **OpenLineage** events in `governance/lineage/`
+- **Runtime lineage** — every promote emits START/COMPLETE/FAIL events to `governance.lineage_events` Iceberg table with snapshot IDs, row counts, DQ results, and duration
+- **Structural lineage docs** in `governance/lineage/` — generated from runtime events via `python -m src.infra.lineage generate-docs`
 - **21 data models** (conceptual, logical, physical) in `governance/models/`
 - **Concept priority rules** governed as data artifact in `governance/conformation/`
 - **Independent architecture review** — B+ from @principal-data-architect ([full review](governance/reviews/principal-data-architect-review.md))
@@ -303,6 +308,9 @@ uv run python -m src.consumable.financial_ratios.cli all
 uv run python -m src.consumable.period_over_period.cli all
 uv run python -m src.consumable.peer_comparison.cli all
 uv run python -m src.consumable.amendment_analysis.cli all
+
+# Runtime lineage — check latest pipeline runs
+uv run python -m src.infra.lineage status
 
 # AI-Ready chat interface — talk to the data
 export ANTHROPIC_API_KEY=sk-ant-...

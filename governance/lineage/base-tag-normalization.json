@@ -1,7 +1,7 @@
 [
   {
     "eventType": "COMPLETE",
-    "eventTime": "2026-03-14T14:00:00Z",
+    "eventTime": "2026-03-15T12:14:58Z",
     "run": {
       "runId": "base-tn-001",
       "facets": {
@@ -12,6 +12,16 @@
         "secEdgair_agentAttribution": {
           "agentId": "@tag-normalizer",
           "reasoning": "Classify 3,285 us-gaap XBRL concepts into 25 canonical business terms via tiered matching (exact, prefix, pattern) with human approval gate for Tier 1+2"
+        },
+        "secEdgair_runtimeLineage": {
+          "lastRunId": "34116144-ae70-4156-999b-f02d957a3228",
+          "lastEventTime": "2026-03-15T12:14:58Z",
+          "rowCount": 3,
+          "snapshotId": 4601834641302750859,
+          "durationMs": 50,
+          "dqRulesPassed": 6,
+          "dqRulesTotal": 7,
+          "dqP0Passed": false
         }
       }
     },
@@ -35,9 +45,18 @@
           "description": "Raw XBRL fact observations with concept names as-received from SEC EDGAR",
           "schema": {
             "fields": [
-              {"name": "cik", "type": "INTEGER"},
-              {"name": "taxonomy", "type": "STRING"},
-              {"name": "concept", "type": "STRING"}
+              {
+                "name": "cik",
+                "type": "INTEGER"
+              },
+              {
+                "name": "taxonomy",
+                "type": "STRING"
+              },
+              {
+                "name": "concept",
+                "type": "STRING"
+              }
             ]
           }
         }
@@ -50,24 +69,66 @@
         "facets": {
           "schema": {
             "fields": [
-              {"name": "mapping_id", "type": "STRING"},
-              {"name": "concept", "type": "STRING"},
-              {"name": "business_term", "type": "STRING"},
-              {"name": "business_term_id", "type": "STRING"},
-              {"name": "financial_statement", "type": "STRING"},
-              {"name": "category", "type": "STRING"},
-              {"name": "tier", "type": "INTEGER"},
-              {"name": "confidence", "type": "DOUBLE"},
-              {"name": "mapping_method", "type": "STRING"},
-              {"name": "status", "type": "STRING"},
-              {"name": "mapped_by", "type": "STRING"},
-              {"name": "mapped_at", "type": "TIMESTAMPTZ"}
+              {
+                "name": "mapping_id",
+                "type": "STRING"
+              },
+              {
+                "name": "concept",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term",
+                "type": "STRING"
+              },
+              {
+                "name": "business_term_id",
+                "type": "STRING"
+              },
+              {
+                "name": "financial_statement",
+                "type": "STRING"
+              },
+              {
+                "name": "category",
+                "type": "STRING"
+              },
+              {
+                "name": "tier",
+                "type": "INTEGER"
+              },
+              {
+                "name": "confidence",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "mapping_method",
+                "type": "STRING"
+              },
+              {
+                "name": "status",
+                "type": "STRING"
+              },
+              {
+                "name": "mapped_by",
+                "type": "STRING"
+              },
+              {
+                "name": "mapped_at",
+                "type": "TIMESTAMPTZ"
+              }
             ]
           },
           "columnLineage": {
             "fields": {
               "concept": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "concept"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "concept"
+                  }
+                ],
                 "transformationType": "DIRECT"
               },
               "mapping_id": {
@@ -76,7 +137,13 @@
                 "transformationType": "DERIVED"
               },
               "business_term": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "raw.xbrl_company_facts", "field": "concept"}],
+                "inputFields": [
+                  {
+                    "namespace": "sec-edgair",
+                    "name": "raw.xbrl_company_facts",
+                    "field": "concept"
+                  }
+                ],
                 "transformationDescription": "Mapped from raw concept via EXACT_MAPPINGS (tier 1), PREFIX_RULES (tier 2), or PATTERN_RULES (tier 2). Null for tier 3 unmapped.",
                 "transformationType": "DERIVED"
               },
@@ -110,7 +177,7 @@
         "namespace": "sec-edgair",
         "name": "base.tag_normalization_audit",
         "facets": {
-          "description": "Audit trail of every tag normalization decision — proposals, approvals, rejections, unmapped classifications"
+          "description": "Audit trail of every tag normalization decision \u2014 proposals, approvals, rejections, unmapped classifications"
         }
       }
     ],
