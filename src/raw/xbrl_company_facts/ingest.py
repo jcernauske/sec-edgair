@@ -1,16 +1,18 @@
-"""Orchestrator: fetch → flatten → write to Iceberg.
+"""XBRL Company Facts ingestor — extends BaseIngestor.
 
-One snapshot per company for natural lineage boundaries.
+Implements SEC EDGAR-specific fetch() and flatten().
+The framework (BaseIngestor) handles Iceberg, dedup, and metadata.
 """
 
 from __future__ import annotations
 
-import datetime
 from pathlib import Path
+from typing import Any
 
-from pyiceberg.exceptions import NamespaceAlreadyExistsError, TableAlreadyExistsError
+from pyiceberg.schema import Schema
 
-from src.infra.iceberg_setup import append_data, get_catalog, read_with_duckdb
+from src.domain_loader import DomainHints, DomainManifest, SourceConfig, get_source, load_manifest
+from src.raw.base_ingestor import BaseIngestor
 from src.raw.xbrl_company_facts.config import (
     API_URL_TEMPLATE,
     BULK_ZIP_URL,
@@ -25,24 +27,39 @@ from src.raw.xbrl_company_facts.fetch_bulk import fetch_bulk_company_facts
 from src.raw.xbrl_company_facts.flatten import flatten_company_facts
 from src.raw.xbrl_company_facts.schema import XBRL_COMPANY_FACTS_SCHEMA
 
-TABLE_NAMESPACE = "raw"
-TABLE_NAME = "xbrl_company_facts"
+
+class XBRLCompanyFactsIngestor(BaseIngestor):
+    """SEC EDGAR XBRL Company Facts ingestor."""
+
+    def get_schema(self) -> Schema:
+        return XBRL_COMPANY_FACTS_SCHEMA
+
+    def fetch(self, entities: dict, method: str, **kwargs) -> dict[Any, Any]:
+        cache_dir = kwargs.get("cache_dir", self.source.cache_dir)
+        user_agent = kwargs.get("user_agent", USER_AGENT)
+
+        if method == "api":
+            return {
+                cik: fetch_company_facts(cik, cache_dir, user_agent)
+                for cik in entities
+            }
+        elif method == "bulk_zip":
+            return fetch_bulk_company_facts(
+                list(entities.keys()), cache_dir, user_agent
+            )
+        else:
+            raise ValueError(f"Unknown method: {method!r}. Use 'api' or 'bulk_zip'.")
+
+    def flatten(self, raw_data: Any, entity_id: Any) -> list[dict]:
+        return flatten_company_facts(raw_data)
+
+    def get_source_url(self, entity_id: Any, method: str) -> str:
+        if method == "api":
+            return API_URL_TEMPLATE.format(cik_padded=f"{entity_id:010d}")
+        return BULK_ZIP_URL
 
 
-def _get_or_create_table(warehouse_path: Path, catalog_path: Path):
-    """Get or create the raw.xbrl_company_facts Iceberg table."""
-    catalog = get_catalog(warehouse_path, catalog_path)
-
-    try:
-        catalog.create_namespace(TABLE_NAMESPACE)
-    except NamespaceAlreadyExistsError:
-        pass
-
-    identifier = f"{TABLE_NAMESPACE}.{TABLE_NAME}"
-    try:
-        return catalog.create_table(identifier, schema=XBRL_COMPANY_FACTS_SCHEMA)
-    except TableAlreadyExistsError:
-        return catalog.load_table(identifier)
+# --- Backwards-compatible function API ---
 
 
 def ingest_company_facts(
@@ -55,89 +72,38 @@ def ingest_company_facts(
 ) -> dict[int, dict]:
     """Ingest XBRL Company Facts for the given CIKs.
 
-    Args:
-        ciks: {CIK: company_name} dict. Defaults to DEFAULT_CIKS.
-        method: "api" for per-company fetch, "bulk_zip" for bulk download.
-        cache_dir: JSON cache directory. Defaults to config.
-        warehouse_path: Iceberg warehouse path. Defaults to config.
-        catalog_path: Iceberg catalog path. Defaults to config.
-        user_agent: HTTP User-Agent. Defaults to config.
-
-    Returns:
-        {cik: {"rows": N, "snapshot_id": X}} summary per company.
+    Legacy API -- wraps XBRLCompanyFactsIngestor for backwards compatibility.
+    All existing callers continue to work unchanged.
     """
-    ciks = ciks or DEFAULT_CIKS
-    cache_dir = cache_dir or JSON_CACHE_DIR
-    warehouse_path = warehouse_path or WAREHOUSE_PATH
-    catalog_path = catalog_path or CATALOG_PATH
-    user_agent = user_agent or USER_AGENT
-
-    table = _get_or_create_table(warehouse_path, catalog_path)
-
-    # Build set of existing fact grains for dedup
-    # Dedup on (cik, accession_number, concept, unit, end_date) — NOT on CIK alone,
-    # because new filings for existing CIKs must flow through in incremental loads
-    existing_grains = set()
     try:
-        existing = read_with_duckdb(table)
-        existing_grains = {
-            (r["cik"], r["accession_number"], r["concept"], r["unit"], str(r.get("end_date", "")))
-            for r in existing
-        }
-    except Exception:
-        pass
+        manifest = load_manifest()
+        source = get_source(manifest, "xbrl_company_facts")
+    except (FileNotFoundError, KeyError):
+        # Fallback: create a minimal SourceConfig from hardcoded defaults
+        source = SourceConfig(
+            name="xbrl_company_facts",
+            namespace="raw",
+            table="xbrl_company_facts",
+            fetch={},
+            entities=DEFAULT_CIKS,
+            dedup_grain=["cik", "accession_number", "concept", "unit", "end_date"],
+            cache_dir=JSON_CACHE_DIR,
+        )
+        manifest = DomainManifest(
+            name="sec-edgar",
+            version="1.0",
+            description="SEC EDGAR XBRL financial data",
+            sources=[source],
+            hints=DomainHints(),
+        )
 
-    # Fetch raw JSON
-    if method == "api":
-        raw_data = {
-            cik: fetch_company_facts(cik, cache_dir, user_agent) for cik in ciks
-        }
-    elif method == "bulk_zip":
-        raw_data = fetch_bulk_company_facts(list(ciks.keys()), cache_dir, user_agent)
-    else:
-        raise ValueError(f"Unknown method: {method!r}. Use 'api' or 'bulk_zip'.")
+    ingestor = XBRLCompanyFactsIngestor(source, manifest)
 
-    # Flatten and write one snapshot per company
-    results: dict[int, dict] = {}
-    for cik in ciks:
-        data = raw_data[cik]
-        flat_rows = flatten_company_facts(data)
-
-        ingested_at = datetime.datetime.now(tz=datetime.timezone.utc)
-        if method == "api":
-            source_url = API_URL_TEMPLATE.format(cik_padded=f"{cik:010d}")
-        else:
-            source_url = BULK_ZIP_URL
-
-        load_date = ingested_at.date()
-        for row in flat_rows:
-            row["ingested_at"] = ingested_at
-            row["source_url"] = source_url
-            row["source_method"] = method
-            row["load_date"] = load_date
-
-        # Dedup: skip facts already in the table
-        original_count = len(flat_rows)
-        flat_rows = [
-            r for r in flat_rows
-            if (r["cik"], r["accession_number"], r["concept"], r["unit"], str(r.get("end_date", "")))
-            not in existing_grains
-        ]
-        skipped = original_count - len(flat_rows)
-
-        if not flat_rows:
-            results[cik] = {"rows": 0, "skipped": skipped}
-            continue
-
-        if skipped:
-            print(f"  CIK {cik}: {skipped} existing facts skipped, {len(flat_rows)} new facts")
-
-        snapshot_id = append_data(table, flat_rows)
-        results[cik] = {"rows": len(flat_rows), "snapshot_id": snapshot_id, "skipped": skipped}
-
-    total_skipped = sum(r.get("skipped", 0) for r in results.values())
-    total_new = sum(r.get("rows", 0) for r in results.values())
-    if total_skipped:
-        print(f"Dedup summary: {total_new} new facts ingested, {total_skipped} duplicates skipped")
-
-    return results
+    return ingestor.ingest(
+        entities=ciks,
+        method=method,
+        warehouse_path=warehouse_path or WAREHOUSE_PATH,
+        catalog_path=catalog_path or CATALOG_PATH,
+        cache_dir=cache_dir or JSON_CACHE_DIR,
+        user_agent=user_agent or USER_AGENT,
+    )

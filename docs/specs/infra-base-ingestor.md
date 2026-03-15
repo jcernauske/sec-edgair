@@ -1,6 +1,6 @@
 # Spec: Base Ingestor Abstraction
 
-## Status: 🟡 DRAFT
+## Status: 🟠 IMPLEMENTATION
 
 | Status | Meaning |
 |--------|---------|
