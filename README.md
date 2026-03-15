@@ -35,6 +35,8 @@ SEC EDGAR XBRL → Raw → Base → Consumable → AI-Ready Chat
 
 Each zone is governed by AI agents that produce lineage, data quality rules, business term mappings, and audit trails as a byproduct of the transformation work. Every spec follows a mandatory agent pipeline: @data-analyst (EDA) → @dq-rule-writer (rules from evidence) → @dq-engineer (execute + gate) → @staff-engineer (final review).
 
+Independent architecture review: [original review (B+)](governance/reviews/principal-data-architect-review.md) | [re-review after remediation (A-)](governance/reviews/principal-data-architect-re-review.md)
+
 ## What's Built
 
 ### Infrastructure
