@@ -102,6 +102,52 @@
     </div>
 
     <div class="container">
+      <h2>What if you could use AI adversarially to make your data pipelines resilient?</h2>
+      <p>Most DQ rules are written to pass against clean data. They&rsquo;re never asked to defend themselves against garbage.</p>
+      <p>That&rsquo;s a problem. Because production data doesn&rsquo;t arrive clean. It arrives with nulls where nulls shouldn&rsquo;t be, timestamps from 1900, fiscal years set to 1850, duplicate rows, orphaned keys, and values that passed every upstream check and are still wrong.</p>
+      <p><strong>So we built a Chaos Monkey.</strong></p>
+      <p>An AI agent whose only job is to break things on purpose. It injects realistic garbage into a shadow copy of production data &mdash; violating all 10 DQ dimensions every run: Completeness, Validity, Uniqueness, Consistency, Accuracy, Reasonableness, Freshness, Volume, Referential Integrity, Coverage. Randomized strategies each time. The monkey doesn&rsquo;t know what the DQ rules check for &mdash; it only has access to the physical schema. If it knew, it would work around them. That&rsquo;s the point.</p>
+      <p>Three layers of safety ensure it never runs against real data: a config flag, an environment variable check, and output path validation. Any layer fails, <code>sys.exit()</code>. No fallback.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); max-width: 600px; margin: var(--space-xl) auto;">
+        <div class="metric-card" style="border-color: var(--color-error, #ef4444);">
+          <div class="metric-value" style="color: var(--color-error, #ef4444);">20%</div>
+          <div class="metric-label">First Run</div>
+          <div class="metric-detail">8 of 10 dimensions had zero rule coverage</div>
+        </div>
+        <div class="metric-card" style="border-color: var(--color-success, #22c55e);">
+          <div class="metric-value" style="color: var(--color-success, #22c55e);">100%</div>
+          <div class="metric-label">After Remediation</div>
+          <div class="metric-detail">All 10 dimensions covered &middot; zero escapes</div>
+        </div>
+      </div>
+
+      <p>The first run injected 38,317 corruptions across all 10 dimensions. Detection rate: 20%. That failure was the most useful thing the pipeline produced. The after-action report itemized every gap &mdash; which dimensions, which strategies, which field corruptions went undetected. That report drove 15 new DQ rules.</p>
+
+      <div class="metric-grid fade-in" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metric-card">
+          <div class="metric-value">13</div>
+          <div class="metric-label">Total Runs</div>
+          <div class="metric-detail">Random seeds, varied strategies</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">498K</div>
+          <div class="metric-label">Corruptions Injected</div>
+          <div class="metric-detail">Across all 10 DQ dimensions</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">0</div>
+          <div class="metric-label">Escapes</div>
+          <div class="metric-detail">5 consecutive randomized runs &middot; 191,585 corruptions</div>
+        </div>
+      </div>
+
+      <p>Each run produces an after-action report: what the monkey injected, what the DQ rules caught, a reconciliation scorecard by dimension, and suggested remediations for anything that slipped through.</p>
+      <p><strong>The 20% result was not a failure to be hidden. It was the feature working correctly.</strong></p>
+      <p><a href="governance.html" class="card-link">See the chaos reports &rarr;</a></p>
+    </div>
+
+    <div class="container">
       <h2>Who is this for?</h2>
       <div class="audience-grid fade-in">
         <div class="audience-card">

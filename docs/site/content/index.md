@@ -38,6 +38,51 @@ SEC EDGAR XBRL  -->  Raw Zone   -->  Base Zone    -->  Consumable Zone  -->  AI-
 
 Every zone transition is governed. Every promote emits runtime lineage events to an Iceberg table. Every table passes DQ rules before data is written. P0 failures block the pipeline.
 
+## What if you could use AI adversarially to make your data pipelines resilient?
+
+Most DQ rules are written to pass against clean data. They're never asked to defend themselves against garbage.
+
+That's a problem. Because production data doesn't arrive clean. It arrives with nulls where nulls shouldn't be, timestamps from 1900, fiscal years set to 1850, duplicate rows, orphaned keys, and values that passed every upstream check and are still wrong. Your DQ rules need to prove they can catch that -- not just the test data you wrote them for.
+
+So we built a Chaos Monkey.
+
+<!-- CHAOS MONKEY CONCEPT VISUAL: Two-panel illustration. Left panel: "DQ rules passing against clean data" -- simple green checkmarks, labeled 'false confidence'. Right panel: "DQ rules surviving adversarial injection" -- monkey throwing garbage, rules catching it, labeled 'actual confidence'. -->
+
+An AI agent whose only job is to break things on purpose. It injects realistic garbage into a shadow copy of production data -- nulls in required fields, impossible fiscal years, duplicate primary keys, fake accession numbers, values that are plausible but wrong. It violates all 10 DQ dimensions on every run: Completeness, Validity, Uniqueness, Consistency, Accuracy, Reasonableness, Freshness, Volume, Referential Integrity, Coverage. Randomized strategies each time. The monkey doesn't know what the DQ rules check for -- it only has access to the physical schema. If it knew, it would work around them. That's the point.
+
+Three layers of safety ensure it can never run against real data: a config flag, an environment variable check (`SEC_EDGAIR_ENV=dev`), and output path validation that hard-blocks any write outside the shadow zone. Any layer fails, `sys.exit()`. No fallback.
+
+### The first run
+
+<!-- BEFORE/AFTER CARD: Display as a dramatic before/after split. Left side (red/warning): "Run 1 -- 20% detection". Right side (green): "After remediation -- 100% detection". Large typography. -->
+
+The first real run injected 38,317 corruptions across all 10 dimensions. Detection rate: 20%. Eight of the 10 DQ dimensions had zero rule coverage. The rules that existed were catching what they were built to catch. They'd just never been asked about anything else.
+
+That failure was the most useful thing the pipeline produced. The after-action report itemized every gap -- which dimensions, which strategies, which field corruptions went undetected. That report drove 15 new DQ rules.
+
+### After remediation
+
+<!-- STRESS TEST METRICS: Display as a compact 2x2 metric grid alongside a small "5-run streak" visual (5 green checkmarks in a row) -->
+
+| Metric | Value |
+|--------|-------|
+| Total runs | 13 |
+| Total corruptions injected | 498,121 |
+| Detection rate before remediation | 20% |
+| Detection rate after remediation | 100% |
+| Stress test | 191,585 adversarial corruptions across 5 consecutive randomized runs |
+| Escapes | 0 |
+
+Five consecutive runs. Different random seeds, different strategy mixes, 25 corruption strategies targeting 28 fields. Every corruption caught. Zero escapes.
+
+<!-- AFTER-ACTION REPORT PREVIEW: Display as a collapsed/expandable document preview or a stylized "report card" showing the four sections: Injection Summary, DQ Results, Reconciliation Scorecard, Suggested Remediations. The goal is to show the artifact is real and structured, not just a log file. -->
+
+Each run produces an after-action report: what the monkey injected, what the DQ rules caught, a reconciliation scorecard by dimension, and suggested remediations for anything that slipped through. When the detection rate was 20%, that report told us exactly what to fix. When it reached 100%, the report confirmed it.
+
+The 20% result was not a failure to be hidden. It was the feature working correctly.
+
+[See the chaos reports -->](governance.md#chaos-monkey)
+
 ## Who is this for?
 
 ### Chief Data & Analytics Officers
