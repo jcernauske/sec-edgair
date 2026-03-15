@@ -47,6 +47,8 @@ This is not one AI doing everything. It is a team of specialized agents, each wi
 
 **@policy-engineer** — _"I take @pii-scanner's classifications and turn them into formal access policies -- RLS, column masking, retention, AI consumption rules. I define the policies; I don't implement them. Think of me as the person who writes the building code, not the one who installs the door locks."_
 
+**@chaos-monkey** — _"I break things on purpose. I read the schema, I have NO idea what the DQ rules check for, and I inject the nastiest garbage I can think of -- nulls, duplicates, revenue of $1 for Apple, fiscal years in 1850, timestamps from 2099. Then I write down exactly what I broke and let the reconciler figure out if anyone caught it. If your DQ rules can't catch intentional corruption, they can't catch accidental corruption either. Also, I have a three-layer kill switch because nobody trusts me, and honestly? Fair."_
+
 **@content-strategist** — _"I translate what all of these agents built into copy that makes a CDAO stop scrolling. Every claim I write cites a real file path, a real artifact count, or a real verification result. I don't write 'robust governance' -- I write '128 DQ rules across 9 dimensions.' If I can't cite it, I don't write it."_
 
 **@web-designer** — _"I build the site where all of @content-strategist's copy lives. Dark mode by default, under 100KB total, no frameworks, no tracking scripts. If a VP of Data opens this on their phone during a meeting and doesn't immediately understand what this project does, I've failed. Whitespace is a feature, not waste."_

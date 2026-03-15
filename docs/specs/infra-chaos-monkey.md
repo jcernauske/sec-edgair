@@ -1,6 +1,6 @@
 # Infrastructure: Chaos Monkey (Adversarial DQ Testing)
 
-## Status: 🟡 DRAFT
+## Status: 🟠 IMPLEMENTATION
 
 | Status | Meaning |
 |--------|---------|

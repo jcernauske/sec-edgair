@@ -19,6 +19,12 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 #   - DQ rule lifecycle: proposed → approved progression
 REQUIRE_HUMAN_APPROVAL = True
 
+# Chaos Monkey kill switch (Layer 1 of 3)
+# When True AND SEC_EDGAIR_ENV=dev: enables adversarial DQ testing
+# When False (default): chaos monkey hard-exits immediately
+# See also: src/infra/chaos_monkey/safety.py for Layers 2 and 3
+CHAOS_MONKEY_ENABLED = False
+
 # Data quality paths
 DQ_RULES_DIR = PROJECT_ROOT / "governance" / "dq-rules"
 DQ_RESULTS_DIR = PROJECT_ROOT / "governance" / "dq-results"

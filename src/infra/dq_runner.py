@@ -200,6 +200,7 @@ def execute_sql_rule(rule: dict, con: duckdb.DuckDBPyConnection) -> dict:
         return {
             "rule_id": rule_id,
             "spec": rule.get("spec"),
+            "category": rule.get("category"),
             "passed": passed,
             "raw_value": raw_value,
             "threshold": threshold,
@@ -214,6 +215,7 @@ def execute_sql_rule(rule: dict, con: duckdb.DuckDBPyConnection) -> dict:
         return {
             "rule_id": rule_id,
             "spec": rule.get("spec"),
+            "category": rule.get("category"),
             "passed": False,
             "raw_value": None,
             "threshold": threshold,

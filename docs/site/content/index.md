@@ -5,7 +5,7 @@ description: "AI agents don't just consume clean data. They create it. 14 specia
 
 # Everyone says you can't use AI until you clean up your data.
 
-## This project proves the opposite.
+## But what if you could use AI to get your data ready for AI?
 
 14 AI agents took raw SEC EDGAR XBRL filings -- 547,398 financial facts from 20 public companies -- and delivered them as clean, modeled, governed, AI-ready data products. Not by consuming clean data. By *making* data clean.
 
