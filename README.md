@@ -1,7 +1,7 @@
 # SEC EDGAIR
 
-![Tests](https://img.shields.io/badge/tests-455%20passing-brightgreen)
-![DQ Rules](https://img.shields.io/badge/DQ%20rules-92%20(91%20pass%2C%201%20P1)-brightgreen)
+![Tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)
+![DQ Rules](https://img.shields.io/badge/DQ%20rules-111%20(110%20pass%2C%201%20P1)-brightgreen)
 ![Architect Review](https://img.shields.io/badge/architect%20review-B%2B-blue)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Verified](https://img.shields.io/badge/verified-88%2F88%20vs%2010--K-brightgreen)
@@ -59,6 +59,7 @@ Each zone is governed by AI agents that produce lineage, data quality rules, bus
 | `base-entity-resolution` | Maps 20 CIKs to canonical company identities with human approval gate |
 | `base-xbrl-tag-normalization` | Maps 3,285 XBRL concepts to 25 canonical business terms via tiered matching |
 | `base-financial-facts-model` | 547K enriched facts with supersession, fiscal calendar, amendment tracking |
+| `base-conformed-facts` | One authoritative fact per (company, metric, year, period) — collision resolution, unit filtering, supersession filtering moved from consumable to base |
 | `base-bitemporal-schema` | Temporal queries, point-in-time lookups, Iceberg time travel |
 | `base-fiscal-year-fix` | Fixed fiscal year derivation (from end_date, not XBRL fy) + TTM disambiguation |
 
@@ -77,6 +78,7 @@ Each zone is governed by AI agents that produce lineage, data quality rules, bus
 | Spec | What It Does |
 |------|-------------|
 | `ai-ready-chat-interface` | 8 validated tool functions over DuckDB + Claude API agent. Natural language chat with the data. No RAG, no embeddings — tool use over structured queries. |
+| `ai-ready-dedup-tool-enrichment` | Deduplicated enrichment logic in tool functions — extracted 6 shared helpers, reduced financial_tools.py from 1,391 to 1,202 lines |
 | `infra-architect-remediation` | All 7 findings from Principal Data Architect review: DQ gates on promotes, scalable dedup (DuckDB anti-join), DQ pushdown, generic anomaly detection, amendment tool, dead code cleanup |
 
 ## Data Pipeline
@@ -89,10 +91,11 @@ raw.xbrl_company_facts              547,398 facts, 20 companies, 19 columns
 base.entity_mappings                20 CIK → canonical company identity mappings
 base.concept_mappings               3,285 XBRL concept → business term classifications
 base.financial_facts                547K enriched facts, 28 columns, supersession + TTM dedup
+base.conformed_facts                28,849 rows — one authoritative fact per grain (collision-resolved)
 base.fiscal_calendar                1,483 fiscal periods across 20 companies
 base.amendment_tracking             264K supersession pairs with value changes
     ↓
-consumable.company_financials       28,849 rows — one row per (company, metric, year, period)
+consumable.company_financials       28,849 rows — presentation layer (+sector, +companies_reporting)
 consumable.financial_ratios         7,102 rows — 7 computed ratios
 consumable.period_over_period       71,402 rows — YoY growth + 5yr CAGR
 consumable.peer_comparison          28,633 rows — sector ranks + percentiles
@@ -123,26 +126,27 @@ Every transformation produces governance artifacts automatically:
 
 - **54 business terms** in `governance/business-glossary.json` (25 XBRL + 7 SEC EDGAR + 22 project-specific)
 - **31 CDEs** in `governance/cde-catalog.json`
-- **13 Iceberg tables** documented in `governance/data-dictionary.json`
-- **92 DQ rules** with execution engine and scorecards (91 pass, 1 P1 advisory)
+- **14 Iceberg tables** documented in `governance/data-dictionary.json`
+- **111 DQ rules** with execution engine and scorecards (110 pass, 1 P1 advisory)
 - **DQ gates enforced on all promote paths** — P0 failures block writes
 - **OpenLineage** events in `governance/lineage/`
-- **18 data models** (conceptual, logical, physical) in `governance/models/`
+- **21 data models** (conceptual, logical, physical) in `governance/models/`
+- **Concept priority rules** governed as data artifact in `governance/conformation/`
 - **Independent architecture review** — B+ from @principal-data-architect ([full review](governance/reviews/principal-data-architect-review.md))
 - **PII:** None detected. All data is public SEC filings.
 
 ## Data Quality
 
-92 SQL-based DQ rules across all specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`.
+111 SQL-based DQ rules across all specs, executed against real Iceberg tables via `python -m src.infra.dq_runner run`.
 
 ### Latest Results
 
 | Zone | Specs | Rules | Passed | Failed | P0 Gate |
 |------|-------|-------|--------|--------|---------|
 | Raw | 1 | 8 | 8 | 0 | PASS |
-| Base | 4 | 22 | 21 | 1 (P1) | PASS |
+| Base | 5 | 41 | 40 | 1 (P1) | PASS |
 | Consumable | 5 | 62 | 62 | 0 | PASS |
-| **Total** | **10** | **92** | **91** | **1 (P1)** | **PASS** |
+| **Total** | **11** | **111** | **110** | **1 (P1)** | **PASS** |
 
 The single P1 failure (BASE-BT-003) is advisory — comparative data in newer filings legitimately supersedes older filings' values, which can violate the temporal ordering assumption. Documented and expected.
 
@@ -216,6 +220,16 @@ erDiagram
 ```
 > Full model: [base-financial-facts-model-conceptual.md](governance/models/base-financial-facts-model-conceptual.md)
 
+#### Conceptual: Conformed Facts
+```mermaid
+erDiagram
+    FINANCIAL_FACT ||--o| CONFORMED_FINANCIAL_FACT : "selected as winner"
+    COMPANY ||--o{ CONFORMED_FINANCIAL_FACT : "reports"
+    BUSINESS_TERM ||--o{ CONFORMED_FINANCIAL_FACT : "classifies"
+    CONCEPT_PRIORITY_RULE ||--o{ CONFORMED_FINANCIAL_FACT : "governs selection"
+```
+> Full model: [base-conformed-facts-conceptual.md](governance/models/base-conformed-facts-conceptual.md)
+
 ### Consumable Zone Models
 
 #### Conceptual: Company Financials
@@ -274,7 +288,7 @@ The AI-Ready zone is an application layer, not a data transformation zone. No ne
 # Install
 uv sync
 
-# Run tests (455 tests)
+# Run tests (466 tests)
 uv run pytest
 
 # Data quality — execute rules against real Iceberg data
@@ -306,6 +320,7 @@ src/                            Source code organized by zone
     entity_resolution/           CIK → canonical company identity
     xbrl_tag_normalization/      XBRL concept → business term
     financial_facts_model/       Denormalized facts + fiscal calendar + amendments
+    conformed_facts/             One authoritative fact per grain (collision-resolved from financial_facts)
     bitemporal/                  Temporal queries + snapshot management + validation
   consumable/                   Consumable zone data products
     company_financials/          Cross-company financial comparison table
@@ -326,14 +341,15 @@ governance/                     Governance artifacts
   insights/                     Zone transition insight reports from @insight-manager
   lineage/                      OpenLineage events
   eda/                          EDA reports from @data-analyst
-  dq-rules/                     Data quality rule definitions (92 rules, JSON + SQL)
+  conformation/                  Concept priority rules (collision resolution governance artifact)
+  dq-rules/                     Data quality rule definitions (111 rules, JSON + SQL)
   dq-results/                   Timestamped DQ execution results
   dq-scorecards/                DQ scorecards from real data execution
   audit-trail/                  Design decision logs
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (455 passing)
+tests/                          Tests organized by zone (466 passing)
 governance/reviews/             Independent architecture reviews
 .claude/agents/                 Agent definitions for Claude Code
 ```

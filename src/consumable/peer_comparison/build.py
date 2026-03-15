@@ -1,6 +1,6 @@
 """Core build logic for consumable.peer_comparison.
 
-Reads consumable.company_financials and consumable.financial_ratios, normalizes
+Reads base.conformed_facts and consumable.financial_ratios, normalizes
 both into a common structure, groups by (sector, metric_id, fiscal_year,
 fiscal_period, metric_source), and computes dense rank, sector avg, sector
 median, and percentile for each company within its sector group.
@@ -14,12 +14,17 @@ from pathlib import Path
 
 from src.infra.iceberg_setup import get_catalog, read_with_duckdb
 
+from ..shared import build_sector_lookup
 from .config import (
     CATALOG_PATH,
     MIN_PEER_COUNT,
     RECORD_ID_GRAIN,
     WAREHOUSE_PATH,
 )
+
+
+# Base zone warehouse
+BASE_WAREHOUSE_PATH = Path(__file__).resolve().parents[3] / "data" / "raw" / "iceberg_warehouse"
 
 
 def _compute_record_id(record: dict) -> str:
@@ -43,10 +48,7 @@ def _compute_median(values: list[float]) -> float:
 
 
 def _dense_rank(values: list[float], target: float) -> int:
-    """Compute dense rank (1 = highest value). Ties get same rank.
-
-    Values are ranked descending. Distinct sorted values determine rank positions.
-    """
+    """Compute dense rank (1 = highest value). Ties get same rank."""
     distinct_sorted = sorted(set(values), reverse=True)
     for rank, val in enumerate(distinct_sorted, start=1):
         if val == target:
@@ -54,16 +56,17 @@ def _dense_rank(values: list[float], target: float) -> int:
     return len(distinct_sorted)
 
 
-def _normalize_company_financials(rows: list[dict]) -> list[dict]:
-    """Normalize company_financials rows into the common peer comparison structure."""
+def _normalize_conformed_facts(rows: list[dict], sector_lookup: dict[int, str]) -> list[dict]:
+    """Normalize conformed_facts rows into the common peer comparison structure."""
     normalized = []
     for r in rows:
+        cik = r.get("cik")
         normalized.append({
-            "cik": r.get("cik"),
+            "cik": cik,
             "entity_id": r.get("entity_id", ""),
             "ticker": r.get("ticker"),
             "canonical_name": r.get("canonical_name", ""),
-            "sector": r.get("sector", ""),
+            "sector": sector_lookup.get(cik, "Unknown"),
             "metric_source": "company_financials",
             "metric_id": r.get("business_term_id", ""),
             "metric_name": r.get("business_term", ""),
@@ -104,33 +107,47 @@ def _normalize_financial_ratios(rows: list[dict]) -> list[dict]:
 
 def build_peer_comparison(
     *,
-    company_financials: list[dict] | None = None,
+    conformed_facts: list[dict] | None = None,
     financial_ratios: list[dict] | None = None,
+    entity_mappings: list[dict] | None = None,
     warehouse_path: str | Path | None = None,
     catalog_path: str | Path | None = None,
     min_peer_count: int = MIN_PEER_COUNT,
+    # Legacy parameter for backward compatibility with tests
+    company_financials: list[dict] | None = None,
 ) -> list[dict]:
     """Build the consumable.peer_comparison table.
 
-    Accepts source data as parameters for testability.
-    When not provided, reads from Iceberg tables.
+    Reads base.conformed_facts for financial metrics and
+    consumable.financial_ratios for computed ratios.
     """
     wh = Path(warehouse_path) if warehouse_path else WAREHOUSE_PATH
     cp = Path(catalog_path) if catalog_path else CATALOG_PATH
+    base_wh = BASE_WAREHOUSE_PATH
 
-    if company_financials is None or financial_ratios is None:
-        catalog = get_catalog(wh, cp)
+    # Support legacy parameter name
+    if conformed_facts is None and company_financials is not None:
+        conformed_facts = company_financials
 
-    if company_financials is None:
-        cf_table = catalog.load_table("consumable.company_financials")
-        company_financials = read_with_duckdb(cf_table)
+    if conformed_facts is None:
+        base_catalog = get_catalog(base_wh, cp)
+        cf_table = base_catalog.load_table("base.conformed_facts")
+        conformed_facts = read_with_duckdb(cf_table)
 
     if financial_ratios is None:
-        fr_table = catalog.load_table("consumable.financial_ratios")
+        cons_catalog = get_catalog(wh, cp)
+        fr_table = cons_catalog.load_table("consumable.financial_ratios")
         financial_ratios = read_with_duckdb(fr_table)
 
+    # Build sector lookup
+    sector_lookup = build_sector_lookup(
+        entity_mappings=entity_mappings,
+        warehouse_path=str(base_wh),
+        catalog_path=str(cp),
+    )
+
     # Normalize both sources
-    normalized = _normalize_company_financials(company_financials)
+    normalized = _normalize_conformed_facts(conformed_facts, sector_lookup)
     normalized.extend(_normalize_financial_ratios(financial_ratios))
 
     # Group by (sector, metric_id, fiscal_year, fiscal_period, metric_source)
@@ -150,7 +167,7 @@ def build_peer_comparison(
     results: list[dict] = []
 
     for group_key, members in groups.items():
-        # Deduplicate by CIK within a group (shouldn't happen, but safety)
+        # Deduplicate by CIK within a group
         seen_ciks: dict[int, dict] = {}
         for m in members:
             cik = m["cik"]

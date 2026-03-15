@@ -1,0 +1,190 @@
+{
+  "version": "1.0",
+  "description": "Concept collision resolution rules for base.conformed_facts. Defines which XBRL concept wins when multiple concepts map to the same business term for a given company/period grain. Extracted from src/consumable/company_financials/config.py.",
+  "rules": {
+    "BT-022": {
+      "business_term": "Revenue",
+      "primary_concepts": [
+        "Revenues",
+        "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "RevenuesNetOfInterestExpense",
+        "SalesRevenueNet"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-023": {
+      "business_term": "Net Income",
+      "primary_concepts": [
+        "NetIncomeLoss"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-024": {
+      "business_term": "Total Assets",
+      "primary_concepts": [
+        "Assets"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-027": {
+      "business_term": "Total Liabilities",
+      "primary_concepts": [
+        "Liabilities"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-028": {
+      "business_term": "Total Stockholders Equity",
+      "primary_concepts": [
+        "StockholdersEquity",
+        "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-029": {
+      "business_term": "Cash and Cash Equivalents",
+      "primary_concepts": [
+        "CashAndCashEquivalentsAtCarryingValue",
+        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-030": {
+      "business_term": "Accounts Receivable",
+      "primary_concepts": [
+        "AccountsReceivableNetCurrent"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-031": {
+      "business_term": "Inventory",
+      "primary_concepts": [
+        "InventoryNet"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-032": {
+      "business_term": "Property Plant and Equipment",
+      "primary_concepts": [
+        "PropertyPlantAndEquipmentNet"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-033": {
+      "business_term": "Goodwill",
+      "primary_concepts": [
+        "Goodwill"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-034": {
+      "business_term": "Cost of Revenue",
+      "primary_concepts": [
+        "CostOfRevenue",
+        "CostOfGoodsAndServicesSold",
+        "CostOfGoodsSold"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-035": {
+      "business_term": "Gross Profit",
+      "primary_concepts": [
+        "GrossProfit"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-036": {
+      "business_term": "Operating Income",
+      "primary_concepts": [
+        "OperatingIncomeLoss"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-037": {
+      "business_term": "Income Tax Expense",
+      "primary_concepts": [
+        "IncomeTaxExpenseBenefit"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-038": {
+      "business_term": "Research and Development Expense",
+      "primary_concepts": [
+        "ResearchAndDevelopmentExpense"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-039": {
+      "business_term": "Selling General and Administrative Expense",
+      "primary_concepts": [
+        "SellingGeneralAndAdministrativeExpense",
+        "GeneralAndAdministrativeExpense"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-040": {
+      "business_term": "Operating Cash Flow",
+      "primary_concepts": [
+        "NetCashProvidedByUsedInOperatingActivities"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-041": {
+      "business_term": "Investing Cash Flow",
+      "primary_concepts": [
+        "NetCashProvidedByUsedInInvestingActivities"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-042": {
+      "business_term": "Financing Cash Flow",
+      "primary_concepts": [
+        "NetCashProvidedByUsedInFinancingActivities"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-043": {
+      "business_term": "Capital Expenditures",
+      "primary_concepts": [
+        "PaymentsToAcquirePropertyPlantAndEquipment"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-044": {
+      "business_term": "Earnings Per Share Basic",
+      "primary_concepts": [
+        "EarningsPerShareBasic"
+      ],
+      "primary_unit": "USD/shares"
+    },
+    "BT-045": {
+      "business_term": "Earnings Per Share Diluted",
+      "primary_concepts": [
+        "EarningsPerShareDiluted"
+      ],
+      "primary_unit": "USD/shares"
+    },
+    "BT-046": {
+      "business_term": "Dividends Per Share",
+      "primary_concepts": [
+        "CommonStockDividendsPerShareDeclared",
+        "CommonStockDividendsPerShareCashPaid"
+      ],
+      "primary_unit": "USD/shares"
+    },
+    "BT-047": {
+      "business_term": "Comprehensive Income",
+      "primary_concepts": [
+        "ComprehensiveIncomeNetOfTax"
+      ],
+      "primary_unit": "USD"
+    },
+    "BT-048": {
+      "business_term": "Retained Earnings",
+      "primary_concepts": [
+        "RetainedEarningsAccumulatedDeficit"
+      ],
+      "primary_unit": "USD"
+    }
+  }
+}

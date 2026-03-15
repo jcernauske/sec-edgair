@@ -1,0 +1,29 @@
+{
+  "event": "eda_analysis",
+  "agent": "@data-analyst",
+  "spec": "base-conformed-facts",
+  "timestamp": "2026-03-15T17:00:00Z",
+  "dataset_analyzed": "base.financial_facts",
+  "purpose": "Profile source data for base.conformed_facts to inform DQ rule thresholds",
+  "key_findings": [
+    "547,398 total rows; 28,849 expected output grains after filtering + collision resolution",
+    "49.3% of facts superseded; 70.1% unmapped; 0% null fiscal_year",
+    "49.0% of grains have collisions (>1 competing fact per grain)",
+    "Max collision size: 114 facts per grain (BT-047 Comprehensive Income)",
+    "95.4% of collisions resolved via PRIMARY_CONCEPTS priority; 4.6% via tier/frequency fallback",
+    "All 20 companies and all 25 business terms represented",
+    "Spec expected count (~26,894) is stale; actual is 28,849"
+  ],
+  "threshold_recommendations": {
+    "row_count_range": "25,000-35,000",
+    "grain_uniqueness": "100% (zero duplicates)",
+    "company_count": "exactly 20",
+    "business_term_count": "exactly 25",
+    "sole_candidate_pct_min": "40%",
+    "primary_concept_pct_min": "30%",
+    "tier_frequency_fallback_pct_max": "10%",
+    "null_val_pct_max": "0%",
+    "min_terms_per_company": "15"
+  },
+  "output": "governance/eda/base-conformed-facts-eda.md"
+}

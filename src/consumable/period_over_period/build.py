@@ -1,6 +1,6 @@
 """Core build logic for consumable.period_over_period.
 
-Reads consumable.company_financials, computes YoY change, YoY % change, and
+Reads base.conformed_facts, computes YoY change, YoY % change, and
 5-year CAGR for every (company, business term, year, period) combination.
 Returns one row per (company, business term, year, period, growth_type).
 """
@@ -13,12 +13,17 @@ from pathlib import Path
 
 from src.infra.iceberg_setup import get_catalog, read_with_duckdb
 
+from ..shared import build_sector_lookup
 from .config import (
     CATALOG_PATH,
     GROWTH_TYPES,
     RECORD_ID_GRAIN,
     WAREHOUSE_PATH,
 )
+
+
+# Base zone warehouse
+BASE_WAREHOUSE_PATH = Path(__file__).resolve().parents[3] / "data" / "raw" / "iceberg_warehouse"
 
 
 def _compute_record_id(record: dict) -> str:
@@ -32,25 +37,40 @@ def _compute_record_id(record: dict) -> str:
 
 def build_period_over_period(
     *,
-    company_financials: list[dict] | None = None,
+    conformed_facts: list[dict] | None = None,
+    entity_mappings: list[dict] | None = None,
     warehouse_path: str | Path | None = None,
     catalog_path: str | Path | None = None,
+    # Legacy parameter for backward compatibility with tests
+    company_financials: list[dict] | None = None,
 ) -> list[dict]:
     """Build the consumable.period_over_period table.
 
-    Accepts company_financials as parameter for testability.
-    When not provided, reads from Iceberg table.
+    Reads base.conformed_facts directly. Accepts data as parameters
+    for testability.
     """
-    if company_financials is None:
-        wh = Path(warehouse_path) if warehouse_path else WAREHOUSE_PATH
-        cp = Path(catalog_path) if catalog_path else CATALOG_PATH
-        catalog = get_catalog(wh, cp)
-        cf_table = catalog.load_table("consumable.company_financials")
-        company_financials = read_with_duckdb(cf_table)
+    cp = Path(catalog_path) if catalog_path else CATALOG_PATH
+    base_wh = BASE_WAREHOUSE_PATH
+
+    # Support legacy parameter name
+    if conformed_facts is None and company_financials is not None:
+        conformed_facts = company_financials
+
+    if conformed_facts is None:
+        catalog = get_catalog(base_wh, cp)
+        cf_table = catalog.load_table("base.conformed_facts")
+        conformed_facts = read_with_duckdb(cf_table)
+
+    # Build sector lookup
+    sector_lookup = build_sector_lookup(
+        entity_mappings=entity_mappings,
+        warehouse_path=str(base_wh),
+        catalog_path=str(cp),
+    )
 
     # Index by (cik, business_term_id, fiscal_year, fiscal_period) for O(1) lookup
     cf_index: dict[tuple, dict] = {}
-    for row in company_financials:
+    for row in conformed_facts:
         key = (
             row.get("cik"),
             row.get("business_term_id"),
@@ -59,18 +79,9 @@ def build_period_over_period(
         )
         cf_index[key] = row
 
-    # Collect unique (cik, business_term_id, fiscal_period) groups
-    grain_groups: set[tuple] = set()
-    for row in company_financials:
-        grain_groups.add((
-            row.get("cik"),
-            row.get("business_term_id"),
-            row.get("fiscal_period"),
-        ))
-
-    # Collect fiscal years per grain group for iteration
+    # Collect fiscal years per (cik, business_term_id, fiscal_period) group
     years_by_group: dict[tuple, set[int]] = {}
-    for row in company_financials:
+    for row in conformed_facts:
         group_key = (
             row.get("cik"),
             row.get("business_term_id"),
@@ -85,6 +96,8 @@ def build_period_over_period(
     results: list[dict] = []
 
     for (cik, bt_id, fp), years in years_by_group.items():
+        sector = sector_lookup.get(cik, "Unknown")
+
         for fy in sorted(years):
             current_key = (cik, bt_id, fy, fp)
             current_row = cf_index.get(current_key)
@@ -123,10 +136,8 @@ def build_period_over_period(
                 elif gt == "yoy_pct_change":
                     growth_value = (current_val - comp_val) / abs(comp_val)
                 elif gt == "cagr_5yr":
-                    # CAGR = (current / base)^(1/n) - 1
                     ratio = current_val / comp_val
                     if ratio <= 0:
-                        # Can't take fractional root of negative number
                         growth_value = -(abs(ratio) ** (1.0 / lookback)) - 1
                     else:
                         growth_value = ratio ** (1.0 / lookback) - 1
@@ -138,7 +149,7 @@ def build_period_over_period(
                     "entity_id": current_row.get("entity_id", ""),
                     "ticker": current_row.get("ticker"),
                     "canonical_name": current_row.get("canonical_name", ""),
-                    "sector": current_row.get("sector", ""),
+                    "sector": sector,
                     "business_term_id": bt_id,
                     "business_term": current_row.get("business_term", ""),
                     "financial_statement": current_row.get("financial_statement", ""),

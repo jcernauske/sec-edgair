@@ -1,6 +1,6 @@
 """Core build logic for consumable.amendment_analysis.
 
-Reads base.amendment_tracking and consumable.company_financials,
+Reads base.amendment_tracking and base.conformed_facts,
 aggregates amendment patterns per (cik, fiscal_year), and returns
 one summary row per company per fiscal year.
 """
@@ -14,6 +14,7 @@ from pathlib import Path
 
 from src.infra.iceberg_setup import get_catalog, read_with_duckdb
 
+from ..shared import build_sector_lookup
 from .config import (
     BASE_WAREHOUSE_PATH,
     CATALOG_PATH,
@@ -41,40 +42,52 @@ def _compute_median(values: list[float]) -> float:
 def build_amendment_analysis(
     *,
     amendment_tracking: list[dict] | None = None,
-    company_financials: list[dict] | None = None,
+    conformed_facts: list[dict] | None = None,
     warehouse_path: str | Path | None = None,
     catalog_path: str | Path | None = None,
     base_warehouse_path: str | Path | None = None,
+    entity_mappings: list[dict] | None = None,
+    # Legacy parameter for backward compatibility with tests
+    company_financials: list[dict] | None = None,
 ) -> list[dict]:
     """Build the consumable.amendment_analysis table.
 
-    Accepts amendment_tracking and company_financials as parameters for testability.
-    When not provided, reads from Iceberg tables.
+    Reads base.amendment_tracking and base.conformed_facts for company metadata.
+    Accepts data as parameters for testability.
     """
     cp = Path(catalog_path) if catalog_path else CATALOG_PATH
+    bwh = Path(base_warehouse_path) if base_warehouse_path else BASE_WAREHOUSE_PATH
 
     if amendment_tracking is None:
-        bwh = Path(base_warehouse_path) if base_warehouse_path else BASE_WAREHOUSE_PATH
         base_catalog = get_catalog(bwh, cp)
         at_table = base_catalog.load_table("base.amendment_tracking")
         amendment_tracking = read_with_duckdb(at_table)
 
-    if company_financials is None:
-        wh = Path(warehouse_path) if warehouse_path else WAREHOUSE_PATH
-        catalog = get_catalog(wh, cp)
-        cf_table = catalog.load_table("consumable.company_financials")
-        company_financials = read_with_duckdb(cf_table)
+    # Support legacy parameter name
+    if conformed_facts is None and company_financials is not None:
+        conformed_facts = company_financials
 
-    # Build company metadata lookup: cik -> {entity_id, ticker, canonical_name, sector}
+    if conformed_facts is None:
+        base_catalog = get_catalog(bwh, cp)
+        cf_table = base_catalog.load_table("base.conformed_facts")
+        conformed_facts = read_with_duckdb(cf_table)
+
+    # Build sector lookup
+    sector_lookup = build_sector_lookup(
+        entity_mappings=entity_mappings,
+        warehouse_path=str(bwh),
+        catalog_path=str(cp),
+    )
+
+    # Build company metadata lookup from conformed_facts: cik -> {entity_id, ticker, canonical_name}
     company_meta: dict[int, dict] = {}
-    for row in company_financials:
+    for row in conformed_facts:
         cik = row.get("cik")
         if cik is not None and cik not in company_meta:
             company_meta[cik] = {
                 "entity_id": row.get("entity_id", ""),
                 "ticker": row.get("ticker"),
                 "canonical_name": row.get("canonical_name", ""),
-                "sector": row.get("sector", ""),
             }
 
     # Group amendments by (cik, fiscal_year)
@@ -98,10 +111,12 @@ def build_amendment_analysis(
     results: list[dict] = []
 
     for (cik, fiscal_year), amendments in groups.items():
-        # Skip companies not in company_financials
+        # Skip companies not in conformed_facts
         meta = company_meta.get(cik)
         if meta is None:
             continue
+
+        sector = sector_lookup.get(cik, "Unknown")
 
         # Compute aggregates
         amendment_count = len(amendments)
@@ -171,7 +186,7 @@ def build_amendment_analysis(
             "entity_id": meta["entity_id"],
             "ticker": meta["ticker"],
             "canonical_name": meta["canonical_name"],
-            "sector": meta["sector"],
+            "sector": sector,
             "fiscal_year": fiscal_year,
             "amendment_count": amendment_count,
             "distinct_concepts": len(concepts),

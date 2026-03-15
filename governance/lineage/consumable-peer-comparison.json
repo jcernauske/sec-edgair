@@ -17,7 +17,7 @@
     "name": "consumable.peer_comparison.build",
     "facets": {
       "documentation": {
-        "description": "Compute sector-level peer rankings from consumable.company_financials and consumable.financial_ratios. For each (company, metric, year, period, source), computes rank, sector avg, sector median, and percentile within the company's sector."
+        "description": "Compute sector-level peer rankings from base.conformed_facts and consumable.financial_ratios. For each (company, metric, year, period, source), computes rank, sector avg, sector median, and percentile within the company's sector."
       },
       "sourceCode": {
         "type": "PYTHON",
@@ -28,7 +28,7 @@
   "inputs": [
     {
       "namespace": "sec_edgair",
-      "name": "consumable.company_financials",
+      "name": "base.conformed_facts",
       "facets": {
         "schema": {
           "fields": [
@@ -107,7 +107,7 @@
             },
             "metric_value": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
                 {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
               ],
               "transformationType": "DIRECT",
@@ -115,7 +115,7 @@
             },
             "sector_rank": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
                 {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
               ],
               "transformationType": "AGGREGATION",
@@ -123,7 +123,7 @@
             },
             "sector_avg": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
                 {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
               ],
               "transformationType": "AGGREGATION",
@@ -131,7 +131,7 @@
             },
             "sector_median": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"},
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"},
                 {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "ratio_value"}
               ],
               "transformationType": "AGGREGATION",
@@ -143,7 +143,7 @@
             },
             "peer_count": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "cik"},
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "cik"},
                 {"namespace": "sec_edgair", "name": "consumable.financial_ratios", "field": "cik"}
               ],
               "transformationType": "AGGREGATION",

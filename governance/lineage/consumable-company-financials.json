@@ -11,7 +11,7 @@
         },
         "secEdgair_agentAttribution": {
           "agentId": "@primary-agent",
-          "reasoning": "Read base.financial_facts (filtered to current, mapped facts), join entity_mappings for SIC/sector, resolve concept collisions via primary concept preference, compute derived fields (record_id, sector, companies_reporting), and write one row per (cik, business_term_id, fiscal_year, fiscal_period) to consumable.company_financials"
+          "reasoning": "Read base.conformed_facts (filtered to current, mapped facts), join entity_mappings for SIC/sector, resolve concept collisions via primary concept preference, compute derived fields (record_id, sector, companies_reporting), and write one row per (cik, business_term_id, fiscal_year, fiscal_period) to consumable.company_financials"
         }
       }
     },
@@ -20,7 +20,7 @@
       "name": "consumable.company_financials",
       "facets": {
         "documentation": {
-          "description": "Reads base.financial_facts, base.entity_mappings, and base.concept_mappings. Filters to is_superseded=false and business_term_id IS NOT NULL. Translates legacy CDE-XXX IDs to BT-XXX. Filters to primary unit per business term. Resolves concept collisions via PRIMARY_CONCEPTS preference list with tier/frequency fallback. Computes sector from SIC code, record_id from grain hash, companies_reporting from aggregate count. Writes to consumable.company_financials with dedup guard."
+          "description": "Reads base.conformed_facts, base.entity_mappings, and base.concept_mappings. Filters to is_superseded=false and business_term_id IS NOT NULL. Translates legacy CDE-XXX IDs to BT-XXX. Filters to primary unit per business term. Resolves concept collisions via PRIMARY_CONCEPTS preference list with tier/frequency fallback. Computes sector from SIC code, record_id from grain hash, companies_reporting from aggregate count. Writes to consumable.company_financials with dedup guard."
         },
         "sourceCode": {
           "sourceCodeLocation": "src/consumable/company_financials/build.py"
@@ -30,9 +30,9 @@
     "inputs": [
       {
         "namespace": "sec-edgair",
-        "name": "base.financial_facts",
+        "name": "base.conformed_facts",
         "facets": {
-          "description": "Central fact table with XBRL facts enriched with entity and concept metadata",
+          "description": "Conformed fact table with XBRL facts enriched with entity and concept metadata",
           "schema": {
             "fields": [
               {"name": "fact_id", "type": "STRING"},
@@ -141,55 +141,55 @@
                 "transformationType": "DERIVED"
               },
               "source_concept": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "concept"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "concept"}],
                 "transformationDescription": "Selected from concept collision resolution: walks PRIMARY_CONCEPTS preference list for the business_term_id, picks first match; falls back to highest tier then most common concept",
                 "transformationType": "DERIVED"
               },
               "companies_reporting": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "cik"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "cik"}],
                 "transformationDescription": "COUNT(DISTINCT cik) per (business_term_id, fiscal_period) across the full output dataset",
                 "transformationType": "AGGREGATION"
               },
               "entity_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "entity_id"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "entity_id"}],
                 "transformationType": "DIRECT"
               },
               "cik": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "cik"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "cik"}],
                 "transformationType": "DIRECT"
               },
               "ticker": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "ticker"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "ticker"}],
                 "transformationType": "DIRECT"
               },
               "canonical_name": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "canonical_name"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "canonical_name"}],
                 "transformationType": "DIRECT"
               },
               "business_term_id": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "business_term_id"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "business_term_id"}],
                 "transformationDescription": "Passed through after legacy CDE-XXX to BT-XXX translation via LEGACY_CDE_TO_BT mapping",
                 "transformationType": "DIRECT"
               },
               "business_term": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "business_term"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "business_term"}],
                 "transformationType": "DIRECT"
               },
               "financial_statement": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "financial_statement"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "financial_statement"}],
                 "transformationType": "DIRECT"
               },
               "category": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "category"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "category"}],
                 "transformationType": "DIRECT"
               },
               "val": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "val"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "val"}],
                 "transformationDescription": "Value from the fact selected by concept collision resolution",
                 "transformationType": "DIRECT"
               },
               "unit": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "unit"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "unit"}],
                 "transformationDescription": "Filtered to primary unit per business term (USD or USD/shares)",
                 "transformationType": "DIRECT"
               },
@@ -198,7 +198,7 @@
                 "transformationType": "DIRECT"
               },
               "period_end_date": {
-                "inputFields": [{"namespace": "sec-edgair", "name": "base.financial_facts", "field": "end_date"}],
+                "inputFields": [{"namespace": "sec-edgair", "name": "base.conformed_facts", "field": "end_date"}],
                 "transformationType": "DIRECT"
               }
             }

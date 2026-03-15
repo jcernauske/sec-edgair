@@ -1,0 +1,143 @@
+{
+  "spec": "base-conformed-facts",
+  "agent": "@dq-rule-writer",
+  "timestamp": "2026-03-15T15:59:00Z",
+  "action": "write_dq_rules",
+  "summary": "Wrote 19 DQ rules for base.conformed_facts covering all 6 categories from spec section 7 plus additional edge cases from EDA",
+  "rules_written": [
+    {
+      "rule_id": "BASE-CF-001",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "rationale_summary": "Grain uniqueness at (cik, business_term_id, fiscal_year, fiscal_period). EDA: 28,849 unique grains, 0 duplicates."
+    },
+    {
+      "rule_id": "BASE-CF-002",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "rationale_summary": "conformed_id (SHA-256 hash of grain) uniqueness. Structural — catches hash or write bugs."
+    },
+    {
+      "rule_id": "BASE-CF-003",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "rationale_summary": "source_fact_id FK to base.financial_facts. Critical for lineage traceability."
+    },
+    {
+      "rule_id": "BASE-CF-004",
+      "category": "Completeness",
+      "priority": "P0",
+      "rationale_summary": "20 distinct CIKs. EDA: all 20 companies present."
+    },
+    {
+      "rule_id": "BASE-CF-005",
+      "category": "Completeness",
+      "priority": "P0",
+      "rationale_summary": "25 distinct business_term_ids. EDA: all 25 BTs present."
+    },
+    {
+      "rule_id": "BASE-CF-006",
+      "category": "Completeness",
+      "priority": "P0",
+      "rationale_summary": "No NULLs in any required column (22 of 25 columns are required per spec)."
+    },
+    {
+      "rule_id": "BASE-CF-007",
+      "category": "Consistency",
+      "priority": "P1",
+      "rationale_summary": "val matches source financial_facts value. P1 not P0 due to floating-point edge cases."
+    },
+    {
+      "rule_id": "BASE-CF-008",
+      "category": "Consistency",
+      "priority": "P0",
+      "rationale_summary": "competing_fact_count >= 1. Structural — every fact competes at minimum with itself."
+    },
+    {
+      "rule_id": "BASE-CF-009",
+      "category": "Consistency",
+      "priority": "P0",
+      "rationale_summary": "selection_reason enum validation. Only 3 valid values per spec."
+    },
+    {
+      "rule_id": "BASE-CF-010",
+      "category": "Consistency",
+      "priority": "P0",
+      "rationale_summary": "Cross-field: sole_candidate iff competing_fact_count = 1. EDA cross-field analysis item 1."
+    },
+    {
+      "rule_id": "BASE-CF-011",
+      "category": "Consistency",
+      "priority": "P1",
+      "rationale_summary": "Unit-to-BT consistency: per-share terms get USD/shares, others get USD. EDA cross-field analysis item 2."
+    },
+    {
+      "rule_id": "BASE-CF-012",
+      "category": "Volume",
+      "priority": "P0",
+      "rationale_summary": "Row count 25,000-35,000. EDA: 28,849 expected rows."
+    },
+    {
+      "rule_id": "BASE-CF-013",
+      "category": "Completeness",
+      "priority": "P2",
+      "rationale_summary": "Per-company minimum 15 BTs. EDA: minimum is 17 (JPMorgan, Berkshire). Buffer of 2."
+    },
+    {
+      "rule_id": "BASE-CF-014",
+      "category": "Validity",
+      "priority": "P0",
+      "rationale_summary": "fiscal_period enum: FY, Q1, Q2, Q3 only."
+    },
+    {
+      "rule_id": "BASE-CF-015",
+      "category": "Validity",
+      "priority": "P0",
+      "rationale_summary": "calendar_quarter in [1, 4]. Inherited constraint."
+    },
+    {
+      "rule_id": "BASE-CF-016",
+      "category": "Validity",
+      "priority": "P1",
+      "rationale_summary": "Fiscal year range: min <= 2010, max >= 2025. EDA: observed 2006-2026."
+    },
+    {
+      "rule_id": "BASE-CF-017",
+      "category": "Freshness",
+      "priority": "P1",
+      "rationale_summary": "promoted_at within 7 days. Batch pipeline recency check per governance-reviewer advisory."
+    },
+    {
+      "rule_id": "BASE-CF-018",
+      "category": "Consistency",
+      "priority": "P1",
+      "rationale_summary": "selection_reason distribution monitoring: sole 40-65%, primary 30-55%, fallback <= 10%. EDA: 51/47/2%."
+    },
+    {
+      "rule_id": "BASE-CF-019",
+      "category": "Completeness",
+      "priority": "P0",
+      "rationale_summary": "No superseded facts in output. Supersession filter removes 49.3% of source; leakage = broken filter."
+    }
+  ],
+  "rules_considered_not_written": [
+    {
+      "description": "Negative value flag (val < 0)",
+      "reason": "EDA shows 21.8% negative values are expected (losses, outflows, per-share losses). Not a data quality issue."
+    },
+    {
+      "description": "Zero value flag (val = 0)",
+      "reason": "EDA shows 2.01% zero values are legitimate. Would be P3 at best. Not worth a rule — no actionable threshold."
+    },
+    {
+      "description": "BT-035 low coverage check",
+      "reason": "EDA shows only 480 grains for BT-035 (Gross Profit) — structural, not a DQ issue. Many companies don't report GrossProfit concept."
+    },
+    {
+      "description": "Q1 underrepresentation check",
+      "reason": "EDA shows 17.1% Q1 vs ~29% Q2/Q3 — expected from XBRL quarterly filing patterns, not a DQ issue."
+    }
+  ],
+  "eda_source": "governance/eda/base-conformed-facts-eda.md",
+  "spec_source": "docs/specs/base-conformed-facts.md"
+}

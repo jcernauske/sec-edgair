@@ -2274,6 +2274,272 @@
           "updated_by": "@doc-generator"
         }
       ]
+    },
+    {
+      "table_name": "base.conformed_facts",
+      "zone": "base",
+      "description": "Single authoritative financial fact per company per business term per fiscal period. Applies supersession filtering, unit filtering, and concept collision resolution to base.financial_facts, producing one winning value per grain. Designed as the single source of truth that all consumable tables read from, eliminating consumable-to-consumable dependencies.",
+      "spec_reference": "docs/specs/base-conformed-facts.md",
+      "row_grain": "One authoritative financial metric value for one company in one fiscal period: (cik, business_term_id, fiscal_year, fiscal_period).",
+      "fields": [
+        {
+          "field_name": "conformed_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic SHA-256 hash of grain fields (cik, business_term_id, fiscal_year, fiscal_period), truncated to 16 hex chars. Primary key. Enables idempotent re-runs: same grain always produces the same ID.",
+          "dq_rules": [
+            "BASE-CF-002"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "source_fact_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to base.financial_facts.fact_id. Identifies the specific winning fact selected by collision resolution. Enables one-hop lineage: conformed_facts -> financial_facts -> raw SEC filing.",
+          "business_term_reference": "BT-017 (Fact Identifier)",
+          "dq_rules": [
+            "BASE-CF-003"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to base.entity_mappings.mapping_id. The resolved entity identity for the company.",
+          "business_term_reference": "BT-008 (Resolved Entity Identifier)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key. Part of the table grain. Uniquely identifies the filing entity.",
+          "business_term_reference": "BT-001 (Central Index Key)",
+          "dq_rules": [
+            "BASE-CF-001",
+            "BASE-CF-004"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company display name, denormalized from entity_mappings for query convenience.",
+          "business_term_reference": "BT-005 (Canonical Company Name)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Primary stock ticker symbol. Null for entities without a public listing. Denormalized from entity_mappings.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to business glossary (BT-022 through BT-048). Identifies the canonical financial metric being measured. Part of the table grain. Legacy CDE-XXX IDs are normalized to BT-XXX before write.",
+          "business_term_reference": "BT-013 (Business Term Identifier)",
+          "dq_rules": [
+            "BASE-CF-001",
+            "BASE-CF-005"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable business term name (e.g., Revenue, Net Income, Total Assets). Denormalized from concept_mappings for display convenience.",
+          "business_term_reference": "BT-013 (Business Term Identifier)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "financial_statement",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Primary financial statement classification: income_statement, balance_sheet, cash_flow_statement, per_share, or other. Denormalized from concept_mappings.",
+          "business_term_reference": "BT-021 (Financial Statement Classification)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "category",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Financial metric subcategory within the statement (e.g., revenue, assets, eps, tax). Denormalized from concept_mappings.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "source_concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "The XBRL concept name that won collision resolution for this grain. When multiple us-gaap concepts map to the same business term in the same period, this records which concept provided the value. Audit trail for the collision resolution process.",
+          "business_term_reference": "BT-009 (XBRL Concept Name)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "The financial value from the winning fact, copied as-is (no transformation). Can be zero or negative. Stored as double for consistency with base.financial_facts.",
+          "dq_rules": [
+            "BASE-CF-007"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "unit",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Measurement unit after unit filtering. USD for dollar amounts, USD/shares for per-share metrics (EPS, dividends per share). Each business term has a configured primary unit; only rows matching that unit survive filtering.",
+          "dq_rules": [
+            "BASE-CF-011"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Fiscal year of the reporting period (e.g., 2023). Part of the table grain. May differ from calendar year depending on the company's fiscal year-end.",
+          "business_term_reference": "BT-018 (Fiscal Period)",
+          "dq_rules": [
+            "BASE-CF-001",
+            "BASE-CF-016"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal period within the year: FY (full year), Q1, Q2, Q3. Part of the table grain.",
+          "business_term_reference": "BT-018 (Fiscal Period)",
+          "dq_rules": [
+            "BASE-CF-001",
+            "BASE-CF-014"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Company's fiscal year end date in MMDD format (e.g., 0930 for Apple's September year-end). Null if entity metadata is incomplete. Denormalized from entity_mappings.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "period_end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Calendar date when the reporting period ended. Sourced from base.financial_facts.end_date.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year of period_end_date. Enables cross-company temporal alignment regardless of when a company's fiscal year ends.",
+          "business_term_reference": "BT-019 (Calendar Period)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_quarter",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar quarter (1-4) derived from period_end_date month. Enables cross-company quarterly comparisons.",
+          "business_term_reference": "BT-019 (Calendar Period)",
+          "dq_rules": [
+            "BASE-CF-015"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "accession_number",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "SEC accession number of the winning fact's filing. Enables lineage tracing from the conformed value back to the specific SEC filing document.",
+          "business_term_reference": "BT-002 (SEC Accession Number)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "filed_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Date the winning fact's filing was officially submitted to the SEC.",
+          "business_term_reference": "BT-006 (SEC Filing Date)",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "competing_fact_count",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Number of candidate facts that competed for this grain during collision resolution. Always >= 1 (the winning fact itself). When > 1, multiple XBRL concepts mapped to the same business term in the same period and one was selected. Lineage metadata for audit transparency.",
+          "dq_rules": [
+            "BASE-CF-008",
+            "BASE-CF-010"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "selection_reason",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Why this fact won collision resolution. One of three values: 'sole_candidate' (only one fact for this grain), 'primary_concept' (matched the configured primary concept list), 'tier_frequency_fallback' (selected by classification tier then reporting frequency). Lineage metadata for audit transparency.",
+          "dq_rules": [
+            "BASE-CF-009",
+            "BASE-CF-010",
+            "BASE-CF-018"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "promoted_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this row was written to the base zone by the promote pipeline.",
+          "dq_rules": [
+            "BASE-CF-017"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "load_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Pipeline run date. Used for pipeline auditing and debugging.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        }
+      ]
     }
   ]
 }

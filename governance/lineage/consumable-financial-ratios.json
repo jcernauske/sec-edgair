@@ -17,7 +17,7 @@
     "name": "consumable.financial_ratios.build",
     "facets": {
       "documentation": {
-        "description": "Compute 7 financial ratios from consumable.company_financials by joining numerator and denominator business terms on (cik, fiscal_year, fiscal_period)."
+        "description": "Compute 7 financial ratios from base.conformed_facts by joining numerator and denominator business terms on (cik, fiscal_year, fiscal_period)."
       },
       "sourceCode": {
         "type": "PYTHON",
@@ -28,7 +28,7 @@
   "inputs": [
     {
       "namespace": "sec_edgair",
-      "name": "consumable.company_financials",
+      "name": "base.conformed_facts",
       "facets": {
         "schema": {
           "fields": [
@@ -77,14 +77,14 @@
             },
             "ratio_value": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"}
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"}
               ],
               "transformationType": "INDIRECT",
               "transformationDescription": "numerator_val / denominator_val, with abs(numerator) for RATIO-007 (CapEx). Skips zero and negative denominators for abs-numerator ratios."
             },
             "companies_reporting": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "cik"}
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "cik"}
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "COUNT(DISTINCT cik) per (ratio_id, fiscal_period) across all fiscal years"

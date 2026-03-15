@@ -1,6 +1,6 @@
 """Core build logic for consumable.financial_ratios.
 
-Reads consumable.company_financials, computes 7 financial ratios by joining
+Reads base.conformed_facts, computes 7 financial ratios by joining
 numerator and denominator business terms on (cik, fiscal_year, fiscal_period),
 and returns one row per (company, ratio, year, period).
 """
@@ -13,12 +13,17 @@ from pathlib import Path
 
 from src.infra.iceberg_setup import get_catalog, read_with_duckdb
 
+from ..shared import build_sector_lookup
 from .config import (
     CATALOG_PATH,
     RATIO_DEFINITIONS,
     RECORD_ID_GRAIN,
     WAREHOUSE_PATH,
 )
+
+
+# Base zone warehouse (conformed_facts lives in the base warehouse)
+BASE_WAREHOUSE_PATH = Path(__file__).resolve().parents[3] / "data" / "raw" / "iceberg_warehouse"
 
 
 def _compute_record_id(record: dict) -> str:
@@ -32,26 +37,40 @@ def _compute_record_id(record: dict) -> str:
 
 def build_financial_ratios(
     *,
-    company_financials: list[dict] | None = None,
+    conformed_facts: list[dict] | None = None,
+    entity_mappings: list[dict] | None = None,
     warehouse_path: str | Path | None = None,
     catalog_path: str | Path | None = None,
+    # Legacy parameter for backward compatibility with tests
+    company_financials: list[dict] | None = None,
 ) -> list[dict]:
     """Build the consumable.financial_ratios table.
 
-    Accepts company_financials as parameter for testability.
-    When not provided, reads from Iceberg table.
+    Reads base.conformed_facts directly. Accepts data as parameters
+    for testability.
     """
-    if company_financials is None:
-        wh = Path(warehouse_path) if warehouse_path else WAREHOUSE_PATH
-        cp = Path(catalog_path) if catalog_path else CATALOG_PATH
-        catalog = get_catalog(wh, cp)
-        cf_table = catalog.load_table("consumable.company_financials")
-        company_financials = read_with_duckdb(cf_table)
+    cp = Path(catalog_path) if catalog_path else CATALOG_PATH
+    base_wh = BASE_WAREHOUSE_PATH
 
-    # Index company_financials by (cik, fiscal_year, fiscal_period, business_term_id)
-    # for fast lookup of numerator/denominator pairs
+    # Support legacy parameter name for existing tests
+    if conformed_facts is None and company_financials is not None:
+        conformed_facts = company_financials
+
+    if conformed_facts is None:
+        catalog = get_catalog(base_wh, cp)
+        cf_table = catalog.load_table("base.conformed_facts")
+        conformed_facts = read_with_duckdb(cf_table)
+
+    # Build sector lookup
+    sector_lookup = build_sector_lookup(
+        entity_mappings=entity_mappings,
+        warehouse_path=str(base_wh),
+        catalog_path=str(cp),
+    )
+
+    # Index conformed_facts by (cik, fiscal_year, fiscal_period, business_term_id)
     cf_index: dict[tuple, dict] = {}
-    for row in company_financials:
+    for row in conformed_facts:
         key = (
             row.get("cik"),
             row.get("fiscal_year"),
@@ -62,7 +81,7 @@ def build_financial_ratios(
 
     # Collect unique (cik, fiscal_year, fiscal_period) groups
     grain_groups: set[tuple] = set()
-    for row in company_financials:
+    for row in conformed_facts:
         grain_groups.add((
             row.get("cik"),
             row.get("fiscal_year"),
@@ -74,6 +93,8 @@ def build_financial_ratios(
     results: list[dict] = []
 
     for cik, fy, fp in grain_groups:
+        sector = sector_lookup.get(cik, "Unknown")
+
         for ratio_def in RATIO_DEFINITIONS:
             num_key = (cik, fy, fp, ratio_def["numerator_bt_id"])
             den_key = (cik, fy, fp, ratio_def["denominator_bt_id"])
@@ -93,7 +114,6 @@ def build_financial_ratios(
                 continue
 
             # When abs_numerator is True (CapEx), also skip negative denominators.
-            # Negative Revenue makes CapEx-to-Revenue meaningless (data quality issue).
             if ratio_def["abs_numerator"] and den_val < 0:
                 continue
 
@@ -101,13 +121,12 @@ def build_financial_ratios(
             effective_num = abs(num_val) if ratio_def["abs_numerator"] else num_val
             ratio_value = effective_num / den_val
 
-            # Use denominator row for temporal fields (both rows share the same period)
             record = {
                 "cik": cik,
                 "entity_id": den_row.get("entity_id", ""),
                 "ticker": den_row.get("ticker"),
                 "canonical_name": den_row.get("canonical_name", ""),
-                "sector": den_row.get("sector", ""),
+                "sector": sector,
                 "ratio_id": ratio_def["ratio_id"],
                 "ratio_name": ratio_def["ratio_name"],
                 "ratio_value": ratio_value,

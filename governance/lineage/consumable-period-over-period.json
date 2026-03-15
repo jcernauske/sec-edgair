@@ -17,7 +17,7 @@
     "name": "consumable.period_over_period.build",
     "facets": {
       "documentation": {
-        "description": "Compute YoY change, YoY % change, and 5-year CAGR from consumable.company_financials by self-joining on (cik, business_term_id, fiscal_period) across fiscal years."
+        "description": "Compute YoY change, YoY % change, and 5-year CAGR from base.conformed_facts by self-joining on (cik, business_term_id, fiscal_period) across fiscal years."
       },
       "sourceCode": {
         "type": "PYTHON",
@@ -28,7 +28,7 @@
   "inputs": [
     {
       "namespace": "sec_edgair",
-      "name": "consumable.company_financials",
+      "name": "base.conformed_facts",
       "facets": {
         "schema": {
           "fields": [
@@ -78,14 +78,14 @@
             },
             "growth_value": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"}
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "val"}
               ],
               "transformationType": "INDIRECT",
               "transformationDescription": "yoy_change: current_val - prior_val. yoy_pct_change: (current - prior) / abs(prior). cagr_5yr: (current / base)^(1/5) - 1. Skips zero/negative base for pct_change/CAGR respectively."
             },
             "companies_reporting": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "cik"}
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "cik"}
               ],
               "transformationType": "AGGREGATION",
               "transformationDescription": "COUNT(DISTINCT cik) per (growth_type, business_term_id, fiscal_period) across all fiscal years"

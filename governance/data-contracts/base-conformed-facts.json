@@ -1,0 +1,70 @@
+{
+  "contract": {
+    "table": "base.conformed_facts",
+    "version": "1.0",
+    "owner": "@doc-generator",
+    "spec_reference": "docs/specs/base-conformed-facts.md",
+    "description": "Single authoritative financial fact per company per business term per fiscal period. The base zone's conformed view that all consumable tables read from.",
+    "schema": {
+      "grain": "(cik, business_term_id, fiscal_year, fiscal_period)",
+      "estimated_row_count": 28849,
+      "fields": [
+        {"name": "conformed_id", "type": "STRING", "nullable": false, "description": "SHA-256 hash of grain fields, truncated to 16 hex chars. Primary key."},
+        {"name": "source_fact_id", "type": "STRING", "nullable": false, "description": "FK to base.financial_facts.fact_id. The winning fact from collision resolution."},
+        {"name": "entity_id", "type": "STRING", "nullable": false, "description": "FK to base.entity_mappings.mapping_id. Resolved entity identity."},
+        {"name": "cik", "type": "INTEGER", "nullable": false, "description": "SEC Central Index Key. Part of grain."},
+        {"name": "canonical_name", "type": "STRING", "nullable": false, "description": "Normalized company display name."},
+        {"name": "ticker", "type": "STRING", "nullable": true, "description": "Primary stock ticker symbol."},
+        {"name": "business_term_id", "type": "STRING", "nullable": false, "description": "FK to business glossary (BT-022 through BT-048). Part of grain."},
+        {"name": "business_term", "type": "STRING", "nullable": false, "description": "Human-readable business term name."},
+        {"name": "financial_statement", "type": "STRING", "nullable": false, "description": "Statement classification: income_statement, balance_sheet, cash_flow_statement, per_share, other."},
+        {"name": "category", "type": "STRING", "nullable": false, "description": "Financial metric subcategory."},
+        {"name": "source_concept", "type": "STRING", "nullable": false, "description": "The XBRL concept that won collision resolution."},
+        {"name": "val", "type": "DOUBLE", "nullable": false, "description": "Financial value from the winning fact."},
+        {"name": "unit", "type": "STRING", "nullable": false, "description": "Measurement unit after unit filtering (USD or USD/shares)."},
+        {"name": "fiscal_year", "type": "INTEGER", "nullable": false, "description": "Fiscal year of reporting period. Part of grain."},
+        {"name": "fiscal_period", "type": "STRING", "nullable": false, "description": "FY, Q1, Q2, Q3. Part of grain."},
+        {"name": "fiscal_year_end", "type": "STRING", "nullable": true, "description": "Fiscal year end in MMDD format."},
+        {"name": "period_end_date", "type": "DATE", "nullable": false, "description": "Calendar date of reporting period end."},
+        {"name": "calendar_year", "type": "INTEGER", "nullable": false, "description": "Calendar year of period_end_date."},
+        {"name": "calendar_quarter", "type": "INTEGER", "nullable": false, "description": "Calendar quarter (1-4) of period_end_date."},
+        {"name": "accession_number", "type": "STRING", "nullable": false, "description": "SEC accession number of the winning fact's filing."},
+        {"name": "filed_date", "type": "DATE", "nullable": false, "description": "Date the winning fact's filing was submitted to the SEC."},
+        {"name": "competing_fact_count", "type": "INTEGER", "nullable": false, "description": "Number of candidate facts that competed for this grain (>= 1)."},
+        {"name": "selection_reason", "type": "STRING", "nullable": false, "description": "Why this fact won: sole_candidate, primary_concept, or tier_frequency_fallback."},
+        {"name": "promoted_at", "type": "TIMESTAMPTZ", "nullable": false, "description": "UTC timestamp when written to base zone."},
+        {"name": "load_date", "type": "DATE", "nullable": false, "description": "Pipeline run date."}
+      ]
+    },
+    "quality": {
+      "completeness_threshold": 1.0,
+      "validity_threshold": 1.0,
+      "freshness_sla": "Updated within 7 days of pipeline run (development); tighten to 24-48 hours in production.",
+      "uniqueness_guarantee": "Exactly one row per (cik, business_term_id, fiscal_year, fiscal_period). Enforced by DQ rules BASE-CF-001 and BASE-CF-002.",
+      "referential_integrity": "Every source_fact_id exists in base.financial_facts. Enforced by DQ rule BASE-CF-003.",
+      "coverage": "All 20 in-scope companies and all 25 business terms represented. Enforced by BASE-CF-004 and BASE-CF-005.",
+      "volume_range": "25,000 to 35,000 rows. Enforced by BASE-CF-012.",
+      "dq_rules_reference": "governance/dq-rules/base-conformed-facts.json (19 rules: BASE-CF-001 through BASE-CF-019)"
+    },
+    "lineage": {
+      "sources": [
+        "base.financial_facts",
+        "base.entity_mappings",
+        "base.concept_mappings",
+        "governance/conformation/concept-priority-rules.json"
+      ],
+      "consumers": [
+        "consumable.company_financials",
+        "consumable.financial_ratios",
+        "consumable.period_over_period",
+        "consumable.peer_comparison",
+        "consumable.amendment_analysis"
+      ],
+      "trace_path": "conformed_facts.source_fact_id -> financial_facts.fact_id -> raw grain fields -> SEC filing"
+    },
+    "breaking_changes": {
+      "policy": "Semantic versioning. Breaking changes (grain change, column removal, type change) require a new major version and 30-day deprecation notice. All five consumable tables depend on this contract.",
+      "notification": "Logged in governance/audit-trail/"
+    }
+  }
+}

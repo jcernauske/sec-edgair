@@ -24,22 +24,16 @@ from .formatters import format_currency, format_percentage, format_ratio, format
 # Metric resolution: support both names ("Revenue") and IDs ("BT-022")
 # ---------------------------------------------------------------------------
 
-# Build a lookup from name -> business_term_id using the glossary data
-# We'll populate this lazily from the DB data
 _METRIC_NAME_TO_ID: dict[str, str] = {}
 _METRIC_ID_TO_NAME: dict[str, str] = {}
 _RATIO_NAME_TO_ID: dict[str, str] = {}
 _RATIO_ID_TO_NAME: dict[str, str] = {}
 
-# Pre-populate ratio lookups from config
 for _r in RATIO_DEFINITIONS:
     _RATIO_NAME_TO_ID[_r["ratio_name"].lower()] = _r["ratio_id"]
     _RATIO_ID_TO_NAME[_r["ratio_id"]] = _r["ratio_name"]
 
-# Per-share business terms
 _PER_SHARE_BT_IDS = {"BT-044", "BT-045", "BT-046"}
-
-# Ratio-type ratios (not percentage-based) — Debt-to-Equity, CapEx-to-Revenue
 _MULTIPLIER_RATIO_IDS = {"RATIO-004", "RATIO-007"}
 
 
@@ -47,7 +41,6 @@ def _ensure_metric_lookups() -> None:
     """Populate metric name <-> ID lookups from DB data (lazy, once)."""
     if _METRIC_NAME_TO_ID:
         return
-
     con = get_db()
     try:
         rows = con.execute(
@@ -62,65 +55,39 @@ def _ensure_metric_lookups() -> None:
 
 
 def _resolve_metric(metric: str) -> tuple[str, str]:
-    """Resolve a metric name or ID to (business_term_id, business_term_name).
-
-    Supports: "Revenue", "BT-022", "revenue", "Net Income", etc.
-    Returns (bt_id, bt_name) or raises ValueError if not found.
-    """
+    """Resolve a metric name or ID to (business_term_id, business_term_name)."""
     _ensure_metric_lookups()
-
-    # Check if it's already an ID
     if metric.upper().startswith("BT-"):
         bt_id = metric.upper()
-        bt_name = _METRIC_ID_TO_NAME.get(bt_id, metric)
-        return bt_id, bt_name
-
-    # Try exact match (case-insensitive)
+        return bt_id, _METRIC_ID_TO_NAME.get(bt_id, metric)
     bt_id = _METRIC_NAME_TO_ID.get(metric.lower())
     if bt_id:
         return bt_id, _METRIC_ID_TO_NAME.get(bt_id, metric)
-
-    # Try partial match
     for name, bid in _METRIC_NAME_TO_ID.items():
         if metric.lower() in name:
             return bid, _METRIC_ID_TO_NAME.get(bid, name)
-
     raise ValueError(f"Unknown metric: '{metric}'. Available metrics: {list(_METRIC_ID_TO_NAME.values())}")
 
 
 def _resolve_ratio(ratio: str) -> tuple[str, str]:
-    """Resolve a ratio name or ID to (ratio_id, ratio_name).
-
-    Supports: "Net Margin", "RATIO-003", "net margin", etc.
-    Returns (ratio_id, ratio_name) or raises ValueError if not found.
-    """
-    # Check if it's already an ID
+    """Resolve a ratio name or ID to (ratio_id, ratio_name)."""
     if ratio.upper().startswith("RATIO-"):
         ratio_id = ratio.upper()
-        ratio_name = _RATIO_ID_TO_NAME.get(ratio_id, ratio)
-        return ratio_id, ratio_name
-
-    # Try exact match (case-insensitive)
+        return ratio_id, _RATIO_ID_TO_NAME.get(ratio_id, ratio)
     ratio_id = _RATIO_NAME_TO_ID.get(ratio.lower())
     if ratio_id:
         return ratio_id, _RATIO_ID_TO_NAME.get(ratio_id, ratio)
-
-    # Try partial match
     for name, rid in _RATIO_NAME_TO_ID.items():
         if ratio.lower() in name:
             return rid, _RATIO_ID_TO_NAME.get(rid, name)
-
     raise ValueError(f"Unknown ratio: '{ratio}'. Available ratios: {list(_RATIO_ID_TO_NAME.values())}")
 
 
 def _detect_metric_or_ratio(metric: str) -> tuple[str, str, str]:
-    """Detect if a metric string refers to a company_financials metric or a ratio.
+    """Detect if a metric refers to company_financials or financial_ratios.
 
-    Returns (source, id, name) where source is "company_financials" or "financial_ratios".
-    Tries exact matches first to avoid partial match false positives
-    (e.g., "Revenue" matching "CapEx-to-Revenue").
+    Returns (source, id, name). Tries exact matches before partial.
     """
-    # Check IDs first (unambiguous)
     if metric.upper().startswith("RATIO-"):
         ratio_id, ratio_name = _resolve_ratio(metric)
         return "financial_ratios", ratio_id, ratio_name
@@ -128,25 +95,17 @@ def _detect_metric_or_ratio(metric: str) -> tuple[str, str, str]:
         bt_id, bt_name = _resolve_metric(metric)
         return "company_financials", bt_id, bt_name
 
-    # Try exact name matches (case-insensitive) before partial matches
     _ensure_metric_lookups()
 
-    # Exact match on company_financials
     bt_id = _METRIC_NAME_TO_ID.get(metric.lower())
     if bt_id:
         return "company_financials", bt_id, _METRIC_ID_TO_NAME.get(bt_id, metric)
-
-    # Exact match on ratios
     ratio_id = _RATIO_NAME_TO_ID.get(metric.lower())
     if ratio_id:
         return "financial_ratios", ratio_id, _RATIO_ID_TO_NAME.get(ratio_id, metric)
-
-    # Partial match on company_financials
     for name, bid in _METRIC_NAME_TO_ID.items():
         if metric.lower() in name:
             return "company_financials", bid, _METRIC_ID_TO_NAME.get(bid, name)
-
-    # Partial match on ratios
     for name, rid in _RATIO_NAME_TO_ID.items():
         if metric.lower() in name:
             return "financial_ratios", rid, _RATIO_ID_TO_NAME.get(rid, name)
@@ -158,10 +117,8 @@ def _format_metric_value(value: float | None, bt_id: str | None = None) -> str:
     """Format a metric value based on its business term ID."""
     if value is None:
         return "N/A"
-
     if bt_id in _PER_SHARE_BT_IDS:
         return format_value(value, unit="USD/shares")
-
     unit = PRIMARY_UNIT.get(bt_id, "USD") if bt_id else "USD"
     return format_value(value, unit=unit)
 
@@ -170,10 +127,187 @@ def _format_ratio_value(value: float | None, ratio_id: str | None = None) -> str
     """Format a ratio value based on its ratio ID."""
     if value is None:
         return "N/A"
-
     if ratio_id in _MULTIPLIER_RATIO_IDS:
         return format_ratio(value)
     return format_percentage(value)
+
+
+def _compute_trend_direction(yoy_pcts: list[float]) -> str:
+    """Classify a trend from YoY percentage changes."""
+    if not yoy_pcts or len(yoy_pcts) < 2:
+        return "insufficient_data"
+    positive = sum(1 for p in yoy_pcts if p > 0.01)
+    negative = sum(1 for p in yoy_pcts if p < -0.01)
+    total = len(yoy_pcts)
+    if positive > 0 and negative > 0 and min(positive, negative) / total > 0.3:
+        return "volatile"
+    if positive / total >= 0.7:
+        return "growing"
+    if negative / total >= 0.7:
+        return "declining"
+    return "stable"
+
+
+# ---------------------------------------------------------------------------
+# Shared enrichment primitives
+# ---------------------------------------------------------------------------
+
+
+def _fetch_metric_growth(con, ticker: str, bt_id: str, fy: int,
+                         fp: str) -> tuple[float | None, float | None, float | None]:
+    """Fetch YoY change, YoY pct, and CAGR 5yr from period_over_period.
+
+    Returns (yoy_change, yoy_pct, cagr_5yr).
+    """
+    yoy_change, yoy_pct, cagr_5yr = None, None, None
+    try:
+        rows = con.execute(
+            """SELECT growth_type, growth_value FROM period_over_period
+               WHERE ticker = ? AND business_term_id = ?
+                 AND fiscal_year = ? AND fiscal_period = ?
+                 AND growth_type IN ('yoy_change', 'yoy_pct_change', 'cagr_5yr')""",
+            [ticker, bt_id, fy, fp],
+        ).fetchall()
+        for gtype, gval in rows:
+            if gtype == "yoy_change":
+                yoy_change = gval
+            elif gtype == "yoy_pct_change":
+                yoy_pct = gval
+            elif gtype == "cagr_5yr":
+                cagr_5yr = gval
+    except Exception:
+        pass
+    return yoy_change, yoy_pct, cagr_5yr
+
+
+def _fetch_metric_peer_rank(con, ticker: str, metric_id: str, fy: int,
+                            fp: str) -> tuple[int | None, float | None, int | None]:
+    """Fetch sector rank from peer_comparison for a company_financials metric.
+
+    Returns (sector_rank, sector_percentile, peer_count).
+    """
+    try:
+        row = con.execute(
+            """SELECT sector_rank, sector_percentile, peer_count
+               FROM peer_comparison
+               WHERE ticker = ? AND metric_id = ?
+                 AND fiscal_year = ? AND fiscal_period = ?
+                 AND metric_source = 'company_financials'""",
+            [ticker, metric_id, fy, fp],
+        ).fetchone()
+        if row:
+            return row[0], row[1], row[2]
+    except Exception:
+        pass
+    return None, None, None
+
+
+def _fetch_ratio_peer_rank(con, ticker: str, ratio_id: str,
+                           fy: int) -> tuple[int | None, float | None, float | None, int | None]:
+    """Fetch sector rank from peer_comparison for a financial_ratios metric.
+
+    Returns (sector_rank, sector_percentile, sector_avg, peer_count).
+    """
+    try:
+        row = con.execute(
+            """SELECT sector_rank, sector_percentile, sector_avg, peer_count
+               FROM peer_comparison
+               WHERE ticker = ? AND metric_id = ? AND fiscal_year = ?
+                 AND fiscal_period = 'FY' AND metric_source = 'financial_ratios'""",
+            [ticker, ratio_id, fy],
+        ).fetchone()
+        if row:
+            return row[0], row[1], row[2], row[3]
+    except Exception:
+        pass
+    return None, None, None, None
+
+
+def _fetch_net_margin(con, ticker: str, fy: int, fp: str) -> float | None:
+    """Fetch net margin ratio value for pre-profitability check."""
+    try:
+        row = con.execute(
+            """SELECT ratio_value FROM financial_ratios
+               WHERE ticker = ? AND ratio_id = 'RATIO-003'
+                 AND fiscal_year = ? AND fiscal_period = ?""",
+            [ticker, fy, fp],
+        ).fetchone()
+        if row:
+            return row[0]
+    except Exception:
+        pass
+    return None
+
+
+def _fetch_ratio_yoy(con, ticker: str, ratio_id: str, ratio_value: float,
+                     fy: int) -> tuple[float | None, float | None]:
+    """Compute YoY change for a ratio by comparing to previous year.
+
+    Returns (yoy_change, yoy_pct).
+    """
+    try:
+        row = con.execute(
+            """SELECT ratio_value FROM financial_ratios
+               WHERE ticker = ? AND ratio_id = ? AND fiscal_year = ?
+                 AND fiscal_period = 'FY'""",
+            [ticker, ratio_id, fy - 1],
+        ).fetchone()
+        if row:
+            prev_val = row[0]
+            yoy_change = ratio_value - prev_val
+            yoy_pct = yoy_change / abs(prev_val) if prev_val != 0 else None
+            return yoy_change, yoy_pct
+    except Exception:
+        pass
+    return None, None
+
+
+def _get_sector_stats(con, source: str, metric_id: str, sector: str,
+                      fiscal_year: int) -> dict | None:
+    """Compute sector statistics (avg, median, leader, laggard) for a metric.
+
+    Returns dict with avg, median, leader, laggard, companies_reporting.
+    Returns None if no data.
+    """
+    if source == "financial_ratios":
+        val_rows = con.execute(
+            """SELECT ticker, ratio_value FROM financial_ratios
+               WHERE sector = ? AND ratio_id = ? AND fiscal_year = ?
+                 AND fiscal_period = 'FY' ORDER BY ratio_value DESC""",
+            [sector, metric_id, fiscal_year],
+        ).fetchall()
+        fmt_fn = _format_ratio_value
+    else:
+        val_rows = con.execute(
+            """SELECT ticker, val FROM company_financials
+               WHERE sector = ? AND business_term_id = ? AND fiscal_year = ?
+                 AND fiscal_period = 'FY' ORDER BY val DESC""",
+            [sector, metric_id, fiscal_year],
+        ).fetchall()
+        fmt_fn = _format_metric_value
+
+    if not val_rows:
+        return None
+
+    values = [(t, v) for t, v in val_rows]
+    all_vals = [v for _, v in values]
+    avg = sum(all_vals) / len(all_vals)
+    sorted_vals = sorted(all_vals)
+    median = sorted_vals[len(sorted_vals) // 2]
+    leader_tick, leader_val = values[0]
+    laggard_tick, laggard_val = values[-1]
+
+    return {
+        "avg": avg,
+        "avg_formatted": fmt_fn(avg, metric_id),
+        "median": median,
+        "median_formatted": fmt_fn(median, metric_id),
+        "leader": {"ticker": leader_tick, "value": leader_val,
+                   "formatted": fmt_fn(leader_val, metric_id)},
+        "laggard": {"ticker": laggard_tick, "value": laggard_val,
+                    "formatted": fmt_fn(laggard_val, metric_id)},
+        "companies_reporting": len(values),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -208,7 +342,6 @@ def get_company_metric(
     except ValueError as e:
         return {"error": str(e)}
 
-    # Get the metric value
     if fiscal_year is not None:
         rows = con.execute(
             """SELECT val, unit, fiscal_year, period_end_date, sector,
@@ -239,74 +372,13 @@ def get_company_metric(
 
     val, unit, fy, period_end_date, sector, fy_end, company_name, cik = rows[0]
 
-    # Get YoY change from period_over_period
-    yoy_change = None
-    yoy_pct = None
-    cagr_5yr = None
-
-    try:
-        pop_rows = con.execute(
-            """SELECT growth_type, growth_value
-               FROM period_over_period
-               WHERE ticker = ? AND business_term_id = ?
-                 AND fiscal_year = ? AND fiscal_period = ?
-                 AND growth_type IN ('yoy_change', 'yoy_pct_change', 'cagr_5yr')""",
-            [ticker, bt_id, fy, fiscal_period],
-        ).fetchall()
-        for gtype, gval in pop_rows:
-            if gtype == "yoy_change":
-                yoy_change = gval
-            elif gtype == "yoy_pct_change":
-                yoy_pct = gval
-            elif gtype == "cagr_5yr":
-                cagr_5yr = gval
-    except Exception:
-        pass
-
-    # Get peer comparison
-    sector_rank = None
-    sector_percentile = None
-    peer_count = None
-
-    try:
-        pc_rows = con.execute(
-            """SELECT sector_rank, sector_percentile, peer_count
-               FROM peer_comparison
-               WHERE ticker = ? AND metric_id = ?
-                 AND fiscal_year = ? AND fiscal_period = ?
-                 AND metric_source = 'company_financials'""",
-            [ticker, bt_id, fy, fiscal_period],
-        ).fetchall()
-        if pc_rows:
-            sector_rank, sector_percentile, peer_count = pc_rows[0]
-    except Exception:
-        pass
-
-    # Format value
-    formatted = _format_metric_value(val, bt_id)
-
-    # Check anomalies
-    # Get net margin for pre-profitability check
-    net_margin = None
-    try:
-        nm_rows = con.execute(
-            """SELECT ratio_value FROM financial_ratios
-               WHERE ticker = ? AND ratio_id = 'RATIO-003'
-                 AND fiscal_year = ? AND fiscal_period = ?""",
-            [ticker, fy, fiscal_period],
-        ).fetchall()
-        if nm_rows:
-            net_margin = nm_rows[0][0]
-    except Exception:
-        pass
+    yoy_change, yoy_pct, cagr_5yr = _fetch_metric_growth(con, ticker, bt_id, fy, fiscal_period)
+    sector_rank, sector_percentile, peer_count = _fetch_metric_peer_rank(con, ticker, bt_id, fy, fiscal_period)
+    net_margin = _fetch_net_margin(con, ticker, fy, fiscal_period)
 
     anomaly_flags = check_anomalies(
-        ticker=ticker,
-        metric=bt_name,
-        value=val,
-        yoy_pct=yoy_pct,
-        sector=sector,
-        net_margin=net_margin,
+        ticker=ticker, metric=bt_name, value=val,
+        yoy_pct=yoy_pct, sector=sector, net_margin=net_margin,
     )
 
     result = {
@@ -315,7 +387,7 @@ def get_company_metric(
         "metric": bt_name,
         "metric_id": bt_id,
         "value": val,
-        "formatted": formatted,
+        "formatted": _format_metric_value(val, bt_id),
         "unit": unit,
         "fiscal_year": fy,
         "fiscal_period": fiscal_period,
@@ -366,7 +438,6 @@ def get_company_profile(
     con = get_db()
     ticker = ticker.upper()
 
-    # Get latest fiscal year if not specified
     if fiscal_year is None:
         fy_rows = con.execute(
             """SELECT MAX(fiscal_year) FROM company_financials
@@ -378,7 +449,6 @@ def get_company_profile(
         else:
             return {"error": f"No data found for ticker {ticker}"}
 
-    # Get company info
     info_rows = con.execute(
         """SELECT DISTINCT canonical_name, sector, fiscal_year_end, cik
            FROM company_financials
@@ -411,45 +481,16 @@ def get_company_profile(
 
     metrics = []
     for bt_id, bt_name, val, unit in metric_rows:
-        formatted = _format_metric_value(val, bt_id)
-
-        # Get YoY pct
-        yoy_pct = None
-        try:
-            pop = con.execute(
-                """SELECT growth_value FROM period_over_period
-                   WHERE ticker = ? AND business_term_id = ?
-                     AND fiscal_year = ? AND fiscal_period = 'FY'
-                     AND growth_type = 'yoy_pct_change'""",
-                [ticker, bt_id, fiscal_year],
-            ).fetchone()
-            if pop:
-                yoy_pct = pop[0]
-        except Exception:
-            pass
-
-        # Get sector rank
-        sector_rank = None
-        try:
-            pc = con.execute(
-                """SELECT sector_rank, peer_count FROM peer_comparison
-                   WHERE ticker = ? AND metric_id = ?
-                     AND fiscal_year = ? AND fiscal_period = 'FY'
-                     AND metric_source = 'company_financials'""",
-                [ticker, bt_id, fiscal_year],
-            ).fetchone()
-            if pc:
-                sector_rank = f"#{pc[0]} of {pc[1]}"
-        except Exception:
-            pass
+        _, yoy_pct, _ = _fetch_metric_growth(con, ticker, bt_id, fiscal_year, "FY")
+        sector_rank, _, peer_count = _fetch_metric_peer_rank(con, ticker, bt_id, fiscal_year, "FY")
 
         metrics.append({
             "name": bt_name,
             "metric_id": bt_id,
             "value": val,
-            "formatted": formatted,
+            "formatted": _format_metric_value(val, bt_id),
             "yoy_pct": format_yoy_pct(yoy_pct) if yoy_pct is not None else None,
-            "sector_rank": sector_rank,
+            "sector_rank": f"#{sector_rank} of {peer_count}" if sector_rank is not None else None,
         })
 
     # Get all ratios
@@ -463,29 +504,14 @@ def get_company_profile(
 
     ratios = []
     for ratio_id, ratio_name, ratio_value in ratio_rows:
-        formatted = _format_ratio_value(ratio_value, ratio_id)
-
-        # Get sector rank
-        sector_rank = None
-        try:
-            pc = con.execute(
-                """SELECT sector_rank, peer_count FROM peer_comparison
-                   WHERE ticker = ? AND metric_id = ?
-                     AND fiscal_year = ? AND fiscal_period = 'FY'
-                     AND metric_source = 'financial_ratios'""",
-                [ticker, ratio_id, fiscal_year],
-            ).fetchone()
-            if pc:
-                sector_rank = f"#{pc[0]} of {pc[1]}"
-        except Exception:
-            pass
+        r_rank, _, _, r_peer_count = _fetch_ratio_peer_rank(con, ticker, ratio_id, fiscal_year)
 
         ratios.append({
             "name": ratio_name,
             "ratio_id": ratio_id,
             "value": ratio_value,
-            "formatted": formatted,
-            "sector_rank": sector_rank,
+            "formatted": _format_ratio_value(ratio_value, ratio_id),
+            "sector_rank": f"#{r_rank} of {r_peer_count}" if r_rank is not None else None,
         })
 
     # Get amendment summary
@@ -514,7 +540,6 @@ def get_company_profile(
     # Collect anomaly flags for key metrics
     anomaly_flags = []
 
-    # Check net margin for pre-profitability
     net_margin = None
     for r in ratios:
         if r["ratio_id"] == "RATIO-003":
@@ -523,24 +548,17 @@ def get_company_profile(
 
     for m in metrics:
         flags = check_anomalies(
-            ticker=ticker,
-            metric=m["name"],
-            value=m["value"],
-            sector=sector,
-            net_margin=net_margin,
+            ticker=ticker, metric=m["name"], value=m["value"],
+            sector=sector, net_margin=net_margin,
         )
         for f in flags:
             if f not in anomaly_flags:
                 anomaly_flags.append(f)
 
-    # Check ratio anomalies
     for r in ratios:
         flags = check_anomalies(
-            ticker=ticker,
-            metric=r["name"],
-            value=r["value"],
-            sector=sector,
-            ratio_name=r["name"],
+            ticker=ticker, metric=r["name"], value=r["value"],
+            sector=sector, ratio_name=r["name"],
         )
         for f in flags:
             if f not in anomaly_flags:
@@ -586,7 +604,6 @@ def compare_companies(
     ticker_a = ticker_a.upper()
     ticker_b = ticker_b.upper()
 
-    # Determine fiscal year
     if fiscal_year is None:
         fy_rows = con.execute(
             """SELECT MAX(fiscal_year) FROM (
@@ -603,7 +620,6 @@ def compare_companies(
         else:
             return {"error": f"No overlapping fiscal years for {ticker_a} and {ticker_b}"}
 
-    # Get company info for both
     def _get_company_info(ticker: str) -> dict:
         row = con.execute(
             """SELECT DISTINCT canonical_name, sector, fiscal_year_end, cik
@@ -619,9 +635,7 @@ def compare_companies(
     company_a = _get_company_info(ticker_a)
     company_b = _get_company_info(ticker_b)
 
-    # Determine which metrics to compare
     if metrics:
-        # Resolve each metric
         resolved_metrics = []
         for m in metrics:
             try:
@@ -630,7 +644,6 @@ def compare_companies(
             except ValueError:
                 continue
     else:
-        # All shared metrics from company_financials
         shared = con.execute(
             """SELECT a.business_term_id, a.business_term
                FROM company_financials a
@@ -644,7 +657,6 @@ def compare_companies(
         ).fetchall()
         resolved_metrics = [("company_financials", bt_id, bt_name) for bt_id, bt_name in shared]
 
-        # Add shared ratios
         shared_ratios = con.execute(
             """SELECT a.ratio_id, a.ratio_name
                FROM financial_ratios a
@@ -660,7 +672,6 @@ def compare_companies(
             [("financial_ratios", rid, rname) for rid, rname in shared_ratios]
         )
 
-    # Build comparisons
     comparisons = []
     for source, mid, mname in resolved_metrics:
         if source == "company_financials":
@@ -703,8 +714,6 @@ def compare_companies(
 
         delta = val_a - val_b
         delta_pct = delta / abs(val_b) if val_b != 0 else None
-
-        # Determine winner (higher = better for most metrics)
         winner = ticker_a if val_a > val_b else ticker_b if val_b > val_a else "tie"
 
         comparisons.append({
@@ -728,7 +737,6 @@ def compare_companies(
         "comparisons": comparisons,
     }
 
-    # Check fiscal alignment
     fy_warning = check_fiscal_alignment(
         ticker_a, company_a.get("fiscal_year_end"),
         ticker_b, company_b.get("fiscal_year_end"),
@@ -765,7 +773,6 @@ def rank_companies(
     """
     con = get_db()
 
-    # Auto-detect source if not specified
     if metric_source is None:
         try:
             source, mid, mname = _detect_metric_or_ratio(metric)
@@ -779,18 +786,15 @@ def rank_companies(
             mid, mname = _resolve_metric(metric)
         source = metric_source
 
-    # Determine fiscal year
     if fiscal_year is None:
         if metric_source == "financial_ratios":
             fy_row = con.execute(
-                """SELECT MAX(fiscal_year) FROM financial_ratios
-                   WHERE ratio_id = ? AND fiscal_period = 'FY'""",
+                "SELECT MAX(fiscal_year) FROM financial_ratios WHERE ratio_id = ? AND fiscal_period = 'FY'",
                 [mid],
             ).fetchone()
         else:
             fy_row = con.execute(
-                """SELECT MAX(fiscal_year) FROM company_financials
-                   WHERE business_term_id = ? AND fiscal_period = 'FY'""",
+                "SELECT MAX(fiscal_year) FROM company_financials WHERE business_term_id = ? AND fiscal_period = 'FY'",
                 [mid],
             ).fetchone()
         if fy_row and fy_row[0]:
@@ -798,57 +802,37 @@ def rank_companies(
         else:
             return {"error": f"No data found for metric {mname}"}
 
-    # Query data
     if metric_source == "financial_ratios":
         query = """SELECT ticker, canonical_name, sector, ratio_value
                    FROM financial_ratios
                    WHERE ratio_id = ? AND fiscal_year = ? AND fiscal_period = 'FY'"""
-        params = [mid, fiscal_year]
-        if sector:
-            query += " AND sector = ?"
-            params.append(sector)
-        query += " ORDER BY ratio_value DESC"
-        rows = con.execute(query, params).fetchall()
-        values = [(r[0], r[1], r[2], r[3]) for r in rows]
     else:
         query = """SELECT ticker, canonical_name, sector, val
                    FROM company_financials
                    WHERE business_term_id = ? AND fiscal_year = ? AND fiscal_period = 'FY'"""
-        params = [mid, fiscal_year]
-        if sector:
-            query += " AND sector = ?"
-            params.append(sector)
-        query += " ORDER BY val DESC"
-        rows = con.execute(query, params).fetchall()
-        values = [(r[0], r[1], r[2], r[3]) for r in rows]
+    params = [mid, fiscal_year]
+    if sector:
+        query += " AND sector = ?"
+        params.append(sector)
+    query += " ORDER BY " + ("ratio_value" if metric_source == "financial_ratios" else "val") + " DESC"
+    rows = con.execute(query, params).fetchall()
+    values = [(r[0], r[1], r[2], r[3]) for r in rows]
 
-    # Build rankings
+    fmt_fn = _format_ratio_value if metric_source == "financial_ratios" else _format_metric_value
     rankings = []
     for rank, (tick, name, sec, val) in enumerate(values, start=1):
-        if metric_source == "financial_ratios":
-            formatted = _format_ratio_value(val, mid)
-        else:
-            formatted = _format_metric_value(val, mid)
-
         rankings.append({
-            "rank": rank,
-            "ticker": tick,
-            "name": name,
-            "sector": sec,
-            "value": val,
-            "formatted": formatted,
+            "rank": rank, "ticker": tick, "name": name, "sector": sec,
+            "value": val, "formatted": fmt_fn(val, mid),
         })
 
     if top_n is not None:
         rankings = rankings[:top_n]
 
     return {
-        "metric_name": mname,
-        "metric_id": mid,
-        "fiscal_year": fiscal_year,
-        "companies_included": len(values),
-        "sector_filter": sector,
-        "rankings": rankings,
+        "metric_name": mname, "metric_id": mid,
+        "fiscal_year": fiscal_year, "companies_included": len(values),
+        "sector_filter": sector, "rankings": rankings,
     }
 
 
@@ -882,35 +866,28 @@ def get_company_trend(
     except ValueError as e:
         return {"error": str(e)}
 
-    # Get all years for this metric
     query = """SELECT fiscal_year, val, period_end_date, sector
                FROM company_financials
                WHERE ticker = ? AND business_term_id = ? AND fiscal_period = 'FY'"""
-    params = [ticker, bt_id]
-
+    params: list = [ticker, bt_id]
     if start_year is not None:
         query += " AND fiscal_year >= ?"
         params.append(start_year)
     if end_year is not None:
         query += " AND fiscal_year <= ?"
         params.append(end_year)
-
     query += " ORDER BY fiscal_year ASC"
     rows = con.execute(query, params).fetchall()
 
     if not rows:
-        return {
-            "error": f"No data found for {ticker} {bt_name}",
-            "ticker": ticker,
-            "metric": bt_name,
-        }
+        return {"error": f"No data found for {ticker} {bt_name}", "ticker": ticker, "metric": bt_name}
 
-    # Get YoY data from period_over_period
+    # Batch-fetch YoY data for all years at once
     pop_query = """SELECT fiscal_year, growth_type, growth_value
                    FROM period_over_period
                    WHERE ticker = ? AND business_term_id = ? AND fiscal_period = 'FY'
                      AND growth_type IN ('yoy_change', 'yoy_pct_change')"""
-    pop_params = [ticker, bt_id]
+    pop_params: list = [ticker, bt_id]
     if start_year:
         pop_query += " AND fiscal_year >= ?"
         pop_params.append(start_year)
@@ -918,81 +895,63 @@ def get_company_trend(
         pop_query += " AND fiscal_year <= ?"
         pop_params.append(end_year)
 
-    pop_rows = con.execute(pop_query, pop_params).fetchall()
     pop_data: dict[tuple, float] = {}
-    for fy, gtype, gval in pop_rows:
+    for fy, gtype, gval in con.execute(pop_query, pop_params).fetchall():
         pop_data[(fy, gtype)] = gval
 
-    # Build time series
     time_series = []
     all_yoy_pcts = []
 
     for fy, val, period_end, sector in rows:
         yoy_change = pop_data.get((fy, "yoy_change"))
         yoy_pct = pop_data.get((fy, "yoy_pct_change"))
-
         if yoy_pct is not None:
             all_yoy_pcts.append(yoy_pct)
 
         entry = {
-            "fiscal_year": fy,
-            "value": val,
+            "fiscal_year": fy, "value": val,
             "formatted": _format_metric_value(val, bt_id),
             "period_end_date": str(period_end) if period_end else None,
         }
-
         if yoy_change is not None:
             entry["yoy_change"] = yoy_change
             entry["yoy_change_formatted"] = format_currency(yoy_change)
         if yoy_pct is not None:
             entry["yoy_pct"] = yoy_pct
             entry["yoy_pct_formatted"] = format_yoy_pct(yoy_pct)
-
         time_series.append(entry)
 
-    # Get CAGR if available
+    # Get CAGR
     cagr_5yr = None
-    if rows:
-        latest_fy = rows[-1][0]
-        try:
-            cagr_row = con.execute(
-                """SELECT growth_value FROM period_over_period
-                   WHERE ticker = ? AND business_term_id = ?
-                     AND fiscal_year = ? AND fiscal_period = 'FY'
-                     AND growth_type = 'cagr_5yr'""",
-                [ticker, bt_id, latest_fy],
-            ).fetchone()
-            if cagr_row:
-                cagr_5yr = cagr_row[0]
-        except Exception:
-            pass
-
-    # Determine trend direction
-    trend_direction = _compute_trend_direction(all_yoy_pcts)
+    latest_fy = rows[-1][0]
+    try:
+        cagr_row = con.execute(
+            """SELECT growth_value FROM period_over_period
+               WHERE ticker = ? AND business_term_id = ?
+                 AND fiscal_year = ? AND fiscal_period = 'FY'
+                 AND growth_type = 'cagr_5yr'""",
+            [ticker, bt_id, latest_fy],
+        ).fetchone()
+        if cagr_row:
+            cagr_5yr = cagr_row[0]
+    except Exception:
+        pass
 
     # Collect anomaly flags
     anomaly_flags = []
     for entry in time_series:
-        yoy_pct = entry.get("yoy_pct")
         flags = check_anomalies(
-            ticker=ticker,
-            metric=bt_name,
-            value=entry["value"],
-            yoy_pct=yoy_pct,
-            sector=sector if rows else None,
+            ticker=ticker, metric=bt_name, value=entry["value"],
+            yoy_pct=entry.get("yoy_pct"), sector=sector if rows else None,
         )
         for f in flags:
             if f not in anomaly_flags:
                 anomaly_flags.append(f)
 
     result = {
-        "ticker": ticker,
-        "metric": bt_name,
-        "metric_id": bt_id,
-        "time_series": time_series,
-        "trend_direction": trend_direction,
+        "ticker": ticker, "metric": bt_name, "metric_id": bt_id,
+        "time_series": time_series, "trend_direction": _compute_trend_direction(all_yoy_pcts),
     }
-
     if cagr_5yr is not None:
         result["cagr_5yr"] = cagr_5yr
         result["cagr_5yr_formatted"] = format_yoy_pct(cagr_5yr)
@@ -1000,33 +959,6 @@ def get_company_trend(
         result["anomaly_flags"] = anomaly_flags
 
     return result
-
-
-def _compute_trend_direction(yoy_pcts: list[float]) -> str:
-    """Classify a trend from YoY percentage changes.
-
-    Returns: "growing", "declining", "volatile", or "stable".
-    """
-    if not yoy_pcts or len(yoy_pcts) < 2:
-        return "insufficient_data"
-
-    positive = sum(1 for p in yoy_pcts if p > 0.01)
-    negative = sum(1 for p in yoy_pcts if p < -0.01)
-    total = len(yoy_pcts)
-
-    # Check volatility: high variance in direction
-    if positive > 0 and negative > 0 and min(positive, negative) / total > 0.3:
-        return "volatile"
-
-    # Predominantly positive
-    if positive / total >= 0.7:
-        return "growing"
-
-    # Predominantly negative
-    if negative / total >= 0.7:
-        return "declining"
-
-    return "stable"
 
 
 # ---------------------------------------------------------------------------
@@ -1051,11 +983,9 @@ def get_sector_summary(
     """
     con = get_db()
 
-    # Get companies in sector
     if fiscal_year is None:
         fy_row = con.execute(
-            """SELECT MAX(fiscal_year) FROM company_financials
-               WHERE sector = ? AND fiscal_period = 'FY'""",
+            "SELECT MAX(fiscal_year) FROM company_financials WHERE sector = ? AND fiscal_period = 'FY'",
             [sector],
         ).fetchone()
         if fy_row and fy_row[0]:
@@ -1064,10 +994,8 @@ def get_sector_summary(
             return {"error": f"No data found for sector '{sector}'"}
 
     company_rows = con.execute(
-        """SELECT DISTINCT ticker, canonical_name
-           FROM company_financials
-           WHERE sector = ? AND fiscal_year = ? AND fiscal_period = 'FY'
-           ORDER BY ticker""",
+        """SELECT DISTINCT ticker, canonical_name FROM company_financials
+           WHERE sector = ? AND fiscal_year = ? AND fiscal_period = 'FY' ORDER BY ticker""",
         [sector, fiscal_year],
     ).fetchall()
 
@@ -1076,7 +1004,6 @@ def get_sector_summary(
 
     companies = [{"ticker": t, "name": n} for t, n in company_rows]
 
-    # Determine metrics to summarize
     if metric:
         try:
             source, mid, mname = _detect_metric_or_ratio(metric)
@@ -1084,7 +1011,6 @@ def get_sector_summary(
         except ValueError as e:
             return {"error": str(e)}
     else:
-        # Default: Revenue, Net Income, Net Margin
         metrics_to_query = [
             ("company_financials", "BT-022", "Revenue"),
             ("company_financials", "BT-023", "Net Income"),
@@ -1093,78 +1019,14 @@ def get_sector_summary(
 
     metric_summaries = []
     for source, mid, mname in metrics_to_query:
-        if source == "financial_ratios":
-            val_rows = con.execute(
-                """SELECT ticker, ratio_value FROM financial_ratios
-                   WHERE sector = ? AND ratio_id = ? AND fiscal_year = ?
-                     AND fiscal_period = 'FY'
-                   ORDER BY ratio_value DESC""",
-                [sector, mid, fiscal_year],
-            ).fetchall()
-            if not val_rows:
-                continue
-            values = [(t, v) for t, v in val_rows]
-            all_vals = [v for _, v in values]
-            avg = sum(all_vals) / len(all_vals)
-            sorted_vals = sorted(all_vals)
-            median = sorted_vals[len(sorted_vals) // 2]
-
-            leader_tick, leader_val = values[0]
-            laggard_tick, laggard_val = values[-1]
-
-            metric_summaries.append({
-                "metric": mname,
-                "metric_id": mid,
-                "source": source,
-                "avg": avg,
-                "avg_formatted": _format_ratio_value(avg, mid),
-                "median": median,
-                "median_formatted": _format_ratio_value(median, mid),
-                "leader": {"ticker": leader_tick, "value": leader_val,
-                           "formatted": _format_ratio_value(leader_val, mid)},
-                "laggard": {"ticker": laggard_tick, "value": laggard_val,
-                            "formatted": _format_ratio_value(laggard_val, mid)},
-                "companies_reporting": len(values),
-            })
-        else:
-            val_rows = con.execute(
-                """SELECT ticker, val FROM company_financials
-                   WHERE sector = ? AND business_term_id = ? AND fiscal_year = ?
-                     AND fiscal_period = 'FY'
-                   ORDER BY val DESC""",
-                [sector, mid, fiscal_year],
-            ).fetchall()
-            if not val_rows:
-                continue
-            values = [(t, v) for t, v in val_rows]
-            all_vals = [v for _, v in values]
-            avg = sum(all_vals) / len(all_vals)
-            sorted_vals = sorted(all_vals)
-            median = sorted_vals[len(sorted_vals) // 2]
-
-            leader_tick, leader_val = values[0]
-            laggard_tick, laggard_val = values[-1]
-
-            metric_summaries.append({
-                "metric": mname,
-                "metric_id": mid,
-                "source": source,
-                "avg": avg,
-                "avg_formatted": _format_metric_value(avg, mid),
-                "median": median,
-                "median_formatted": _format_metric_value(median, mid),
-                "leader": {"ticker": leader_tick, "value": leader_val,
-                           "formatted": _format_metric_value(leader_val, mid)},
-                "laggard": {"ticker": laggard_tick, "value": laggard_val,
-                            "formatted": _format_metric_value(laggard_val, mid)},
-                "companies_reporting": len(values),
-            })
+        stats = _get_sector_stats(con, source, mid, sector, fiscal_year)
+        if stats is None:
+            continue
+        metric_summaries.append({"metric": mname, "metric_id": mid, "source": source, **stats})
 
     return {
-        "sector": sector,
-        "fiscal_year": fiscal_year,
-        "companies": companies,
-        "metric_summary": metric_summaries,
+        "sector": sector, "fiscal_year": fiscal_year,
+        "companies": companies, "metric_summary": metric_summaries,
     }
 
 
@@ -1197,7 +1059,6 @@ def get_ratio(
     except ValueError as e:
         return {"error": str(e)}
 
-    # Get the ratio
     if fiscal_year is not None:
         rows = con.execute(
             """SELECT ratio_value, numerator_bt_id, numerator_bt_name,
@@ -1222,63 +1083,18 @@ def get_ratio(
     if not rows:
         return {
             "error": f"{ticker} does not have {ratio_name} for the requested period.",
-            "ticker": ticker,
-            "ratio": ratio_name,
+            "ticker": ticker, "ratio": ratio_name,
         }
 
     (ratio_value, num_bt_id, num_bt_name, num_val, den_bt_id, den_bt_name,
      den_val, fy, sector, fy_end) = rows[0]
 
-    formatted = _format_ratio_value(ratio_value, ratio_id)
+    sector_rank, sector_percentile, sector_avg, peer_count = _fetch_ratio_peer_rank(con, ticker, ratio_id, fy)
+    yoy_change, yoy_pct = _fetch_ratio_yoy(con, ticker, ratio_id, ratio_value, fy)
 
-    # Get peer comparison
-    sector_rank = None
-    sector_percentile = None
-    sector_avg = None
-    peer_count = None
-
-    try:
-        pc_rows = con.execute(
-            """SELECT sector_rank, sector_percentile, sector_avg, peer_count
-               FROM peer_comparison
-               WHERE ticker = ? AND metric_id = ? AND fiscal_year = ?
-                 AND fiscal_period = 'FY' AND metric_source = 'financial_ratios'""",
-            [ticker, ratio_id, fy],
-        ).fetchall()
-        if pc_rows:
-            sector_rank, sector_percentile, sector_avg, peer_count = pc_rows[0]
-    except Exception:
-        pass
-
-    # Get YoY change for the ratio
-    yoy_change = None
-    yoy_pct = None
-    try:
-        # Look for the ratio's YoY change via the numerator's growth
-        # (ratios don't have direct period_over_period entries, but we can compute)
-        # Get previous year's ratio value
-        prev_rows = con.execute(
-            """SELECT ratio_value FROM financial_ratios
-               WHERE ticker = ? AND ratio_id = ? AND fiscal_year = ?
-                 AND fiscal_period = 'FY'""",
-            [ticker, ratio_id, fy - 1],
-        ).fetchall()
-        if prev_rows:
-            prev_val = prev_rows[0][0]
-            yoy_change = ratio_value - prev_val
-            if prev_val != 0:
-                yoy_pct = yoy_change / abs(prev_val)
-    except Exception:
-        pass
-
-    # Check anomalies
     anomaly_flags = check_anomalies(
-        ticker=ticker,
-        metric=ratio_name,
-        value=ratio_value,
-        yoy_pct=yoy_pct,
-        sector=sector,
-        ratio_name=ratio_name,
+        ticker=ticker, metric=ratio_name, value=ratio_value,
+        yoy_pct=yoy_pct, sector=sector, ratio_name=ratio_name,
     )
 
     result = {
@@ -1286,19 +1102,15 @@ def get_ratio(
         "ratio_name": ratio_name,
         "ratio_id": ratio_id,
         "value": ratio_value,
-        "formatted": formatted,
+        "formatted": _format_ratio_value(ratio_value, ratio_id),
         "fiscal_year": fy,
         "numerator": {
-            "bt_name": num_bt_name,
-            "bt_id": num_bt_id,
-            "value": num_val,
-            "formatted": _format_metric_value(num_val, num_bt_id),
+            "bt_name": num_bt_name, "bt_id": num_bt_id,
+            "value": num_val, "formatted": _format_metric_value(num_val, num_bt_id),
         },
         "denominator": {
-            "bt_name": den_bt_name,
-            "bt_id": den_bt_id,
-            "value": den_val,
-            "formatted": _format_metric_value(den_val, den_bt_id),
+            "bt_name": den_bt_name, "bt_id": den_bt_id,
+            "value": den_val, "formatted": _format_metric_value(den_val, den_bt_id),
         },
     }
 

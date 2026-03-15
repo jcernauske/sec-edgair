@@ -17,7 +17,7 @@
     "name": "consumable.amendment_analysis.build",
     "facets": {
       "documentation": {
-        "description": "Aggregate amendment patterns from base.amendment_tracking per (cik, fiscal_year). Enrich with company metadata from consumable.company_financials. Produces one summary row per company per fiscal year with frequency, magnitude, and timing statistics."
+        "description": "Aggregate amendment patterns from base.amendment_tracking per (cik, fiscal_year). Enrich with company metadata from base.conformed_facts. Produces one summary row per company per fiscal year with frequency, magnitude, and timing statistics."
       },
       "sourceCode": {
         "type": "PYTHON",
@@ -46,7 +46,7 @@
     },
     {
       "namespace": "sec_edgair",
-      "name": "consumable.company_financials",
+      "name": "base.conformed_facts",
       "facets": {
         "schema": {
           "fields": [
@@ -143,10 +143,10 @@
             },
             "entity_id": {
               "inputFields": [
-                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "entity_id"}
+                {"namespace": "sec_edgair", "name": "base.conformed_facts", "field": "entity_id"}
               ],
               "transformationType": "DIRECT",
-              "transformationDescription": "Denormalized from company_financials metadata lookup by CIK"
+              "transformationDescription": "Denormalized from conformed_facts metadata lookup by CIK"
             }
           }
         }

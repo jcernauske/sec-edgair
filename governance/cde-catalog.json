@@ -1,0 +1,82 @@
+{
+  "catalog_metadata": {
+    "version": "1.0",
+    "last_updated": "2026-03-15",
+    "maintained_by": "@cde-tagger",
+    "description": "Critical Data Element catalog — maps CDE-flagged columns to their business terms, tables, and rationale."
+  },
+  "cdes": [
+    {
+      "cde_id": "CDE-001",
+      "name": "Central Index Key (CIK)",
+      "definition": "Unique numeric identifier assigned by the SEC to every filing entity. Core entity identifier critical for cross-system joins and audit trails.",
+      "category": "Entity Identification",
+      "business_term_id": "BT-001",
+      "mappings": [
+        {
+          "table": "base.conformed_facts",
+          "column": "cik",
+          "column_type": "IntegerType",
+          "rationale": "Part of the conformed fact grain (cik, business_term_id, fiscal_year, fiscal_period). Primary entity identifier denormalized from financial_facts for query performance.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-15",
+          "spec_reference": "docs/specs/base-conformed-facts.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-002",
+      "name": "Canonical Company Identity",
+      "definition": "Normalized, human-approved company name that serves as the single source of truth for entity identity across the pipeline.",
+      "category": "Entity Identification",
+      "business_term_id": "BT-005",
+      "mappings": [
+        {
+          "table": "base.conformed_facts",
+          "column": "canonical_name",
+          "column_type": "StringType",
+          "rationale": "Denormalized from entity_mappings for query performance. Provides the authoritative company name alongside the CIK identifier.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-15",
+          "spec_reference": "docs/specs/base-conformed-facts.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-003",
+      "name": "Accession Number",
+      "definition": "Unique identifier for each filing submitted to SEC EDGAR. Format: XXXXXXXXXX-YY-ZZZZZZ. Traces any data point back to its source filing.",
+      "category": "Filing Identification",
+      "business_term_id": "BT-002",
+      "mappings": [
+        {
+          "table": "base.conformed_facts",
+          "column": "accession_number",
+          "column_type": "StringType",
+          "rationale": "Accession number of the winning fact's filing after collision resolution. Enables one-hop lineage from conformed value back to the SEC filing.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-15",
+          "spec_reference": "docs/specs/base-conformed-facts.md"
+        }
+      ]
+    },
+    {
+      "cde_id": "CDE-004",
+      "name": "Filing Date",
+      "definition": "Date the filing was officially submitted to and accepted by the SEC. Critical for determining the timeline of financial disclosures.",
+      "category": "Filing Identification",
+      "business_term_id": "BT-006",
+      "mappings": [
+        {
+          "table": "base.conformed_facts",
+          "column": "filed_date",
+          "column_type": "DateType",
+          "rationale": "Filing date of the winning fact's source filing. Used for freshness validation and temporal ordering of disclosures.",
+          "mapped_by": "@cde-tagger",
+          "mapped_date": "2026-03-15",
+          "spec_reference": "docs/specs/base-conformed-facts.md"
+        }
+      ]
+    }
+  ]
+}
