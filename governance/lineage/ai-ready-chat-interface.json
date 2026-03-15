@@ -1,0 +1,126 @@
+{
+  "eventType": "COMPLETE",
+  "eventTime": "2026-03-15T09:00:00.000Z",
+  "producer": "https://github.com/jcernauske/sec_edgair",
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "run": {
+    "runId": "ai-ready-chat-interface-build-001",
+    "facets": {
+      "processing_engine": {
+        "name": "SEC EDGAIR Pipeline",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "job": {
+    "namespace": "sec_edgair",
+    "name": "ai_ready.chat_interface",
+    "facets": {
+      "documentation": {
+        "description": "Tool-use chat interface that lets users ask natural language questions about financial data. Claude calls 7 validated Python tool functions that run parameterized DuckDB queries against 5 consumable Iceberg tables. No new tables are created — this is a read-only query layer."
+      },
+      "sourceCode": {
+        "type": "PYTHON",
+        "url": "src/ai_ready/"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.company_financials",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "cik", "type": "INTEGER"},
+            {"name": "ticker", "type": "STRING"},
+            {"name": "canonical_name", "type": "STRING"},
+            {"name": "sector", "type": "STRING"},
+            {"name": "business_term_id", "type": "STRING"},
+            {"name": "business_term", "type": "STRING"},
+            {"name": "val", "type": "DOUBLE"},
+            {"name": "unit", "type": "STRING"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"},
+            {"name": "fiscal_year_end", "type": "STRING"},
+            {"name": "period_end_date", "type": "DATE"}
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.financial_ratios",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "ticker", "type": "STRING"},
+            {"name": "ratio_id", "type": "STRING"},
+            {"name": "ratio_name", "type": "STRING"},
+            {"name": "ratio_value", "type": "DOUBLE"},
+            {"name": "numerator_bt_id", "type": "STRING"},
+            {"name": "numerator_val", "type": "DOUBLE"},
+            {"name": "denominator_bt_id", "type": "STRING"},
+            {"name": "denominator_val", "type": "DOUBLE"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"}
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.period_over_period",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "ticker", "type": "STRING"},
+            {"name": "business_term_id", "type": "STRING"},
+            {"name": "growth_type", "type": "STRING"},
+            {"name": "growth_value", "type": "DOUBLE"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"}
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.peer_comparison",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "ticker", "type": "STRING"},
+            {"name": "metric_id", "type": "STRING"},
+            {"name": "metric_source", "type": "STRING"},
+            {"name": "sector_rank", "type": "INTEGER"},
+            {"name": "sector_percentile", "type": "DOUBLE"},
+            {"name": "sector_avg", "type": "DOUBLE"},
+            {"name": "peer_count", "type": "INTEGER"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"}
+          ]
+        }
+      }
+    },
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.amendment_analysis",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "ticker", "type": "STRING"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "amendment_count", "type": "INTEGER"},
+            {"name": "mean_abs_change", "type": "DOUBLE"},
+            {"name": "median_abs_change", "type": "DOUBLE"},
+            {"name": "max_abs_change", "type": "DOUBLE"},
+            {"name": "mean_pct_change", "type": "DOUBLE"},
+            {"name": "days_to_amend_avg", "type": "DOUBLE"}
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": []
+}

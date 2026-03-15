@@ -5,6 +5,7 @@ description = "AI agent pipeline for SEC EDGAR XBRL data — Raw to AI-Ready wit
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "anthropic>=0.84.0",
     "duckdb>=1.0",
     "httpx>=0.27",
     "pyarrow>=17.0",

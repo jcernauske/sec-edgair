@@ -718,7 +718,7 @@ erDiagram
 # Install
 uv sync
 
-# Run tests (326 tests)
+# Run tests (442 tests)
 uv run pytest
 
 # Data quality — execute rules against real Iceberg data
@@ -751,6 +751,10 @@ uv run python -m src.consumable.financial_ratios.cli all
 uv run python -m src.consumable.period_over_period.cli all
 uv run python -m src.consumable.peer_comparison.cli all
 uv run python -m src.consumable.amendment_analysis.cli all
+
+# AI-Ready chat interface — talk to the data
+uv run python -m src.ai_ready.cli
+uv run python -m src.ai_ready.cli --single "What was Apple's revenue in 2024?"
 ```
 
 ## Project Structure
@@ -770,6 +774,9 @@ src/                            Source code organized by zone
     period_over_period/          YoY growth, CAGR, trend analysis
     peer_comparison/             Sector rankings, percentiles, peer stats
     amendment_analysis/          Restatement patterns and magnitude analysis
+  ai_ready/                     AI-Ready zone — chat interface
+    tools/                       7 validated query functions over DuckDB
+    chat/                        Claude API tool use agent + system prompt
 data/                           Data files organized by zone (gitignored)
 governance/                     Governance artifacts
   business-glossary.json        54 business terms (XBRL, SEC EDGAR, project-specific)
@@ -785,6 +792,6 @@ governance/                     Governance artifacts
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (326 passing)
+tests/                          Tests organized by zone (442 passing)
 .claude/agents/                 Agent definitions for Claude Code
 ```
