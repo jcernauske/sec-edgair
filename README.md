@@ -1,7 +1,8 @@
 # SEC EDGAIR
 
-![Tests](https://img.shields.io/badge/tests-442%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-455%20passing-brightgreen)
 ![DQ Rules](https://img.shields.io/badge/DQ%20rules-92%20(91%20pass%2C%201%20P1)-brightgreen)
+![Architect Review](https://img.shields.io/badge/architect%20review-B%2B-blue)
 ![P0 Gate](https://img.shields.io/badge/P0%20gate-PASS-brightgreen)
 ![Verified](https://img.shields.io/badge/verified-88%2F88%20vs%2010--K-brightgreen)
 ![Data](https://img.shields.io/badge/facts-547%2C398-blue)
@@ -75,7 +76,8 @@ Each zone is governed by AI agents that produce lineage, data quality rules, bus
 
 | Spec | What It Does |
 |------|-------------|
-| `ai-ready-chat-interface` | 7 validated tool functions over DuckDB + Claude API agent. Natural language chat with the data. No RAG, no embeddings — tool use over structured queries. |
+| `ai-ready-chat-interface` | 8 validated tool functions over DuckDB + Claude API agent. Natural language chat with the data. No RAG, no embeddings — tool use over structured queries. |
+| `infra-architect-remediation` | All 7 findings from Principal Data Architect review: DQ gates on promotes, scalable dedup (DuckDB anti-join), DQ pushdown, generic anomaly detection, amendment tool, dead code cleanup |
 
 ## Data Pipeline
 
@@ -96,7 +98,7 @@ consumable.period_over_period       71,402 rows — YoY growth + 5yr CAGR
 consumable.peer_comparison          28,633 rows — sector ranks + percentiles
 consumable.amendment_analysis       371 rows — restatement patterns
     ↓
-AI-Ready Chat Interface             7 tool functions → Claude API → natural language answers
+AI-Ready Chat Interface             8 tool functions → Claude API → natural language answers
 ```
 
 ## Verification
@@ -123,10 +125,10 @@ Every transformation produces governance artifacts automatically:
 - **31 CDEs** in `governance/cde-catalog.json`
 - **13 Iceberg tables** documented in `governance/data-dictionary.json`
 - **92 DQ rules** with execution engine and scorecards (91 pass, 1 P1 advisory)
+- **DQ gates enforced on all promote paths** — P0 failures block writes
 - **OpenLineage** events in `governance/lineage/`
 - **18 data models** (conceptual, logical, physical) in `governance/models/`
-- **Audit trails** in `governance/audit-trail/`
-- **EDA reports** in `governance/eda/`
+- **Independent architecture review** — B+ from @principal-data-architect ([full review](governance/reviews/principal-data-architect-review.md))
 - **PII:** None detected. All data is public SEC filings.
 
 ## Data Quality
@@ -272,7 +274,7 @@ The AI-Ready zone is an application layer, not a data transformation zone. No ne
 # Install
 uv sync
 
-# Run tests (442 tests)
+# Run tests (455 tests)
 uv run pytest
 
 # Data quality — execute rules against real Iceberg data
@@ -312,7 +314,7 @@ src/                            Source code organized by zone
     peer_comparison/             Sector rankings, percentiles, peer stats
     amendment_analysis/          Restatement patterns and magnitude analysis
   ai_ready/                     AI-Ready zone — chat interface
-    tools/                       7 validated query functions over DuckDB
+    tools/                       8 validated query functions over DuckDB
     chat/                        Claude API tool use agent + system prompt
 scripts/                        Verification and query scripts
 data/                           Data files organized by zone (gitignored)
@@ -331,6 +333,7 @@ governance/                     Governance artifacts
 docs/
   specs/                        Spec-driven development specs
   sessions/                     Claude Code session logs
-tests/                          Tests organized by zone (442 passing)
+tests/                          Tests organized by zone (455 passing)
+governance/reviews/             Independent architecture reviews
 .claude/agents/                 Agent definitions for Claude Code
 ```
