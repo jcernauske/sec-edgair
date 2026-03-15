@@ -1,0 +1,104 @@
+{
+  "spec": "consumable-company-financials",
+  "tables": [
+    "consumable.company_financials"
+  ],
+  "rules": [
+    {
+      "rule_id": "CONS-CF-001",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "record_id is unique (no duplicate grain)",
+      "sql": "SELECT record_id, COUNT(*) FROM consumable.company_financials GROUP BY record_id HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "record_id is a deterministic SHA-256 hash of the grain (cik, business_term_id, fiscal_year, fiscal_period). Duplicates indicate a collision resolution or dedup guard bug. EDA: 34.3% of source groups have 2+ concepts \u2014 collision resolution must produce exactly one row per group.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-002",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every row has valid business_term_id (exists in concept_mappings)",
+      "sql": "SELECT COUNT(*) FROM consumable.company_financials cf WHERE NOT EXISTS (SELECT 1 FROM base.concept_mappings cm WHERE cm.business_term_id = cf.business_term_id)",
+      "threshold": "result = 0",
+      "rationale": "All 25 business terms (BT-022 through BT-048) must exist in the concept_mappings table. Orphan business_term_ids indicate a mapping bug. Source: consumable-company-financials-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-003",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every row has valid cik (exists in entity_mappings)",
+      "sql": "SELECT COUNT(*) FROM consumable.company_financials cf WHERE NOT EXISTS (SELECT 1 FROM base.entity_mappings em WHERE em.cik = cf.cik)",
+      "threshold": "result = 0",
+      "rationale": "All 20 companies must exist in entity_mappings. Orphan CIKs indicate a join bug in the build pipeline. Source: consumable-company-financials-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-004",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No null val (every row has a financial value)",
+      "sql": "SELECT COUNT(*) FROM consumable.company_financials WHERE val IS NULL",
+      "threshold": "result = 0",
+      "rationale": "The consumable table exists to provide values for cross-company comparison. A null val is meaningless \u2014 indicates a build bug where a row was created without selecting a value from the source facts. Source: consumable-company-financials-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-005",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "Unit matches expected unit for business term category (USD for dollar amounts, USD/shares for per-share)",
+      "sql": "SELECT COUNT(*) FROM consumable.company_financials WHERE (business_term_id IN ('BT-044', 'BT-045', 'BT-046') AND unit != 'USD/shares') OR (business_term_id NOT IN ('BT-044', 'BT-045', 'BT-046') AND unit != 'USD')",
+      "threshold": "result = 0",
+      "rationale": "Per-share metrics (EPS Basic BT-044, EPS Diluted BT-045, DPS BT-046) use USD/shares; all other business terms use USD. Unit filtering is applied during build \u2014 mismatches indicate the filter is broken. Source: spec Section 2.3, consumable-company-financials-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-006",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "companies_reporting is accurate (matches actual distinct company count per business_term_id and fiscal_period)",
+      "sql": "SELECT cf.business_term_id, cf.fiscal_period, cf.companies_reporting, COUNT(DISTINCT cf.cik) AS actual_count FROM consumable.company_financials cf GROUP BY cf.business_term_id, cf.fiscal_period, cf.companies_reporting HAVING cf.companies_reporting != COUNT(DISTINCT cf.cik)",
+      "threshold": "result_count = 0",
+      "rationale": "companies_reporting is a denormalized aggregate computed during build. It must match the actual count of distinct CIKs for each (business_term_id, fiscal_period) combination. Discrepancies indicate the aggregate computation is out of sync. EDA: coverage ranges from 9 to 20 companies per business term. Source: consumable-company-financials-eda.md",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-007",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 25 financial business terms represented in the table",
+      "sql": "SELECT 25 - COUNT(DISTINCT business_term_id) FROM consumable.company_financials",
+      "threshold": "result = 0",
+      "rationale": "The consumable table must contain data for all 25 business terms (BT-022 through BT-048). EDA confirms all 25 terms have at least 9 companies in the source data, so missing terms indicate a build or filter bug. Source: consumable-company-financials-eda.md coverage matrix",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-CF-008",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 20 companies represented in the table",
+      "sql": "SELECT 20 - COUNT(DISTINCT cik) FROM consumable.company_financials",
+      "threshold": "result = 0",
+      "rationale": "The consumable table must contain data for all 20 companies in entity_mappings. EDA confirms all 20 companies report at least the 12 universal business terms, so missing companies indicate a build or join bug. Source: consumable-company-financials-eda.md coverage matrix",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    }
+  ]
+}

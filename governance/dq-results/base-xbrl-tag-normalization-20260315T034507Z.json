@@ -1,0 +1,96 @@
+{
+  "run_id": "3727941e",
+  "spec": "base-xbrl-tag-normalization",
+  "executed_at": "2026-03-15T03:45:07.908067+00:00",
+  "rules_total": 7,
+  "rules_passed": 7,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "BASE-TN-001",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.871402+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-002",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.873089+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-003",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.873551+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-004",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 30.0,
+      "threshold": "result >= 25.0",
+      "detail": "actual=30.0, threshold=result >= 25.0",
+      "violations": 0,
+      "execution_time_ms": 29,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.903351+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-005",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.904010+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-006",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.904458+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-007",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:07.905112+00:00"
+    }
+  ]
+}

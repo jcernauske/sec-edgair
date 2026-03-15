@@ -1,0 +1,108 @@
+{
+  "run_id": "f3e7c245",
+  "spec": "consumable-company-financials",
+  "executed_at": "2026-03-15T03:43:33.708783+00:00",
+  "rules_total": 8,
+  "rules_passed": 8,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "CONS-CF-001",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.702010+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-002",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.703069+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-003",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.704271+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-004",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.704608+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-005",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.705288+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-006",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.707016+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-007",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.707764+00:00"
+    },
+    {
+      "rule_id": "CONS-CF-008",
+      "spec": "consumable-company-financials",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:43:33.708331+00:00"
+    }
+  ]
+}

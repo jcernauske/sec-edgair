@@ -1,0 +1,72 @@
+{
+  "run_id": "57eaa425",
+  "spec": "base-bitemporal-schema",
+  "executed_at": "2026-03-15T03:45:08.848082+00:00",
+  "rules_total": 5,
+  "rules_passed": 5,
+  "rules_failed": 0,
+  "rules_errored": 0,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "BASE-BT-001",
+      "spec": "base-bitemporal-schema",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 1,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:08.765633+00:00"
+    },
+    {
+      "rule_id": "BASE-BT-002",
+      "spec": "base-bitemporal-schema",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:08.766312+00:00"
+    },
+    {
+      "rule_id": "BASE-BT-003",
+      "spec": "base-bitemporal-schema",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 76,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:08.843157+00:00"
+    },
+    {
+      "rule_id": "BASE-BT-004",
+      "spec": "base-bitemporal-schema",
+      "passed": true,
+      "raw_value": 100.0,
+      "threshold": "result >= 99.0",
+      "detail": "actual=100.0, threshold=result >= 99.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:08.844012+00:00"
+    },
+    {
+      "rule_id": "BASE-BT-005",
+      "spec": "base-bitemporal-schema",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 3,
+      "error": null,
+      "executed_at": "2026-03-15T03:45:08.847327+00:00"
+    }
+  ]
+}

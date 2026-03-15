@@ -1,6 +1,6 @@
 # Consumable Zone: Company Financials
 
-## Status: 🟡 DRAFT
+## Status: 🟢 COMPLETE
 
 | Status | Meaning |
 |--------|---------|
@@ -299,6 +299,101 @@ Per CLAUDE.md Base & Consumable Zone Pipeline (greenfield mode):
 12. @doc-generator — Dictionary + contracts update
 13. @governance-reviewer — Post-implementation check
 14. @staff-engineer — Final quality review
+
+## 11. Post-Implementation Governance Review
+
+**Agent:** @governance-reviewer
+**Date:** 2026-03-15
+**Review Type:** Post-implementation (greenfield mode)
+
+### Checklist
+
+| Check | Status | Evidence |
+|-------|--------|----------|
+| DQ rules exist | PASS | `governance/dq-rules/consumable-company-financials.json` — 8 rules, all P0 |
+| DQ rules executed | PASS | `governance/dq-results/consumable-company-financials-20260315T034333Z.json` — run ID f3e7c245 |
+| No P0 failures | PASS | 8/8 rules passing (100%) |
+| DQ scorecard produced | PASS | `governance/dq-scorecards/consumable-company-financials-scorecard.md` |
+| OpenLineage exists | PASS | `governance/lineage/consumable-company-financials.json` — column-level lineage for 4 derived fields |
+| Conceptual model exists | PASS | `governance/models/consumable-company-financials-conceptual.md` |
+| Logical model exists | PASS | `governance/models/consumable-company-financials-logical.md` |
+| Physical model exists | PASS | `governance/models/consumable-company-financials-physical.md` |
+| Data dictionary updated | PASS | `governance/data-dictionary.json` — consumable.company_financials added with 24 fields |
+| Business terms mapped | PASS | BT-049 (Sector) and BT-050 (Companies Reporting) added in Step 2; remaining terms inherited from base.financial_facts |
+
+### Verdict: APPROVED
+
+All governance artifacts are present and consistent. DQ rules validate real Iceberg data with zero violations. Lineage captures column-level provenance including the four derived fields (record_id, sector, source_concept, companies_reporting). Models at all three levels are approved and match the implementation. No advisory findings.
+
+## 12. Staff Engineer Review
+
+**Agent:** @staff-engineer
+**Date:** 2026-03-15
+**Spec:** consumable-company-financials
+**Production stats:** 244 tests pass, 50 DQ rules pass, 26,894 rows produced
+
+### Code Review
+
+#### build.py — Concept Collision Resolution
+
+The collision resolution engine in `_select_concept()` is correct and well-structured:
+
+1. **Primary concept preference** walks `PRIMARY_CONCEPTS[bt_id]` in order, returning the first match. This is the right approach — deterministic, auditable, and matches the spec exactly.
+
+2. **Fallback** sorts by `(tier, -frequency)` — lowest tier number first (tier 1 is best), then most common concept. The `sort_key` function on line 226-229 has a dead code smell (it uses negated tier/freq but is never called — the actual sort on line 232-235 uses a lambda with the correct logic). Not a bug, but the unused `sort_key` should be cleaned up.
+
+3. **Legacy CDE-to-BT translation** (lines 98-104) is applied as the very first step before any filtering. This is the correct sequence — translating IDs before the pipeline touches them prevents silent data loss from rows that would otherwise fail the `business_term_id IS NOT NULL` filter or the `PRIMARY_UNIT` lookup.
+
+4. **Unit filtering** (lines 116-124) correctly skips unknown business terms and only keeps facts matching the expected unit. The `continue` on unknown BT-IDs is defensive — should never fire given the upstream filter, but doesn't hurt.
+
+5. **companies_reporting** (lines 191-198) is computed as a second pass over the results, not during the per-group loop. This is correct because the count is per (business_term_id, fiscal_period) across ALL companies, not per grain group.
+
+#### promote.py — Dedup Guard
+
+The dedup guard is real:
+
+1. Reads ALL existing record_ids from the table into a set (line 39-40).
+2. Filters incoming records against the set (line 45).
+3. Reports skipped count (line 47-48).
+4. Only appends genuinely new records.
+
+This is the same pattern as the base zone promotes. It works because record_id is a deterministic hash of the grain — same inputs always produce the same ID. The full-table scan for existing IDs is acceptable at 27K rows. At 10M+ rows this would need a bloom filter or partitioned check, but that's a future concern.
+
+#### Tests — Real or Theater?
+
+**test_build.py:** Not theater. Each test constructs specific input data with known values and asserts specific output properties:
+- `test_concept_collision_primary_preferred`: 3 revenue concepts, asserts "Revenues" is selected (first in preference list) with val=100.0
+- `test_concept_collision_fallback`: 2 non-primary concepts at different tiers, asserts tier-2 wins
+- `test_unit_filtering`: Mixes USD and shares for BT-024, USD and USD/shares for BT-044, asserts correct unit survives for each
+- `test_companies_reporting_count`: 2 companies for BT-024, 1 for BT-022, asserts exact counts
+- `test_record_id_deterministic`: Runs build twice with same input, asserts identical record_ids with length 16
+
+**test_promote.py:** Real Iceberg roundtrip tests using `tmp_path`:
+- `test_promote_roundtrip`: Writes 1 record, reads back, asserts specific field values (record_id, cik, sector)
+- `test_promote_dedup`: Writes same record twice, asserts promoted=0 and skipped_duplicates=1 on second write, reads back and asserts exactly 1 row
+- `test_promote_empty`: Empty list returns promoted=0 without creating tables
+
+**test_cli.py:** Integration tests that seed a real Iceberg table and run CLI commands, asserting on captured stdout output. Minimal but sufficient — the CLI is a thin wrapper.
+
+All tests use specific assertions on specific values. No `assert True`, no `assert len(x) > 0` handwaving. Approved.
+
+#### Architecture
+
+The module structure (config/schema/build/promote/cli) mirrors the base zone pattern exactly. Code is readable, functions are small, dependencies are explicit. The separation of build (pure transformation) from promote (Iceberg I/O) enables testability — build tests don't need a database.
+
+One minor observation: `schema.py` defines 24 field IDs (1-24) for 24 columns, matching the spec's 23 fields plus load_date. The field count in the spec table says 23 but the actual implementation correctly includes load_date as field 24. This is consistent with the project rule "load_date on every row."
+
+#### Concerns
+
+1. **Dead code in `_select_concept`:** The `sort_key` inner function (lines 226-229) is defined but never called. The actual sort uses a lambda with different sign semantics. Cosmetic — does not affect behavior. Should be cleaned up in a follow-up.
+
+2. **No explicit Q4 handling:** The spec says fiscal_period values are "FY/Q1/Q2/Q3" but Q4 may appear in the source data. The build pipeline doesn't filter Q4 out — it just passes through whatever fiscal_period values exist in the source. This is probably correct (Q4 data exists and is useful), but the spec should be updated if Q4 is intentionally included.
+
+Neither concern is blocking.
+
+### Verdict: APPROVED
+
+The implementation is solid. Collision resolution is correct and matches the spec. Dedup guard is real. Tests validate actual behavior. Legacy ID translation is handled at the right point in the pipeline. 26,894 rows with 50 DQ rules passing and 244 tests green. Ship it.
 
 ## 10. Dependencies
 

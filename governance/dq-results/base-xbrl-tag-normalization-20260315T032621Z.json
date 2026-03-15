@@ -1,0 +1,96 @@
+{
+  "run_id": "8a8f1cec",
+  "spec": "base-xbrl-tag-normalization",
+  "executed_at": "2026-03-15T03:26:21.130723+00:00",
+  "rules_total": 7,
+  "rules_passed": 6,
+  "rules_failed": 1,
+  "rules_errored": 1,
+  "p0_passed": true,
+  "results": [
+    {
+      "rule_id": "BASE-TN-001",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:26:21.127620+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-002",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result_count = 0",
+      "detail": "actual=0, threshold=result_count = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:26:21.128113+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-003",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:26:21.128491+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-004",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": false,
+      "raw_value": null,
+      "threshold": "result >= 25.0",
+      "detail": null,
+      "violations": null,
+      "execution_time_ms": 0,
+      "error": "Catalog Error: Table with name raw_xbrl_company_facts does not exist!\nDid you mean \"base_concept_mappings\"?\n\nLINE 1: ... (1, 2) THEN 1 ELSE 0 END) / COUNT(*), 1) as coverage_pct FROM raw_xbrl_company_facts r LEFT JOIN base_concept_mappings...\n                                                                          ^",
+      "executed_at": "2026-03-15T03:26:21.129143+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-005",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:26:21.129454+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-006",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:26:21.129770+00:00"
+    },
+    {
+      "rule_id": "BASE-TN-007",
+      "spec": "base-xbrl-tag-normalization",
+      "passed": true,
+      "raw_value": 0,
+      "threshold": "result = 0",
+      "detail": "actual=0.0, threshold=result = 0.0",
+      "violations": 0,
+      "execution_time_ms": 0,
+      "error": null,
+      "executed_at": "2026-03-15T03:26:21.130285+00:00"
+    }
+  ]
+}

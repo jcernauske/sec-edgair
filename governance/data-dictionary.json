@@ -357,6 +357,39 @@
         {"field_name": "amendment_form", "data_type": "STRING", "nullable": false, "definition": "Form type of the amendment (e.g., 10-K/A, 10-Q/A).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
         {"field_name": "detected_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when this supersession was detected.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
       ]
+    },
+    {
+      "table_name": "consumable.company_financials",
+      "zone": "consumable",
+      "description": "Cross-company financial comparison table. One row per (company, business term, fiscal year, fiscal period). Filters base.financial_facts to current facts with mapped business terms, resolves concept collisions via primary concept preference, and denormalizes company/business term metadata for direct querying.",
+      "spec_reference": "docs/specs/consumable-company-financials.md",
+      "row_grain": "One financial metric value for one company in one fiscal period: (cik, business_term_id, fiscal_year, fiscal_period).",
+      "fields": [
+        {"field_name": "record_id", "data_type": "STRING", "nullable": false, "definition": "Deterministic SHA-256 hash of grain fields (cik, business_term_id, fiscal_year, fiscal_period), truncated to 16 chars. Primary key.", "dq_rules": ["CONS-CF-001"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key from base.financial_facts.", "business_term_reference": "BT-001", "dq_rules": ["CONS-CF-003", "CONS-CF-008"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "entity_id", "data_type": "STRING", "nullable": false, "definition": "FK to entity_mappings.mapping_id. Denormalized from base.financial_facts.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "ticker", "data_type": "STRING", "nullable": true, "definition": "Primary stock ticker symbol from base.financial_facts.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "canonical_name", "data_type": "STRING", "nullable": false, "definition": "Normalized company name from base.financial_facts.", "business_term_reference": "BT-005", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "sector", "data_type": "STRING", "nullable": false, "definition": "Human-readable sector derived from SIC code via static SIC_TO_SECTOR mapping. One of: Technology, Financials, Healthcare, Consumer Staples, Consumer Discretionary, Energy, Industrials, Communication Services.", "business_term_reference": "BT-049", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "business_term_id", "data_type": "STRING", "nullable": false, "definition": "Business glossary reference (BT-022 through BT-048). Identifies the canonical financial metric.", "dq_rules": ["CONS-CF-002", "CONS-CF-007"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "business_term", "data_type": "STRING", "nullable": false, "definition": "Human-readable business term name (e.g., Revenue, Net Income, Total Assets).", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "financial_statement", "data_type": "STRING", "nullable": false, "definition": "Primary financial statement: balance_sheet, income_statement, cash_flow, per_share, other.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "category", "data_type": "STRING", "nullable": false, "definition": "Category within financial statement (e.g., revenue, assets, eps, tax).", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "val", "data_type": "DOUBLE", "nullable": false, "definition": "The financial value from the selected source concept after collision resolution. Never null.", "dq_rules": ["CONS-CF-004"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "unit", "data_type": "STRING", "nullable": false, "definition": "Unit of measurement: USD for dollar amounts, USD/shares for per-share metrics. Filtered to primary unit per business term.", "dq_rules": ["CONS-CF-005"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "source_concept", "data_type": "STRING", "nullable": false, "definition": "The XBRL concept selected by collision resolution. Audit trail showing which concept provided the val.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "fiscal_year", "data_type": "INTEGER", "nullable": false, "definition": "Fiscal year of the reporting period (e.g., 2023). May differ from calendar year.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "fiscal_period", "data_type": "STRING", "nullable": false, "definition": "Fiscal period: FY (full year), Q1, Q2, Q3.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "fiscal_year_end", "data_type": "STRING", "nullable": true, "definition": "Fiscal year end in MMDD format from entity_mappings (e.g., 0930 for Apple's September year-end).", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "period_end_date", "data_type": "DATE", "nullable": false, "definition": "End date of the reporting period from base.financial_facts.end_date.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "calendar_year", "data_type": "INTEGER", "nullable": false, "definition": "Calendar year of period_end_date. Enables cross-company temporal alignment regardless of fiscal year.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "calendar_quarter", "data_type": "INTEGER", "nullable": false, "definition": "Calendar quarter (1-4) of period_end_date.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "accession_number", "data_type": "STRING", "nullable": false, "definition": "SEC accession number of the source filing that provided the selected value.", "business_term_reference": "BT-002", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "filed_date", "data_type": "DATE", "nullable": false, "definition": "Date the source filing was submitted to the SEC.", "business_term_reference": "BT-006", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "companies_reporting", "data_type": "INTEGER", "nullable": false, "definition": "Count of distinct companies with this business term in this fiscal_period type. Enables immediate coverage assessment.", "business_term_reference": "BT-050", "dq_rules": ["CONS-CF-006"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "promoted_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when this row was written to the consumable zone.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
+        {"field_name": "load_date", "data_type": "DATE", "nullable": false, "definition": "System date when the row was produced. Used for pipeline auditing.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"}
+      ]
     }
   ]
 }

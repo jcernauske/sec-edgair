@@ -2,7 +2,7 @@
   "glossary_metadata": {
     "version": "2.0",
     "last_updated": "2026-03-14",
-    "term_count": 48,
+    "term_count": 50,
     "sources": {
       "xbrl-taxonomy": "US GAAP XBRL Taxonomy — authoritative financial reporting standard. Auto-approved.",
       "sec-edgar": "SEC EDGAR documentation — filing types, entity identifiers, regulatory concepts. Auto-approved.",
@@ -1205,6 +1205,60 @@
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
       ]
+    },
+    {
+      "term_id": "BT-049",
+      "term": "Sector",
+      "definition": "Industry sector classification derived from a company's SIC (Standard Industrial Classification) code. Maps granular SIC codes to broad sector categories (Technology, Healthcare, Financials, etc.) for peer grouping and sector-level analysis.",
+      "source": "project-specific",
+      "source_reference": "docs/specs/consumable-company-financials.md, Section 2.4",
+      "synonyms": [
+        "Industry Sector",
+        "SIC Sector"
+      ],
+      "related_terms": [
+        "BT-005",
+        "BT-001"
+      ],
+      "category": "entity",
+      "owner": "Data Governance",
+      "status": "approved",
+      "approved_by": "auto (REQUIRE_HUMAN_APPROVAL=false)",
+      "approved_at": "2026-03-14T00:00:00Z",
+      "used_in_models": [
+        "consumable-company-financials"
+      ],
+      "is_cde": false,
+      "is_pii": false,
+      "cde_rationale": null,
+      "pii_rationale": null
+    },
+    {
+      "term_id": "BT-050",
+      "term": "Companies Reporting",
+      "definition": "Count of distinct companies that report a given business term for a given fiscal period type (FY, Q1, Q2, Q3). Provides immediate coverage signal — e.g., 'Revenue has 20 companies reporting FY; Gross Profit has 9.' Computed per (business_term_id, fiscal_period) across all years.",
+      "source": "project-specific",
+      "source_reference": "docs/specs/consumable-company-financials.md, Section 2.5",
+      "synonyms": [
+        "Coverage Count",
+        "Reporting Company Count"
+      ],
+      "related_terms": [
+        "BT-013",
+        "BT-001"
+      ],
+      "category": "pipeline",
+      "owner": "Data Engineering",
+      "status": "approved",
+      "approved_by": "auto (REQUIRE_HUMAN_APPROVAL=false)",
+      "approved_at": "2026-03-14T00:00:00Z",
+      "used_in_models": [
+        "consumable-company-financials"
+      ],
+      "is_cde": false,
+      "is_pii": false,
+      "cde_rationale": null,
+      "pii_rationale": null
     }
   ]
 }
