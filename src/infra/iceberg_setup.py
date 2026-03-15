@@ -43,8 +43,8 @@ def get_catalog(warehouse_path: str | Path, catalog_path: str | Path) -> SqlCata
     )
 
 
-def create_test_table(catalog: SqlCatalog, namespace: str, table_name: str, schema: Schema) -> Table:
-    """Create an Iceberg table, creating the namespace if needed.
+def get_or_create_table(catalog: SqlCatalog, namespace: str, table_name: str, schema: Schema) -> Table:
+    """Get an existing Iceberg table or create it, creating the namespace if needed.
 
     If the table already exists, returns the existing table.
     """
@@ -98,21 +98,51 @@ def read_with_duckdb(
     return [dict(zip(columns, row)) for row in result]
 
 
-def read_current_with_iceberg_scan(
-    table: Table,
-) -> list[dict]:
-    """Read current state using DuckDB's native iceberg_scan.
 
-    Only works for the latest snapshot — does NOT support time travel.
-    Provided as an alternative read path for cases where Arrow bridge isn't needed.
+def filter_existing_records(
+    table: Table,
+    records: list[dict],
+    id_field: str = "record_id",
+) -> tuple[list[dict], int]:
+    """Filter out records that already exist in the Iceberg table.
+
+    Uses DuckDB anti-join instead of Python set operations for scalability.
+    Only reads the id_field column from the existing table (not all columns),
+    and performs the dedup in DuckDB's columnar engine.
+
+    Args:
+        table: PyIceberg table to check for existing records.
+        records: New records to filter.
+        id_field: Column name used for dedup (default: "record_id").
+
+    Returns:
+        (new_records, skipped_count) — records not already in the table,
+        and the count of records that were skipped as duplicates.
     """
+    if not records:
+        return [], 0
+
+    # Read only the ID column from existing Iceberg table via PyIceberg scan
+    existing_arrow = table.scan(selected_fields=(id_field,)).to_arrow()
+
+    # Convert new records to Arrow and register both in DuckDB
+    new_arrow = pa.Table.from_pylist(records)
     con = duckdb.connect()
-    con.install_extension("iceberg")
-    con.load_extension("iceberg")
-    metadata_loc = table.metadata_location
-    result = con.execute("SELECT * FROM iceberg_scan(?)", [metadata_loc]).fetchall()
-    columns = [field.name for field in table.schema().fields]
-    return [dict(zip(columns, row)) for row in result]
+    con.register("new_records", new_arrow)
+    con.register("existing_ids", existing_arrow)
+
+    # Anti-join: keep only records whose ID is not in the existing table
+    result = con.execute(f"""
+        SELECT n.*
+        FROM new_records n
+        LEFT JOIN existing_ids e ON n.{id_field} = e.{id_field}
+        WHERE e.{id_field} IS NULL
+    """).to_arrow_table()
+    con.close()
+
+    new_records = result.to_pylist()
+    skipped = len(records) - len(new_records)
+    return new_records, skipped
 
 
 def get_snapshots(table: Table) -> list[dict]:

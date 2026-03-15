@@ -9,6 +9,7 @@ import pytest
 from src.ai_ready.tools.db import reset_db
 from src.ai_ready.tools.financial_tools import (
     compare_companies,
+    get_amendment_summary,
     get_company_metric,
     get_company_profile,
     get_company_trend,
@@ -356,3 +357,61 @@ class TestGetRatio:
     def test_invalid_ticker(self):
         result = get_ratio("INVALID", "Net Margin")
         assert "error" in result
+
+
+# ---------------------------------------------------------------------------
+# Tool 8: get_amendment_summary
+# ---------------------------------------------------------------------------
+
+
+class TestGetAmendmentSummary:
+    """Tests for get_amendment_summary."""
+
+    def test_returns_summary_for_valid_ticker(self):
+        """Should return amendment data for a company with amendments."""
+        # Try a few tickers — not all may have amendment data
+        result = None
+        for ticker in ["BA", "AAPL", "MSFT", "GOOGL"]:
+            result = get_amendment_summary(ticker)
+            if "error" not in result:
+                break
+
+        if result and "error" not in result:
+            assert "ticker" in result
+            assert "company_name" in result
+            assert "fiscal_year" in result
+            assert "amendment_count" in result
+            assert isinstance(result["amendment_count"], int)
+            assert result["amendment_count"] >= 0
+            assert "distinct_concepts" in result
+            assert "mean_abs_change" in result
+            assert "median_abs_change" in result
+            assert "max_abs_change" in result
+            assert "largest_concept" in result
+            assert "days_to_amend_avg" in result
+            assert "total_val_impact" in result
+
+    def test_specific_fiscal_year(self):
+        """Should accept a fiscal_year parameter."""
+        result = get_amendment_summary("AAPL", fiscal_year=2022)
+        # May or may not have data — just check it doesn't crash
+        assert isinstance(result, dict)
+
+    def test_invalid_ticker(self):
+        result = get_amendment_summary("INVALID")
+        assert "error" in result
+
+    def test_case_insensitive_ticker(self):
+        result_upper = get_amendment_summary("AAPL")
+        result_lower = get_amendment_summary("aapl")
+        # Both should return same structure (both data or both error)
+        assert ("error" in result_upper) == ("error" in result_lower)
+
+    def test_formatted_values_are_strings(self):
+        """Formatted currency values should be strings."""
+        result = get_amendment_summary("AAPL")
+        if "error" not in result:
+            assert isinstance(result["mean_abs_change"], str)
+            assert isinstance(result["median_abs_change"], str)
+            assert isinstance(result["max_abs_change"], str)
+            assert isinstance(result["total_val_impact"], str)

@@ -21,7 +21,7 @@ from src.base.bitemporal.snapshot_registry import (
     read_at_snapshot,
     snapshot_diff_summary,
 )
-from src.infra.iceberg_setup import append_data, create_test_table, get_catalog
+from src.infra.iceberg_setup import append_data, get_or_create_table, get_catalog
 
 
 FINANCIAL_FACTS_SCHEMA = Schema(
@@ -96,7 +96,7 @@ def _setup_table_with_snapshots():
     catalog_db = Path(tmpdir) / "catalog.db"
     catalog = get_catalog(str(warehouse), str(catalog_db))
 
-    table = create_test_table(catalog, "base", "financial_facts", FINANCIAL_FACTS_SCHEMA)
+    table = get_or_create_table(catalog, "base", "financial_facts", FINANCIAL_FACTS_SCHEMA)
 
     # Snapshot 1: one fact
     snap1 = append_data(table, [_make_test_fact("F001")])

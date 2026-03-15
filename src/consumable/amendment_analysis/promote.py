@@ -1,6 +1,6 @@
 """Promote amendment analysis to Iceberg with dedup guard.
 
-Same pattern as other consumable promote modules: get_catalog, create_test_table,
+Same pattern as other consumable promote modules: get_catalog, get_or_create_table,
 check existing record_ids, append_data.
 """
 
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from src.infra.iceberg_setup import append_data, create_test_table, get_catalog, read_with_duckdb
+from src.infra.iceberg_setup import append_data, filter_existing_records, get_or_create_table, get_catalog
 
 from .config import CATALOG_PATH, NAMESPACE, TABLE_NAME, WAREHOUSE_PATH
 from .schema import AMENDMENT_ANALYSIS_SCHEMA
@@ -31,19 +31,10 @@ def promote_amendment_analysis(
         return {"table": f"{NAMESPACE}.{TABLE_NAME}", "promoted": 0}
 
     catalog = get_catalog(wh, cp)
-    table = create_test_table(catalog, NAMESPACE, TABLE_NAME, AMENDMENT_ANALYSIS_SCHEMA)
+    table = get_or_create_table(catalog, NAMESPACE, TABLE_NAME, AMENDMENT_ANALYSIS_SCHEMA)
 
-    # Uniqueness check: skip record_ids that already exist
-    existing_ids: set[str] = set()
-    try:
-        existing = read_with_duckdb(table)
-        existing_ids = {r["record_id"] for r in existing}
-    except Exception:
-        pass
-
-    original_count = len(records)
-    records = [r for r in records if r["record_id"] not in existing_ids]
-    skipped = original_count - len(records)
+    # Dedup via DuckDB anti-join (scalable — reads only record_id column)
+    records, skipped = filter_existing_records(table, records)
     if skipped:
         print(f"Skipping {skipped} record(s) already in amendment_analysis")
 

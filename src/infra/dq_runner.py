@@ -230,7 +230,11 @@ def _register_iceberg_views(
     table_refs: list[tuple[str, str]],
     catalog,
 ) -> list[str]:
-    """Load Iceberg tables and register them as DuckDB views.
+    """Register Iceberg tables as DuckDB views using iceberg_scan().
+
+    Uses DuckDB's native iceberg_scan() with the table's metadata_location
+    so DuckDB reads directly from Iceberg data files. This enables predicate
+    pushdown and column pruning — no full-table materialization into memory.
 
     Returns list of view names created.
     """
@@ -239,8 +243,11 @@ def _register_iceberg_views(
         view_name = f"{ns}_{tbl}"
         try:
             iceberg_table = catalog.load_table(f"{ns}.{tbl}")
-            arrow_table = iceberg_table.scan().to_arrow()
-            con.register(view_name, arrow_table)
+            metadata_path = iceberg_table.metadata_location
+            con.execute(
+                f"CREATE VIEW {view_name} AS "
+                f"SELECT * FROM iceberg_scan('{metadata_path}')"
+            )
             views.append(view_name)
         except Exception as e:
             raise RuntimeError(f"Failed to load Iceberg table {ns}.{tbl}: {e}") from e
@@ -340,10 +347,12 @@ def run_rules(
             if ref not in all_table_refs:
                 all_table_refs.append(ref)
 
-    # Create DuckDB connection and register all Iceberg tables
+    # Create DuckDB connection with iceberg extension for iceberg_scan()
     # Tables that can't be loaded (e.g., in test environments) are skipped —
     # rules referencing them will get individual SQL errors instead of crashing
     con = duckdb.connect()
+    con.install_extension("iceberg")
+    con.load_extension("iceberg")
     for ref in all_table_refs:
         try:
             _register_iceberg_views(con, [ref], catalog)

@@ -9,9 +9,9 @@ from src.ai_ready.chat.tool_schemas import get_tool_definitions
 class TestToolSchemas:
     """Tests for tool schema definitions."""
 
-    def test_returns_7_tools(self):
+    def test_returns_8_tools(self):
         tools = get_tool_definitions()
-        assert len(tools) == 7
+        assert len(tools) == 8
 
     def test_all_tools_have_required_fields(self):
         tools = get_tool_definitions()
@@ -34,6 +34,7 @@ class TestToolSchemas:
             "get_company_trend",
             "get_sector_summary",
             "get_ratio",
+            "get_amendment_summary",
         }
         assert names == expected
 

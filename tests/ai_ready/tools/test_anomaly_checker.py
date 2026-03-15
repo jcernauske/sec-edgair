@@ -48,11 +48,19 @@ class TestCheckAnomalies:
         assert len(flags) == 1
         assert "Negative stockholders equity" in flags[0]
 
-    def test_non_boeing_negative_equity_no_flag(self):
+    def test_any_company_negative_equity_flagged(self):
+        """Any company with negative equity should be flagged, not just Boeing."""
         flags = check_anomalies(
             ticker="AAPL", metric="Stockholders Equity", value=-5_000_000_000,
         )
-        assert flags == []
+        assert len(flags) == 1
+        assert "Negative stockholders equity" in flags[0]
+
+    def test_positive_equity_no_flag(self):
+        flags = check_anomalies(
+            ticker="AAPL", metric="Stockholders Equity", value=50_000_000_000,
+        )
+        assert not any("Negative stockholders equity" in f for f in flags)
 
     def test_extreme_debt_to_equity(self):
         flags = check_anomalies(
@@ -100,7 +108,7 @@ class TestCheckAnomalies:
         assert flags == []
 
     def test_multiple_flags(self):
-        """Boeing with negative equity AND extreme D/E should get both flags."""
+        """Any company with negative equity AND extreme YoY should get both flags."""
         flags = check_anomalies(
             ticker="BA",
             metric="Stockholders Equity",

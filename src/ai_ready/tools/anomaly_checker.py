@@ -36,10 +36,9 @@ def check_anomalies(
             f"May reflect M&A, reclassification, or one-time event."
         )
 
-    # Rule 2: Negative stockholders equity (Boeing-specific known issue)
+    # Rule 2: Negative stockholders equity (any company)
     if (
-        ticker == "BA"
-        and metric is not None
+        metric is not None
         and "stockholders equity" in metric.lower()
         and value < 0
     ):

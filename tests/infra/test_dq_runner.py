@@ -358,7 +358,7 @@ class TestRunRulesIntegration:
         from pyiceberg.schema import Schema
         from pyiceberg.types import DateType, DoubleType, IntegerType, NestedField, StringType
 
-        from src.infra.iceberg_setup import append_data, create_test_table, get_catalog
+        from src.infra.iceberg_setup import append_data, get_or_create_table, get_catalog
 
         warehouse = tmp_path / "warehouse"
         catalog_db = tmp_path / "catalog.db"
@@ -371,7 +371,7 @@ class TestRunRulesIntegration:
             NestedField(3, "val", DoubleType(), required=True),
             NestedField(4, "filed_date", DateType(), required=True),
         )
-        table = create_test_table(catalog, "base", "test_facts", schema)
+        table = get_or_create_table(catalog, "base", "test_facts", schema)
 
         import datetime
         append_data(table, [
@@ -521,14 +521,14 @@ class TestValidateAfterWrite:
         from pyiceberg.schema import Schema
         from pyiceberg.types import DoubleType, IntegerType, NestedField, StringType
 
-        from src.infra.iceberg_setup import append_data, create_test_table, get_catalog
+        from src.infra.iceberg_setup import append_data, get_or_create_table, get_catalog
 
         catalog = get_catalog(tmp_path / "wh", tmp_path / "cat.db")
         schema = Schema(
             NestedField(1, "id", StringType(), required=True),
             NestedField(2, "val", DoubleType(), required=True),
         )
-        table = create_test_table(catalog, "base", "clean_table", schema)
+        table = get_or_create_table(catalog, "base", "clean_table", schema)
         append_data(table, [{"id": "A", "val": 1.0}, {"id": "B", "val": 2.0}])
 
         rules_dir = tmp_path / "dq-rules"
@@ -559,14 +559,14 @@ class TestValidateAfterWrite:
         from pyiceberg.schema import Schema
         from pyiceberg.types import DoubleType, NestedField, StringType
 
-        from src.infra.iceberg_setup import append_data, create_test_table, get_catalog
+        from src.infra.iceberg_setup import append_data, get_or_create_table, get_catalog
 
         catalog = get_catalog(tmp_path / "wh", tmp_path / "cat.db")
         schema = Schema(
             NestedField(1, "id", StringType(), required=True),
             NestedField(2, "val", DoubleType(), required=True),
         )
-        table = create_test_table(catalog, "base", "dirty_table", schema)
+        table = get_or_create_table(catalog, "base", "dirty_table", schema)
         append_data(table, [
             {"id": "A", "val": 1.0},
             {"id": "A", "val": 2.0},  # duplicate id

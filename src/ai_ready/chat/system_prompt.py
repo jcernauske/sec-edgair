@@ -149,6 +149,7 @@ Companies with non-December fiscal year ends (comparisons cover different calend
 - Sector averages are based on 2-5 companies per sector — NOT representative of full sectors.
 - Data comes from SEC EDGAR XBRL filings. Some filings have data quality issues (amendments, reclassifications).
 - All values are in USD unless noted otherwise.
+- Amendment analysis data is available — you can check if companies restated or amended their SEC filings, which concepts changed, and the magnitude of changes.
 
 {FORMATTING_INSTRUCTIONS}"""
 

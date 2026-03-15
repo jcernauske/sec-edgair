@@ -9,7 +9,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.infra.dq_runner import validate_after_write
-from src.infra.iceberg_setup import append_data, create_test_table, get_catalog, read_with_duckdb
+from pyiceberg.exceptions import NoSuchTableError
+
+from src.infra.iceberg_setup import append_data, get_or_create_table, get_catalog, read_with_duckdb
 
 from .config import (
     AMENDMENT_TRACKING_TABLE,
@@ -46,15 +48,15 @@ def promote_financial_facts(
         return {"table": f"{NAMESPACE}.{FINANCIAL_FACTS_TABLE}", "promoted": 0}
 
     catalog = get_catalog(wh, cp)
-    table = create_test_table(catalog, NAMESPACE, FINANCIAL_FACTS_TABLE, FINANCIAL_FACTS_SCHEMA)
+    table = get_or_create_table(catalog, NAMESPACE, FINANCIAL_FACTS_TABLE, FINANCIAL_FACTS_SCHEMA)
 
     # Uniqueness check: skip fact_ids that already exist
     existing_ids = set()
     try:
         existing = read_with_duckdb(table)
         existing_ids = {r["fact_id"] for r in existing}
-    except Exception:
-        pass
+    except NoSuchTableError:
+        pass  # Table doesn't exist yet — first run
 
     original_count = len(facts)
     facts = [f for f in facts if f["fact_id"] not in existing_ids]
@@ -98,15 +100,15 @@ def promote_fiscal_calendar(
         return {"table": f"{NAMESPACE}.{FISCAL_CALENDAR_TABLE}", "promoted": 0}
 
     catalog = get_catalog(wh, cp)
-    table = create_test_table(catalog, NAMESPACE, FISCAL_CALENDAR_TABLE, FISCAL_CALENDAR_SCHEMA)
+    table = get_or_create_table(catalog, NAMESPACE, FISCAL_CALENDAR_TABLE, FISCAL_CALENDAR_SCHEMA)
 
     # Uniqueness check: skip calendar_ids that already exist
     existing_ids = set()
     try:
         existing = read_with_duckdb(table)
         existing_ids = {r["calendar_id"] for r in existing}
-    except Exception:
-        pass
+    except NoSuchTableError:
+        pass  # Table doesn't exist yet — first run
 
     original_count = len(entries)
     entries = [e for e in entries if e["calendar_id"] not in existing_ids]
@@ -150,7 +152,7 @@ def promote_amendment_tracking(
         return {"table": f"{NAMESPACE}.{AMENDMENT_TRACKING_TABLE}", "promoted": 0}
 
     catalog = get_catalog(wh, cp)
-    table = create_test_table(catalog, NAMESPACE, AMENDMENT_TRACKING_TABLE, AMENDMENT_TRACKING_SCHEMA)
+    table = get_or_create_table(catalog, NAMESPACE, AMENDMENT_TRACKING_TABLE, AMENDMENT_TRACKING_SCHEMA)
 
     # Uniqueness check: skip amendment pairs that already exist
     # tracking_id is a UUID generated fresh each run, so dedup on the grain instead
@@ -162,8 +164,8 @@ def promote_amendment_tracking(
              r["original_accession"], r["amendment_accession"])
             for r in existing
         }
-    except Exception:
-        pass
+    except NoSuchTableError:
+        pass  # Table doesn't exist yet — first run
 
     def _pair_key(e: dict) -> tuple:
         return (e["cik"], e["concept"], e["unit"], str(e.get("end_date", "")),

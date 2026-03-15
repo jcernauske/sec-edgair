@@ -17,10 +17,9 @@ from pyiceberg.types import DateType, DoubleType, NestedField, StringType
 
 from src.infra.iceberg_setup import (
     append_data,
-    create_test_table,
+    get_or_create_table,
     get_catalog,
     get_snapshots,
-    read_current_with_iceberg_scan,
     read_with_duckdb,
 )
 
@@ -55,7 +54,7 @@ def iceberg_env(tmp_path):
     catalog_db = tmp_path / "catalog.db"
 
     catalog = get_catalog(warehouse, catalog_db)
-    table = create_test_table(catalog, "test_db", "financial_facts_test", TEST_SCHEMA)
+    table = get_or_create_table(catalog, "test_db", "financial_facts_test", TEST_SCHEMA)
 
     snap1 = append_data(table, BATCH_1)
     snap2 = append_data(table, BATCH_2)
@@ -174,17 +173,6 @@ class TestSchemaConsistency:
         assert len(iceberg_env["table"].schema().fields) == 5
 
 
-# --- DuckDB native iceberg_scan ---
-
-
-class TestDuckDBNativeIcebergScan:
-    """DuckDB's iceberg_scan works for current state reads."""
-
-    def test_iceberg_scan_reads_current_state(self, iceberg_env):
-        rows = read_current_with_iceberg_scan(iceberg_env["table"])
-        assert len(rows) == 6
-
-
 # --- Edge cases ---
 
 
@@ -193,12 +181,12 @@ class TestEdgeCases:
 
     def test_empty_table_query(self, tmp_path):
         catalog = get_catalog(tmp_path / "wh", tmp_path / "cat.db")
-        table = create_test_table(catalog, "test_db", "empty_table", TEST_SCHEMA)
+        table = get_or_create_table(catalog, "test_db", "empty_table", TEST_SCHEMA)
         rows = read_with_duckdb(table)
         assert rows == []
 
     def test_table_already_exists_returns_existing(self, iceberg_env):
-        table2 = create_test_table(
+        table2 = get_or_create_table(
             iceberg_env["catalog"], "test_db", "financial_facts_test", TEST_SCHEMA
         )
         rows = read_with_duckdb(table2)
@@ -209,7 +197,7 @@ class TestEdgeCases:
         snap_count_before = len(get_snapshots(iceberg_env["table"]))
         # Re-get catalog and table
         catalog2 = get_catalog(iceberg_env["warehouse"], iceberg_env["catalog_db"])
-        table2 = create_test_table(catalog2, "test_db", "financial_facts_test", TEST_SCHEMA)
+        table2 = get_or_create_table(catalog2, "test_db", "financial_facts_test", TEST_SCHEMA)
         snap_count_after = len(get_snapshots(table2))
         assert snap_count_after == snap_count_before
 

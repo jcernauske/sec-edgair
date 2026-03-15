@@ -35,6 +35,13 @@ def cmd_build(args: argparse.Namespace) -> None:
     if result.get("snapshot_id"):
         print(f"  Snapshot ID: {result['snapshot_id']}")
 
+    # Post-write DQ validation
+    from src.infra.dq_runner import validate_after_write
+    print("Running DQ validation...")
+    dq_result = validate_after_write("consumable-company-financials")
+    print(f"  DQ: {dq_result['rules_passed']}/{dq_result['rules_total']} rules passing")
+    print(f"  P0 gate: {'PASS' if dq_result['p0_passed'] else 'FAIL'}")
+
 
 def cmd_status(args: argparse.Namespace) -> None:
     """Show table statistics."""

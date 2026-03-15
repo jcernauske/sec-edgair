@@ -229,6 +229,29 @@ TOOL_DEFINITIONS = [
             "required": ["ticker", "ratio"],
         },
     },
+    {
+        "name": "get_amendment_summary",
+        "description": (
+            "Get an amendment analysis summary for a company. "
+            "Returns how many times a company restated or amended their SEC filings, "
+            "what concepts changed, and the magnitude of changes. "
+            "Use this when the user asks about restatements, amendments, or filing corrections."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "Company ticker symbol (e.g., AAPL, MSFT, BA)",
+                },
+                "fiscal_year": {
+                    "type": "integer",
+                    "description": "Fiscal year. If omitted, returns the latest available year.",
+                },
+            },
+            "required": ["ticker"],
+        },
+    },
 ]
 
 

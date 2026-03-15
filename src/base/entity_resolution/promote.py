@@ -14,7 +14,9 @@ from pathlib import Path
 
 
 from src.infra.dq_runner import validate_after_write
-from src.infra.iceberg_setup import append_data, create_test_table, get_catalog, read_with_duckdb
+from pyiceberg.exceptions import NoSuchTableError
+
+from src.infra.iceberg_setup import append_data, get_or_create_table, get_catalog, read_with_duckdb
 
 from .schema import ENTITY_MAPPINGS_SCHEMA, ENTITY_RESOLUTION_AUDIT_SCHEMA
 from .staging import archive_staging, read_staging
@@ -49,8 +51,8 @@ def promote_approved(
     catalog = get_catalog(warehouse_path, catalog_path)
 
     # Create tables if they don't exist
-    mappings_table = create_test_table(catalog, "base", "entity_mappings", ENTITY_MAPPINGS_SCHEMA)
-    audit_table = create_test_table(catalog, "base", "entity_resolution_audit", ENTITY_RESOLUTION_AUDIT_SCHEMA)
+    mappings_table = get_or_create_table(catalog, "base", "entity_mappings", ENTITY_MAPPINGS_SCHEMA)
+    audit_table = get_or_create_table(catalog, "base", "entity_resolution_audit", ENTITY_RESOLUTION_AUDIT_SCHEMA)
 
     now = datetime.now(timezone.utc)
     today = now.date()
@@ -61,8 +63,8 @@ def promote_approved(
     try:
         existing = read_with_duckdb(mappings_table)
         existing_ciks = {r["cik"] for r in existing if r.get("status") == "approved"}
-    except Exception:
-        pass  # Empty table or first run
+    except NoSuchTableError:
+        pass  # Table doesn't exist yet — first run
 
     duplicates = [p for p in approved if p["cik"] in existing_ciks]
     approved = [p for p in approved if p["cik"] not in existing_ciks]

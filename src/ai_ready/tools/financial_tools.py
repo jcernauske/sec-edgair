@@ -1317,3 +1317,74 @@ def get_ratio(
         result["anomaly_flags"] = anomaly_flags
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# Tool 8: get_amendment_summary
+# ---------------------------------------------------------------------------
+
+
+def get_amendment_summary(
+    ticker: str,
+    fiscal_year: int | None = None,
+) -> dict:
+    """Get amendment analysis summary for a company.
+
+    Args:
+        ticker: Company ticker (AAPL, MSFT, etc.)
+        fiscal_year: Specific year. If None, returns the latest available year.
+
+    Returns:
+        Dict with ticker, company_name, fiscal_year, amendment_count,
+        distinct_concepts, mean/median/max abs change (formatted),
+        largest_concept, days_to_amend_avg, total_val_impact (formatted).
+    """
+    con = get_db()
+    ticker = ticker.upper()
+
+    if fiscal_year is not None:
+        rows = con.execute(
+            """SELECT ticker, canonical_name, fiscal_year, amendment_count,
+                      distinct_concepts, mean_abs_change, median_abs_change,
+                      max_abs_change, largest_concept, days_to_amend_avg,
+                      total_val_impact
+               FROM amendment_analysis
+               WHERE ticker = ? AND fiscal_year = ?""",
+            [ticker, fiscal_year],
+        ).fetchall()
+    else:
+        rows = con.execute(
+            """SELECT ticker, canonical_name, fiscal_year, amendment_count,
+                      distinct_concepts, mean_abs_change, median_abs_change,
+                      max_abs_change, largest_concept, days_to_amend_avg,
+                      total_val_impact
+               FROM amendment_analysis
+               WHERE ticker = ?
+               ORDER BY fiscal_year DESC LIMIT 1""",
+            [ticker],
+        ).fetchall()
+
+    if not rows:
+        return {
+            "error": f"No amendment data found for {ticker}"
+            + (f" in FY{fiscal_year}" if fiscal_year else ""),
+            "ticker": ticker,
+        }
+
+    (tick, company_name, fy, amendment_count, distinct_concepts,
+     mean_abs, median_abs, max_abs, largest_concept,
+     days_to_amend_avg, total_val_impact) = rows[0]
+
+    return {
+        "ticker": tick,
+        "company_name": company_name,
+        "fiscal_year": fy,
+        "amendment_count": amendment_count,
+        "distinct_concepts": distinct_concepts,
+        "mean_abs_change": format_currency(mean_abs),
+        "median_abs_change": format_currency(median_abs),
+        "max_abs_change": format_currency(max_abs),
+        "largest_concept": largest_concept,
+        "days_to_amend_avg": round(days_to_amend_avg, 1),
+        "total_val_impact": format_currency(total_val_impact),
+    }
