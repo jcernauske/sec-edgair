@@ -13,6 +13,7 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 - Source code: `src/` (organized by zone: raw, base, consumable, ai_ready)
 - Infrastructure: `src/infra/` (cross-cutting: iceberg_setup, dq_runner, dq_scorecard)
 - Data: `data/` (gitignored, organized by zone)
+- Insight reports: `governance/insights/` (zone transition analysis)
 - Governance artifacts: `governance/`
 - Data models: `governance/models/` (conceptual, logical, physical)
 - DQ rules: `governance/dq-rules/` (JSON rule definitions with SQL + thresholds)
@@ -36,6 +37,20 @@ SEC EDGAIR is an AI agent pipeline that processes SEC EDGAR XBRL financial data 
 8. @doc-generator — Dictionary + contracts update
 9. @governance-reviewer — Post-implementation completeness check
 10. @staff-engineer — Final quality review (LAST gate before completion)
+
+### Zone Transition: @insight-manager
+
+Between zones (after all specs in a zone are complete, before the next zone's specs are written), @insight-manager runs a strategic analysis:
+
+1. @insight-manager — Analyze completed zone data, produce Insight Report
+   - Queries real Iceberg tables (not just schemas)
+   - Builds on existing EDA reports, DQ scorecards, CDE catalog
+   - Recommends data products ranked by value/feasibility
+   - Identifies external data combination opportunities
+   - Suggests spec order for the next zone
+   - Output: `governance/insights/[source-zone]-to-[target-zone]-insights.md`
+
+The Insight Report is the primary input for spec writing in the next zone. No spec should be written without it.
 
 ### Base & Consumable Zone Pipeline (with data modeling gates)
 
@@ -83,7 +98,7 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 
 ## Rules
 - Specs are the source of truth — if it's not in the spec, it doesn't get built
-- Every transformation produces governance artifacts (lineage, DQ rules, CDE tags, audit trail)
+- Every transformation produces governance artifacts (lineage, DQ rules, business term mappings, audit trail)
 - DQ rules validate real data, never placeholders
 - Every agent logs its reasoning, not just outputs
 - No changes to data schemas without a spec
@@ -95,8 +110,8 @@ Model artifacts are stored in `governance/models/` as `[spec-name]-conceptual.md
 - Test theater (tests that don't validate real behavior) is a rejection
 - When model files in `governance/models/` are created or modified, update the corresponding Mermaid diagrams in the "Data Models" section of `README.md` (all three levels: conceptual, logical, AND physical — full details live in governance/models/)
 - When `governance/business-glossary.json` is modified, update the "Business Glossary" section of `README.md` (term counts, key terms tables)
-- Data models store governance metadata as **IDs only** (`BT-XXX`, `CDE-XXX`, PII flag) — never inline definitions. Authoritative sources: `governance/business-glossary.json` (terms), `governance/cde-catalog.json` (CDEs), `governance/policies/` (PII). Documentation (README) dereferences IDs into human-readable names.
-- All model levels include `Business Term`, `CDE`, `PII` columns: conceptual on entity tables, logical on attribute tables, physical on column tables
+- Data models store governance metadata as **IDs only** (`BT-XXX`) with derived flags (`is_cde`, `is_pii`) — never inline definitions. Authoritative source: `governance/business-glossary.json` (terms with `is_cde` and `is_pii` boolean flags). Documentation (README) dereferences IDs into human-readable names.
+- All model levels include `Business Term`, `Is CDE`, `Is PII` columns: conceptual on entity tables, logical on attribute tables, physical on column tables. CDE and PII flags are derived from the referenced business term.
 - DQ has three agents with distinct roles: @data-analyst (profiles data, produces EDA reports), @dq-rule-writer (writes rules from EDA evidence), @dq-engineer (executes rules, produces scorecards). No agent does another's job.
 - DQ rules follow a lifecycle: `PROPOSED → APPROVED → ACTIVE`. Rules must be executed against real Iceberg data via `python -m src.infra.dq_runner run`. P0 failures block spec completion.
 - DQ rule approval respects `REQUIRE_HUMAN_APPROVAL` — when False, proposed rules auto-advance to approved

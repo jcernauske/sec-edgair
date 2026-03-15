@@ -202,35 +202,62 @@ All generated automatically. No human entered any of this into a GUI. The agents
 
 Same spec-driven, multi-agent workflow as Arteeoo. Every agent has a defined role, a defined scope, and doesn't freelance.
 
-### Proposed Agents
+### Agents
 
-| Agent | Role | Parallel to Arteeoo |
-|-------|------|---------------------|
-| `@data-profiler` | Schema detection, statistical profiling, anomaly detection | `@ios-architect` |
-| `@pii-scanner` | PII detection and classification | New |
-| `@semantic-modeler` | Proposes dimensional models from raw data | `@ios-architect` |
-| `@entity-resolver` | Company identity resolution across CIKs, names, tickers | New |
-| `@cde-tagger` | Maps fields to canonical Critical Data Elements | New |
-| `@temporal-modeler` | Designs and implements bitemporal schema with Iceberg | New |
-| `@dq-engineer` | Generates and runs data quality rules | `@test-writer` |
-| `@lineage-tracker` | Captures transformation lineage in OpenLineage format at every step | New |
-| `@governance-reviewer` | Reviews governance metadata for completeness — the "FAANG staff engineer" of data | `@faang-staff-engineer` |
-| `@doc-generator` | Auto-generates data dictionaries, catalogs, data contracts, grounding documents, documentation | New |
-| `@embedding-engineer` | Generates semantic embeddings, manages vector index | New |
-| `@chunk-strategist` | Designs and executes intelligent chunking for LLM consumption | New |
-| `@eval-engineer` | Generates evaluation Q&A pairs from governed data with verified answers and lineage | New |
-| `@mcp-engineer` | Builds MCP server exposing governed data as AI-callable tools | New |
+#### Active Agents (built and running)
+
+| Agent | Role | Status |
+|-------|------|--------|
+| `@governance-reviewer` | Pre/post-implementation review, governance completeness checks | Active |
+| `@staff-engineer` | Final quality gate — FAANG-caliber code review, last approval before spec completion | Active |
+| `@data-analyst` | EDA profiling — distributions, outliers, edge cases, threshold evidence | Active |
+| `@dq-rule-writer` | Writes DQ rules from EDA evidence (never queries data directly) | Active |
+| `@dq-engineer` | Executes DQ rules against real Iceberg data, produces scorecards | Active |
+| `@entity-resolver` | Company identity resolution — CIK to canonical identity with approval gate | Active |
+| `@semantic-modeler` | Proposes conceptual → logical → physical models, detects greenfield vs backfill | Active |
+| `@data-steward` | Business glossary management — proposes terms, manages approval workflow | Active |
+| `@cde-tagger` | Maps fields to canonical Critical Data Elements | Active |
+| `@lineage-tracker` | Captures transformation lineage in OpenLineage format | Active |
+| `@doc-generator` | Auto-generates data dictionaries, catalogs, data contracts | Active |
+| `@temporal-modeler` | Designs bitemporal schema, temporal query helpers | Active |
+| `@pii-scanner` | PII detection and classification | Active |
+| `@policy-engineer` | Row-level security and data protection policies | Active |
+| `@insight-manager` | **Zone transition agent** — analyzes completed zone data, recommends data products for next zone, ranks by value/feasibility | Active |
+
+#### Future Agents (AI-Ready Zone)
+
+| Agent | Role | Phase |
+|-------|------|-------|
+| `@embedding-engineer` | Semantic embeddings, vector index management | Phase 5 |
+| `@chunk-strategist` | Intelligent chunking for LLM consumption | Phase 5 |
+| `@eval-engineer` | Evaluation Q&A pairs with verified answers and lineage | Phase 5 |
+| `@mcp-engineer` | MCP server exposing governed data as AI-callable tools | Phase 5 |
 
 ### Workflow Per Feature/Transformation
 
 1. Write a spec (what transformation, why, expected input/output)
 2. Spec reviewed by `@governance-reviewer`
-3. Implementation by appropriate agent
-4. `@lineage-tracker` logs the transformation in OpenLineage format
-5. `@dq-engineer` generates and runs quality tests
-6. `@cde-tagger` updates CDE mappings
-7. `@doc-generator` updates documentation, data dictionary, and data contracts
-8. All agents log decision rationale to audit trail
+3. `@data-steward` proposes business terms → human approval gate
+4. `@semantic-modeler` proposes conceptual → logical → physical models → human approval gates
+5. `@data-analyst` EDA on source data (profiles, distributions, threshold evidence)
+6. `@dq-rule-writer` writes rules from EDA report (never queries data directly)
+7. Implementation by appropriate agent (must match approved physical model)
+8. `@dq-engineer` executes rules against real Iceberg data, produces scorecard
+9. `@lineage-tracker` logs the transformation in OpenLineage format
+10. `@cde-tagger` updates CDE mappings
+11. `@doc-generator` updates documentation, data dictionary, and data contracts
+12. `@governance-reviewer` post-implementation completeness check
+13. `@staff-engineer` final quality review — LAST gate before spec completion
+14. All agents log decision rationale to audit trail
+
+### Zone Transition Workflow
+
+Between zones (after all specs in a zone are complete, before the next zone's specs are written):
+
+1. `@insight-manager` analyzes completed zone data (queries real Iceberg tables, not schemas)
+2. Produces ranked data product recommendations, coverage analysis, external data opportunities
+3. Output drives spec writing for the next zone — no spec written without insight report
+4. Insight report saved to `governance/insights/[source]-to-[target]-insights.md`
 
 ---
 
@@ -244,41 +271,62 @@ Same spec-driven, multi-agent workflow as Arteeoo. Every agent has a defined rol
 - [x] Download EDGAR bulk data for target companies
 - [x] Verify data access and basic parsing
 
-### Phase 1 — Raw Zone (Weeks 2-3)
-- [x] Build ingest pipeline for XBRL company facts
-- [x] Data profiling agent — schema, types, cardinality, nulls, anomalies
+### Phase 1 — Raw Zone (COMPLETE)
+- [x] Build ingest pipeline for XBRL company facts — 547,398 facts from 20 companies
+- [x] Data profiling agent — schema, types, cardinality, nulls, anomalies (EDA report)
 - [x] PII scanner — flag officer names, addresses
 - [x] Data classification — sensitivity tagging
 - [x] Source metadata capture — lineage from source to raw
+- [x] DQ rules — 8 rules, all passing
 - [x] **Milestone:** Raw data landed, profiled, classified, with full ingestion lineage
 
-### Phase 2 — Base Zone: Modeling (Weeks 4-6)
-- [ ] Entity resolution — CIK to canonical company identity
-- [ ] XBRL tag normalization — map to canonical CDEs
-- [ ] Dimensional model proposal — generated from data, not drawn
-- [ ] Bitemporal schema — valid time in data + transaction time via Iceberg snapshots
-- [ ] Amendment/restatement handling — new snapshots per amendment, supersession metadata
-- [ ] Fiscal calendar normalization
-- [ ] Write all base zone output to Iceberg tables
-- [ ] **Milestone:** Clean, modeled, bitemporal Iceberg tables with entity resolution complete
+### Phase 2 — Base Zone: Modeling + Governance (COMPLETE)
+- [x] Entity resolution — 20 companies, CIK to canonical identity, human-approved
+- [x] XBRL tag normalization — 3,285 concepts → 25 CDEs (Tier 1/2/3)
+- [x] Dimensional model — financial_facts (547K facts), fiscal_calendar (1,294 periods), amendment_tracking (239K pairs)
+- [x] Bitemporal schema — valid time + transaction time via Iceberg snapshots, query helpers, temporal DQ rules
+- [x] Amendment/restatement handling — supersession detection, val_change tracking
+- [x] Fiscal calendar normalization — observed period boundaries per company
+- [x] CDE tagging — 31 CDEs (CDE-001 through CDE-031), structured JSON catalog
+- [x] Full lineage capture — OpenLineage format for all 6 base specs
+- [x] Data quality — 42 DQ rules, all passing, scorecards from real execution
+- [x] Business glossary — 25 terms (external auto-approved, project-specific human-approved)
+- [x] Data dictionary — auto-generated, structured JSON
+- [x] Agent decision audit trail — rationale for every classification and transformation
+- [x] **Milestone:** 8 Iceberg tables across raw + base zones, fully governed, 42 DQ rules passing, 146 tests
 
-### Phase 3 — Base Zone: Governance (Weeks 7-8)
-- [ ] CDE tagging across all fields — structured JSON catalog, import-ready
-- [ ] Full lineage capture in OpenLineage format — every transformation logged
-- [ ] Data quality test suite — generated, passing, with scorecard per table
-- [ ] Row-level security policy definitions
-- [ ] Data dictionary auto-generation — structured JSON, import-ready for Collibra/Alation/DataHub
-- [ ] Agent decision audit trail — rationale for every classification and transformation
-- [ ] Data contracts for base zone tables
-- [ ] **Milestone:** Fully governed base zone with complete, interoperable governance metadata
+### Phase 3 — Zone Transition: @insight-manager Analysis (COMPLETE)
+- [x] @insight-manager agent created — strategic data product discovery at zone boundaries
+- [x] Insight report produced: `governance/insights/base-to-consumable-insights.md`
+- [x] Queried real Iceberg data — coverage matrix, per-company profiles, CDE distributions
+- [x] Identified 12 universal CDEs (all 20 companies), 6 near-universal, 7 partial
+- [x] Ranked data products by value/feasibility (6 Tier 1-2, 6 Tier 3)
+- [x] Identified external data opportunities (stock prices = #1 priority)
+- [x] Documented coverage gaps and risks (fiscal year misalignment, financial sector P&L structure)
+- [x] **Milestone:** Data-driven roadmap for consumable zone, not assumptions
 
-### Phase 4 — Consumable Zone (Weeks 9-10)
-- [ ] Financial comparison dataset — normalized, cross-company, Iceberg tables
-- [ ] Amendment/restatement tracker — powered by Iceberg time travel
-- [ ] Point-in-time query support — `AT VERSION` queries
-- [ ] Data contracts per consumable — schema, SLAs, quality thresholds, breaking change policy
+### Phase 4 — Consumable Zone (Weeks 9-12)
+
+#### 4A — Core Data Products (from insight report Tier 1)
+- [ ] `consumable-company-financials` — Denormalized comparison table: one row per (company, CDE, fiscal_year, fiscal_period). Current facts only. Filters `is_superseded=false`. The foundation everything else builds on.
+- [ ] `consumable-financial-ratios` — Computed ratios from existing CDEs: gross margin, operating margin, net margin, debt-to-equity, R&D intensity, SGA ratio, capex-to-revenue. Derived from company financials.
+- [ ] `consumable-period-over-period` — YoY change, sequential change, CAGR for each (company, CDE). Time-series analysis layer.
+- [ ] `consumable-amendment-analysis` — Amendment frequency, magnitude, patterns per company. Unique insight about corporate reporting quality.
+- [ ] **Milestone:** Four queryable consumable tables — cross-company comparison, ratios, growth, amendment intelligence
+
+#### 4B — Comparative Analysis (from insight report Tier 2)
+- [ ] `consumable-peer-comparison` — Sector grouping via SIC codes, peer ranks, percentiles within sector. Requires SIC-to-GICS sector mapping.
+- [ ] Data contracts per consumable — schema, freshness SLA, quality thresholds, breaking change policy
+
+#### 4C — External Data Enrichment (from insight report — highest-value external source)
+- [ ] `raw-ingest-stock-prices` — Daily stock prices for all 20 tickers (Yahoo Finance or Alpha Vantage). New raw data source. Join on (ticker, date).
+- [ ] `consumable-valuation-ratios` — P/E, P/B, P/S, dividend yield. Requires stock prices + existing EPS/equity/revenue CDEs.
+- [ ] Consider: FRED API integration for macro indicators (GDP, CPI, rates) — join on date for macro-adjusted analysis.
+
+#### 4D — Demo & Documentation
 - [ ] Build the "Collibra killer" demo walkthrough — single field, full governance stack
-- [ ] **Milestone:** Three usable data products with full governance metadata and demo-ready walkthrough
+- [ ] Point-in-time query support — demonstrate `AT VERSION` queries via bitemporal module
+- [ ] **Milestone:** Full consumable zone with data products, external enrichment, governance, and demo-ready walkthrough
 
 ### Phase 5 — AI-Ready Zone (Weeks 11-13)
 - [ ] Semantic embeddings — vectorize entities, facts, CDEs

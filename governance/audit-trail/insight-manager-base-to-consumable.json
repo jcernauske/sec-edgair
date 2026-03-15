@@ -1,0 +1,44 @@
+{
+  "spec": "zone-transition-base-to-consumable",
+  "agent": "@insight-manager",
+  "timestamp": "2026-03-14T15:00:00Z",
+  "action": "insight_analysis",
+  "summary": "Analyzed 8 Iceberg tables across raw and base zones (547K facts, 20 companies, 25 business terms, 42 DQ rules) to recommend consumable zone data products",
+  "data_profiled": {
+    "tables_queried": [
+      "base.financial_facts",
+      "base.entity_mappings",
+      "base.concept_mappings",
+      "base.fiscal_calendar",
+      "base.amendment_tracking"
+    ],
+    "total_facts": 547398,
+    "current_facts": 283025,
+    "companies": 20,
+    "business_terms_mapped": 25,
+    "fiscal_year_range": "2009-2026",
+    "dq_rules_passing": 42
+  },
+  "key_findings": [
+    "12 of 25 business terms have coverage across all 20 companies with annual data back to 2009",
+    "48.3% of facts are superseded — consumable layer must filter to current only by default",
+    "Financial sector companies (JPM, GS, BRK.A) have different P&L structure — no Cost of Revenue or Operating Income",
+    "Gross Profit only reported by 9 companies — operating margin (18 cos) is a better profitability metric",
+    "Fiscal year misalignment across 4 different FY-ends requires both fiscal and calendar year views",
+    "Amendment tracking reveals 239K supersession pairs — unique insight about corporate reporting quality"
+  ],
+  "recommendations": {
+    "tier_1_specs": [
+      "consumable-company-financials",
+      "consumable-financial-ratios",
+      "consumable-period-over-period",
+      "consumable-amendment-analysis"
+    ],
+    "tier_2_specs": [
+      "consumable-peer-comparison",
+      "raw-ingest-stock-prices"
+    ],
+    "highest_value_external_data": "Daily stock prices (Yahoo Finance) — enables P/E, P/B, P/S, dividend yield"
+  },
+  "output": "governance/insights/base-to-consumable-insights.md"
+}
