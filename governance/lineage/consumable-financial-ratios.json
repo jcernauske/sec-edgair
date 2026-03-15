@@ -1,0 +1,101 @@
+{
+  "eventType": "COMPLETE",
+  "eventTime": "2026-03-14T16:00:00.000Z",
+  "producer": "https://github.com/jcernauske/sec_edgair",
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "run": {
+    "runId": "consumable-financial-ratios-build-001",
+    "facets": {
+      "processing_engine": {
+        "name": "SEC EDGAIR Pipeline",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "job": {
+    "namespace": "sec_edgair",
+    "name": "consumable.financial_ratios.build",
+    "facets": {
+      "documentation": {
+        "description": "Compute 7 financial ratios from consumable.company_financials by joining numerator and denominator business terms on (cik, fiscal_year, fiscal_period)."
+      },
+      "sourceCode": {
+        "type": "PYTHON",
+        "url": "src/consumable/financial_ratios/build.py"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.company_financials",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "cik", "type": "INTEGER"},
+            {"name": "business_term_id", "type": "STRING"},
+            {"name": "business_term", "type": "STRING"},
+            {"name": "val", "type": "DOUBLE"},
+            {"name": "fiscal_year", "type": "INTEGER"},
+            {"name": "fiscal_period", "type": "STRING"},
+            {"name": "entity_id", "type": "STRING"},
+            {"name": "ticker", "type": "STRING"},
+            {"name": "canonical_name", "type": "STRING"},
+            {"name": "sector", "type": "STRING"},
+            {"name": "fiscal_year_end", "type": "STRING"},
+            {"name": "period_end_date", "type": "DATE"},
+            {"name": "calendar_year", "type": "INTEGER"},
+            {"name": "calendar_quarter", "type": "INTEGER"}
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "sec_edgair",
+      "name": "consumable.financial_ratios",
+      "facets": {
+        "schema": {
+          "fields": [
+            {"name": "record_id", "type": "STRING", "description": "SHA-256 hash of (cik, ratio_id, fiscal_year, fiscal_period)"},
+            {"name": "ratio_id", "type": "STRING", "description": "RATIO-001 through RATIO-007"},
+            {"name": "ratio_name", "type": "STRING", "description": "Human-readable ratio name"},
+            {"name": "ratio_value", "type": "DOUBLE", "description": "Computed: numerator_val / denominator_val"},
+            {"name": "numerator_bt_id", "type": "STRING", "description": "Business term ID of numerator"},
+            {"name": "numerator_val", "type": "DOUBLE", "description": "Value from company_financials for numerator BT"},
+            {"name": "denominator_bt_id", "type": "STRING", "description": "Business term ID of denominator"},
+            {"name": "denominator_val", "type": "DOUBLE", "description": "Value from company_financials for denominator BT"},
+            {"name": "companies_reporting", "type": "INTEGER", "description": "COUNT(DISTINCT cik) per (ratio_id, fiscal_period)"}
+          ]
+        },
+        "columnLineage": {
+          "fields": {
+            "record_id": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "SHA-256 hash of (cik, ratio_id, fiscal_year, fiscal_period), truncated to 16 chars"
+            },
+            "ratio_value": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "val"}
+              ],
+              "transformationType": "INDIRECT",
+              "transformationDescription": "numerator_val / denominator_val, with abs(numerator) for RATIO-007 (CapEx). Skips zero and negative denominators for abs-numerator ratios."
+            },
+            "companies_reporting": {
+              "inputFields": [
+                {"namespace": "sec_edgair", "name": "consumable.company_financials", "field": "cik"}
+              ],
+              "transformationType": "AGGREGATION",
+              "transformationDescription": "COUNT(DISTINCT cik) per (ratio_id, fiscal_period) across all fiscal years"
+            },
+            "ratio_id": {
+              "transformationType": "INDIRECT",
+              "transformationDescription": "From RATIO_DEFINITIONS config — maps each (numerator_bt_id, denominator_bt_id) pair to a ratio identifier"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

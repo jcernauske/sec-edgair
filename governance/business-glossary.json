@@ -2,10 +2,10 @@
   "glossary_metadata": {
     "version": "2.0",
     "last_updated": "2026-03-14",
-    "term_count": 50,
+    "term_count": 51,
     "sources": {
-      "xbrl-taxonomy": "US GAAP XBRL Taxonomy — authoritative financial reporting standard. Auto-approved.",
-      "sec-edgar": "SEC EDGAR documentation — filing types, entity identifiers, regulatory concepts. Auto-approved.",
+      "xbrl-taxonomy": "US GAAP XBRL Taxonomy \u2014 authoritative financial reporting standard. Auto-approved.",
+      "sec-edgar": "SEC EDGAR documentation \u2014 filing types, entity identifiers, regulatory concepts. Auto-approved.",
       "project-specific": "Terms defined by this project for pipeline-specific concepts. Requires human approval."
     }
   },
@@ -456,7 +456,7 @@
     {
       "term_id": "BT-017",
       "term": "Financial Fact",
-      "definition": "A single reported financial value — one number, for one XBRL concept, in one unit, for one reporting period, from one SEC filing. The atomic unit of financial data in the pipeline. Grain: (CIK, concept, unit, start_date, end_date, accession_number).",
+      "definition": "A single reported financial value \u2014 one number, for one XBRL concept, in one unit, for one reporting period, from one SEC filing. The atomic unit of financial data in the pipeline. Grain: (CIK, concept, unit, start_date, end_date, accession_number).",
       "source": "project-specific",
       "source_reference": "docs/specs/base-financial-facts-model.md",
       "synonyms": [
@@ -485,7 +485,7 @@
     {
       "term_id": "BT-018",
       "term": "Fiscal Period",
-      "definition": "A company's reporting period, identified by fiscal year and period type (FY = full year, Q1-Q4 = quarters). Each company has its own fiscal calendar — fiscal years may not align with calendar years (e.g., Apple's fiscal year ends September 30).",
+      "definition": "A company's reporting period, identified by fiscal year and period type (FY = full year, Q1-Q4 = quarters). Each company has its own fiscal calendar \u2014 fiscal years may not align with calendar years (e.g., Apple's fiscal year ends September 30).",
       "source": "xbrl-taxonomy",
       "source_reference": "us-gaap Reporting Period documentation",
       "synonyms": [
@@ -1236,7 +1236,7 @@
     {
       "term_id": "BT-050",
       "term": "Companies Reporting",
-      "definition": "Count of distinct companies that report a given business term for a given fiscal period type (FY, Q1, Q2, Q3). Provides immediate coverage signal — e.g., 'Revenue has 20 companies reporting FY; Gross Profit has 9.' Computed per (business_term_id, fiscal_period) across all years.",
+      "definition": "Count of distinct companies that report a given business term for a given fiscal period type (FY, Q1, Q2, Q3). Provides immediate coverage signal \u2014 e.g., 'Revenue has 20 companies reporting FY; Gross Profit has 9.' Computed per (business_term_id, fiscal_period) across all years.",
       "source": "project-specific",
       "source_reference": "docs/specs/consumable-company-financials.md, Section 2.5",
       "synonyms": [
@@ -1258,6 +1258,32 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
+      "pii_rationale": null
+    },
+    {
+      "term_id": "BT-051",
+      "term": "Financial Ratio",
+      "definition": "A computed metric expressing the relationship between two financial values (numerator / denominator). Used to normalize for company size and enable cross-company comparison. Examples: Gross Margin, Net Margin, Debt-to-Equity.",
+      "source": "project-specific",
+      "source_reference": "docs/specs/consumable-financial-ratios.md",
+      "synonyms": [
+        "Ratio",
+        "Financial Metric Ratio"
+      ],
+      "related_terms": [
+        "BT-013"
+      ],
+      "category": "financial",
+      "owner": "Finance / Data Governance",
+      "status": "approved",
+      "approved_by": "auto (REQUIRE_HUMAN_APPROVAL gate)",
+      "approved_at": "2026-03-14T16:00:00Z",
+      "used_in_models": [
+        "consumable-financial-ratios"
+      ],
+      "is_cde": false,
+      "is_pii": false,
+      "cde_rationale": "Derived metric, not a primary data element.",
       "pii_rationale": null
     }
   ]

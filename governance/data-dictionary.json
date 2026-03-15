@@ -11,10 +11,14 @@
           "field_name": "cik",
           "data_type": "INTEGER",
           "nullable": false,
-          "definition": "SEC Central Index Key — unique numeric identifier assigned to every entity that files with the SEC. Used to join across all SEC data.",
+          "definition": "SEC Central Index Key \u2014 unique numeric identifier assigned to every entity that files with the SEC. Used to join across all SEC data.",
           "business_term_reference": "BT-001 (Central Index Key)",
           "source": "SEC EDGAR API .cik",
-          "dq_rules": ["RAW-CF-001", "RAW-CF-015", "RAW-CF-016"],
+          "dq_rules": [
+            "RAW-CF-001",
+            "RAW-CF-015",
+            "RAW-CF-016"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -25,7 +29,9 @@
           "definition": "Official company name as registered with the SEC. May use all-caps or formal legal name (e.g., 'MICROSOFT CORPORATION' instead of 'Microsoft Corp.').",
           "business_term_reference": "BT-003 (Legal Entity Name)",
           "source": "SEC EDGAR API .entityName",
-          "dq_rules": ["RAW-CF-002"],
+          "dq_rules": [
+            "RAW-CF-002"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -34,8 +40,10 @@
           "data_type": "STRING",
           "nullable": false,
           "definition": "XBRL taxonomy the concept belongs to. Most common: 'us-gaap' (US Generally Accepted Accounting Principles), 'dei' (Document and Entity Information), 'ifrs-full' (International Financial Reporting Standards).",
-          "source": "SEC EDGAR API — key name under .facts object",
-          "dq_rules": ["RAW-CF-010"],
+          "source": "SEC EDGAR API \u2014 key name under .facts object",
+          "dq_rules": [
+            "RAW-CF-010"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -43,8 +51,8 @@
           "field_name": "concept",
           "data_type": "STRING",
           "nullable": false,
-          "definition": "XBRL concept name — the specific financial metric being reported. Examples: 'Revenue', 'Assets', 'EarningsPerShareBasic'. These are the standardized tag names from the XBRL taxonomy.",
-          "source": "SEC EDGAR API — key name under taxonomy object",
+          "definition": "XBRL concept name \u2014 the specific financial metric being reported. Examples: 'Revenue', 'Assets', 'EarningsPerShareBasic'. These are the standardized tag names from the XBRL taxonomy.",
+          "source": "SEC EDGAR API \u2014 key name under taxonomy object",
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -71,7 +79,7 @@
           "data_type": "STRING",
           "nullable": false,
           "definition": "Unit of measurement for the fact value. Examples: 'USD' (US dollars), 'shares' (share count), 'USD/shares' (per-share dollar amounts like EPS).",
-          "source": "SEC EDGAR API — key name under .units object",
+          "source": "SEC EDGAR API \u2014 key name under .units object",
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -90,7 +98,9 @@
           "nullable": false,
           "definition": "End of the reporting period. Always present. For instant facts (balance sheet), this is the measurement date. For duration facts, this is the period end.",
           "source": "SEC EDGAR API .end",
-          "dq_rules": ["RAW-CF-003"],
+          "dq_rules": [
+            "RAW-CF-003"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -100,7 +110,9 @@
           "nullable": false,
           "definition": "The reported fact value. Can be zero (e.g., no goodwill impairment) or negative (e.g., net loss). Stored as double to accommodate integers (revenue), fractions (EPS), and ratios.",
           "source": "SEC EDGAR API .val (cast to float)",
-          "dq_rules": ["RAW-CF-004"],
+          "dq_rules": [
+            "RAW-CF-004"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -108,10 +120,12 @@
           "field_name": "accession_number",
           "data_type": "STRING",
           "nullable": false,
-          "definition": "SEC accession number — uniquely identifies the specific SEC filing this fact came from. Format: XXXXXXXXXX-YY-ZZZZZZ. Multiple facts share an accession number when they come from the same filing.",
+          "definition": "SEC accession number \u2014 uniquely identifies the specific SEC filing this fact came from. Format: XXXXXXXXXX-YY-ZZZZZZ. Multiple facts share an accession number when they come from the same filing.",
           "business_term_reference": "BT-002 (SEC Accession Number)",
           "source": "SEC EDGAR API .accn",
-          "dq_rules": ["RAW-CF-005"],
+          "dq_rules": [
+            "RAW-CF-005"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -121,7 +135,9 @@
           "nullable": false,
           "definition": "The fiscal year the filing covers (e.g., 2023). Note: fiscal years may not align with calendar years for all companies.",
           "source": "SEC EDGAR API .fy",
-          "dq_rules": ["RAW-CF-012"],
+          "dq_rules": [
+            "RAW-CF-012"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -131,7 +147,9 @@
           "nullable": false,
           "definition": "The fiscal period within the year. Common values: 'FY' (full year), 'Q1', 'Q2', 'Q3', 'Q4' (quarters).",
           "source": "SEC EDGAR API .fp",
-          "dq_rules": ["RAW-CF-012"],
+          "dq_rules": [
+            "RAW-CF-012"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -141,7 +159,9 @@
           "nullable": false,
           "definition": "SEC form type. Common values: '10-K' (annual report), '10-Q' (quarterly report), '8-K' (current report), '10-K/A' and '10-Q/A' (amendments).",
           "source": "SEC EDGAR API .form",
-          "dq_rules": ["RAW-CF-011"],
+          "dq_rules": [
+            "RAW-CF-011"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -149,10 +169,13 @@
           "field_name": "filed_date",
           "data_type": "DATE",
           "nullable": false,
-          "definition": "Date the filing was officially submitted to the SEC. Critical for amendment detection — later filed_date with same concept and period indicates a potential amendment.",
+          "definition": "Date the filing was officially submitted to the SEC. Critical for amendment detection \u2014 later filed_date with same concept and period indicates a potential amendment.",
           "business_term_reference": "BT-006 (SEC Filing Date)",
           "source": "SEC EDGAR API .filed",
-          "dq_rules": ["RAW-CF-006", "RAW-CF-014"],
+          "dq_rules": [
+            "RAW-CF-006",
+            "RAW-CF-014"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -171,7 +194,9 @@
           "nullable": false,
           "definition": "UTC timestamp when this row was written to the raw zone by the ingest pipeline. Used for pipeline auditing and debugging.",
           "source": "Generated by pipeline (datetime.now(UTC))",
-          "dq_rules": ["RAW-CF-007"],
+          "dq_rules": [
+            "RAW-CF-007"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -181,7 +206,9 @@
           "nullable": false,
           "definition": "The URL the raw JSON data was fetched from. For API method, the per-company endpoint URL. For bulk_zip method, the ZIP download URL.",
           "source": "Generated by pipeline",
-          "dq_rules": ["RAW-CF-008"],
+          "dq_rules": [
+            "RAW-CF-008"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         },
@@ -191,7 +218,10 @@
           "nullable": false,
           "definition": "How the data was obtained. Either 'api' (per-company API endpoint) or 'bulk_zip' (extracted from bulk companyfacts.zip download).",
           "source": "Generated by pipeline",
-          "dq_rules": ["RAW-CF-009", "RAW-CF-013"],
+          "dq_rules": [
+            "RAW-CF-009",
+            "RAW-CF-013"
+          ],
           "last_updated": "2026-03-14",
           "updated_by": "@doc-generator"
         }
@@ -204,20 +234,134 @@
       "spec_reference": "docs/specs/base-entity-resolution.md",
       "row_grain": "One resolved entity: a canonical company identity mapped from a SEC EDGAR CIK.",
       "fields": [
-        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "Stable identifier (ER-NNN). Primary key.", "business_term_reference": "BT-026", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key.", "business_term_reference": "BT-001", "dq_rules": ["BASE-ER-001", "BASE-ER-002"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "canonical_name", "data_type": "STRING", "nullable": false, "definition": "Normalized company display name.", "business_term_reference": "BT-005", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "raw_entity_name", "data_type": "STRING", "nullable": false, "definition": "Entity name as received from SEC EDGAR.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "ticker", "data_type": "STRING", "nullable": true, "definition": "Primary stock ticker symbol.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "sic_code", "data_type": "STRING", "nullable": true, "definition": "Standard Industrial Classification code.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year_end", "data_type": "STRING", "nullable": true, "definition": "Fiscal year end in MMDD format.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "confidence", "data_type": "DOUBLE", "nullable": false, "definition": "Resolution confidence (0.0-1.0).", "dq_rules": ["BASE-ER-003"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "resolution_method", "data_type": "STRING", "nullable": false, "definition": "Method: exact_cik_match or fuzzy_name_normalize.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "status", "data_type": "STRING", "nullable": false, "definition": "Approval status (approved).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "resolved_by", "data_type": "STRING", "nullable": false, "definition": "Agent that proposed this mapping.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "approved_by", "data_type": "STRING", "nullable": true, "definition": "Who approved: human:jeff or auto.", "dq_rules": ["BASE-ER-004"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "resolved_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when proposed.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "approved_at", "data_type": "TIMESTAMPTZ", "nullable": true, "definition": "UTC timestamp when approved.", "dq_rules": ["BASE-ER-004"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "mapping_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Stable identifier (ER-NNN). Primary key.",
+          "business_term_reference": "BT-026",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key.",
+          "business_term_reference": "BT-001",
+          "dq_rules": [
+            "BASE-ER-001",
+            "BASE-ER-002"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company display name.",
+          "business_term_reference": "BT-005",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "raw_entity_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Entity name as received from SEC EDGAR.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Primary stock ticker symbol.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sic_code",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Standard Industrial Classification code.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Fiscal year end in MMDD format.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "confidence",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Resolution confidence (0.0-1.0).",
+          "dq_rules": [
+            "BASE-ER-003"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "resolution_method",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Method: exact_cik_match or fuzzy_name_normalize.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "status",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Approval status (approved).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "resolved_by",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Agent that proposed this mapping.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "approved_by",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Who approved: human:jeff or auto.",
+          "dq_rules": [
+            "BASE-ER-004"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "resolved_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when proposed.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "approved_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": true,
+          "definition": "UTC timestamp when approved.",
+          "dq_rules": [
+            "BASE-ER-004"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -227,14 +371,73 @@
       "spec_reference": "docs/specs/base-entity-resolution.md",
       "row_grain": "One audit event on an entity mapping.",
       "fields": [
-        {"field_name": "audit_id", "data_type": "STRING", "nullable": false, "definition": "UUID primary key.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "FK to entity_mappings.", "dq_rules": ["BASE-ER-005"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "action", "data_type": "STRING", "nullable": false, "definition": "Action: proposed, approved, rejected, updated.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "actor", "data_type": "STRING", "nullable": false, "definition": "Who performed: @entity-resolver, human:jeff, auto.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "reasoning", "data_type": "STRING", "nullable": false, "definition": "Why this action was taken.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "evidence", "data_type": "STRING", "nullable": false, "definition": "JSON string with supporting data.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "confidence_at_action", "data_type": "DOUBLE", "nullable": false, "definition": "Confidence at time of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "timestamp", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "audit_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "UUID primary key.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mapping_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to entity_mappings.",
+          "dq_rules": [
+            "BASE-ER-005"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "action",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Action: proposed, approved, rejected, updated.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "actor",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Who performed: @entity-resolver, human:jeff, auto.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "reasoning",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Why this action was taken.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "evidence",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "JSON string with supporting data.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "confidence_at_action",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Confidence at time of action.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "timestamp",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp of action.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -244,18 +447,114 @@
       "spec_reference": "docs/specs/base-xbrl-tag-normalization.md",
       "row_grain": "One distinct us-gaap XBRL concept with its canonical business term mapping (or null if unmapped).",
       "fields": [
-        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "Stable identifier (TN-NNNN). Primary key. Assigned alphabetically by concept.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "concept", "data_type": "STRING", "nullable": false, "definition": "Raw us-gaap XBRL concept name as received from SEC EDGAR.", "dq_rules": ["BASE-TN-002"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "business_term", "data_type": "STRING", "nullable": true, "definition": "Human-readable name of the mapped business term. Null for unmapped (Tier 3) concepts.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "business_term_id", "data_type": "STRING", "nullable": true, "definition": "Business glossary reference (BT-024 through BT-048). Null for unmapped.", "dq_rules": ["BASE-TN-005"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "financial_statement", "data_type": "STRING", "nullable": false, "definition": "Primary financial statement: balance_sheet, income_statement, cash_flow, per_share, other.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "category", "data_type": "STRING", "nullable": false, "definition": "Specific grouping within financial statement (e.g., revenue, assets, eps, tax).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "tier", "data_type": "INTEGER", "nullable": false, "definition": "Classification tier: 1 (exact match), 2 (prefix/pattern match), 3 (unmapped).", "dq_rules": ["BASE-TN-001"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "confidence", "data_type": "DOUBLE", "nullable": false, "definition": "Mapping confidence: 1.0 (exact), 0.7 (prefix), 0.6 (pattern), 0.0 (unmapped).", "dq_rules": ["BASE-TN-003"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "mapping_method", "data_type": "STRING", "nullable": false, "definition": "How the mapping was determined: exact_match, prefix_match, pattern_match, unmapped.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "status", "data_type": "STRING", "nullable": false, "definition": "Approval status: approved (tier 1+2 after gate), unmapped (tier 3), pending, rejected.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "mapped_by", "data_type": "STRING", "nullable": false, "definition": "Agent that proposed this mapping (@tag-normalizer).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "mapped_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when mapping was proposed.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "mapping_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Stable identifier (TN-NNNN). Primary key. Assigned alphabetically by concept.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Raw us-gaap XBRL concept name as received from SEC EDGAR.",
+          "dq_rules": [
+            "BASE-TN-002"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Human-readable name of the mapped business term. Null for unmapped (Tier 3) concepts.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term_id",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Business glossary reference (BT-024 through BT-048). Null for unmapped.",
+          "dq_rules": [
+            "BASE-TN-005"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "financial_statement",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Primary financial statement: balance_sheet, income_statement, cash_flow, per_share, other.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "category",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Specific grouping within financial statement (e.g., revenue, assets, eps, tax).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "tier",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Classification tier: 1 (exact match), 2 (prefix/pattern match), 3 (unmapped).",
+          "dq_rules": [
+            "BASE-TN-001"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "confidence",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Mapping confidence: 1.0 (exact), 0.7 (prefix), 0.6 (pattern), 0.0 (unmapped).",
+          "dq_rules": [
+            "BASE-TN-003"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mapping_method",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "How the mapping was determined: exact_match, prefix_match, pattern_match, unmapped.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "status",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Approval status: approved (tier 1+2 after gate), unmapped (tier 3), pending, rejected.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mapped_by",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Agent that proposed this mapping (@tag-normalizer).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mapped_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when mapping was proposed.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -265,14 +564,70 @@
       "spec_reference": "docs/specs/base-xbrl-tag-normalization.md",
       "row_grain": "One audit event on a concept mapping.",
       "fields": [
-        {"field_name": "audit_id", "data_type": "STRING", "nullable": false, "definition": "UUID primary key.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "mapping_id", "data_type": "STRING", "nullable": false, "definition": "FK to concept_mappings.mapping_id.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "action", "data_type": "STRING", "nullable": false, "definition": "Action: proposed, approved, rejected, classified_unmapped.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "actor", "data_type": "STRING", "nullable": false, "definition": "Who performed: @tag-normalizer, human:jeff, auto.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "reasoning", "data_type": "STRING", "nullable": false, "definition": "Why this action was taken.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "evidence", "data_type": "STRING", "nullable": false, "definition": "JSON string with supporting data (concept, fact_count, company_count).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "confidence_at_action", "data_type": "DOUBLE", "nullable": false, "definition": "Confidence at time of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "timestamp", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp of action.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "audit_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "UUID primary key.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "mapping_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to concept_mappings.mapping_id.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "action",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Action: proposed, approved, rejected, classified_unmapped.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "actor",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Who performed: @tag-normalizer, human:jeff, auto.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "reasoning",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Why this action was taken.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "evidence",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "JSON string with supporting data (concept, fact_count, company_count).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "confidence_at_action",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Confidence at time of action.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "timestamp",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp of action.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -282,34 +637,252 @@
       "spec_reference": "docs/specs/base-financial-facts-model.md",
       "row_grain": "One XBRL fact observation enriched with entity and concept metadata, identified by (cik, concept, unit, start_date, end_date, accession_number).",
       "fields": [
-        {"field_name": "fact_id", "data_type": "STRING", "nullable": false, "definition": "Deterministic SHA-256 hash of grain fields (cik, concept, unit, start_date, end_date, accession_number), truncated to 16 chars. Primary key.", "dq_rules": ["BASE-FM-002"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "entity_id", "data_type": "STRING", "nullable": false, "definition": "FK to entity_mappings.mapping_id. Denormalized from entity resolution.", "dq_rules": ["BASE-FM-001"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key from raw zone.", "business_term_reference": "BT-001", "dq_rules": ["BASE-FM-007"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "canonical_name", "data_type": "STRING", "nullable": false, "definition": "Normalized company name from entity_mappings.", "business_term_reference": "BT-005", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "ticker", "data_type": "STRING", "nullable": true, "definition": "Stock ticker from entity_mappings.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "concept", "data_type": "STRING", "nullable": false, "definition": "XBRL concept name from raw zone.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "business_term_id", "data_type": "STRING", "nullable": true, "definition": "Business glossary reference from concept_mappings. Null for tier 3 unmapped concepts.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "business_term", "data_type": "STRING", "nullable": true, "definition": "Human-readable business term name from concept_mappings. Null for tier 3.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "financial_statement", "data_type": "STRING", "nullable": false, "definition": "Primary financial statement from concept_mappings: balance_sheet, income_statement, cash_flow, per_share, other.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "category", "data_type": "STRING", "nullable": false, "definition": "Category within financial statement from concept_mappings (e.g., revenue, assets, eps).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "tier", "data_type": "INTEGER", "nullable": false, "definition": "Classification tier from concept_mappings: 1 (exact), 2 (prefix/pattern), 3 (unmapped).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "taxonomy", "data_type": "STRING", "nullable": false, "definition": "XBRL taxonomy from raw zone (us-gaap, dei, invest, srt).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "unit", "data_type": "STRING", "nullable": false, "definition": "Unit of measurement from raw zone (USD, shares, USD/shares).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "val", "data_type": "DOUBLE", "nullable": false, "definition": "Reported fact value from raw zone.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "start_date", "data_type": "DATE", "nullable": true, "definition": "Reporting period start from raw zone. Null for instant (balance sheet) facts.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "end_date", "data_type": "DATE", "nullable": false, "definition": "Reporting period end from raw zone. Always present.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year", "data_type": "INTEGER", "nullable": false, "definition": "Fiscal year from raw zone.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_period", "data_type": "STRING", "nullable": false, "definition": "Fiscal period from raw zone (FY, Q1-Q4).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year_end", "data_type": "STRING", "nullable": true, "definition": "Fiscal year end in MMDD format from entity_mappings.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "calendar_year", "data_type": "INTEGER", "nullable": false, "definition": "Calendar year derived from end_date.year.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "calendar_quarter", "data_type": "INTEGER", "nullable": false, "definition": "Calendar quarter (1-4) derived from end_date month.", "dq_rules": ["BASE-FM-005"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "accession_number", "data_type": "STRING", "nullable": false, "definition": "SEC accession number from raw zone. Part of grain — preserves all filing versions.", "business_term_reference": "BT-002", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "form", "data_type": "STRING", "nullable": false, "definition": "SEC form type from raw zone (10-K, 10-Q, 10-K/A, etc.).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "filed_date", "data_type": "DATE", "nullable": false, "definition": "Filing date from raw zone. Used for supersession detection.", "business_term_reference": "BT-006", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "is_amendment", "data_type": "BOOLEAN", "nullable": false, "definition": "True if form ends with '/A' (e.g., 10-K/A, 10-Q/A). Derived field.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "is_superseded", "data_type": "BOOLEAN", "nullable": false, "definition": "True if a later filing exists for the same grain (cik, concept, unit, start_date, end_date). Derived field.", "dq_rules": ["BASE-FM-003"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "superseded_by", "data_type": "STRING", "nullable": true, "definition": "Accession number of the superseding (latest) filing. Null if not superseded.", "dq_rules": ["BASE-FM-003"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "promoted_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when this fact was written to the base zone.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "fact_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic SHA-256 hash of grain fields (cik, concept, unit, start_date, end_date, accession_number), truncated to 16 chars. Primary key.",
+          "dq_rules": [
+            "BASE-FM-002"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to entity_mappings.mapping_id. Denormalized from entity resolution.",
+          "dq_rules": [
+            "BASE-FM-001"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key from raw zone.",
+          "business_term_reference": "BT-001",
+          "dq_rules": [
+            "BASE-FM-007"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company name from entity_mappings.",
+          "business_term_reference": "BT-005",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Stock ticker from entity_mappings.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "XBRL concept name from raw zone.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term_id",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Business glossary reference from concept_mappings. Null for tier 3 unmapped concepts.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Human-readable business term name from concept_mappings. Null for tier 3.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "financial_statement",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Primary financial statement from concept_mappings: balance_sheet, income_statement, cash_flow, per_share, other.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "category",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Category within financial statement from concept_mappings (e.g., revenue, assets, eps).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "tier",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Classification tier from concept_mappings: 1 (exact), 2 (prefix/pattern), 3 (unmapped).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "taxonomy",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "XBRL taxonomy from raw zone (us-gaap, dei, invest, srt).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "unit",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Unit of measurement from raw zone (USD, shares, USD/shares).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Reported fact value from raw zone.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "start_date",
+          "data_type": "DATE",
+          "nullable": true,
+          "definition": "Reporting period start from raw zone. Null for instant (balance sheet) facts.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Reporting period end from raw zone. Always present.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Fiscal year from raw zone.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal period from raw zone (FY, Q1-Q4).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Fiscal year end in MMDD format from entity_mappings.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year derived from end_date.year.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_quarter",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar quarter (1-4) derived from end_date month.",
+          "dq_rules": [
+            "BASE-FM-005"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "accession_number",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "SEC accession number from raw zone. Part of grain \u2014 preserves all filing versions.",
+          "business_term_reference": "BT-002",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "form",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "SEC form type from raw zone (10-K, 10-Q, 10-K/A, etc.).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "filed_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Filing date from raw zone. Used for supersession detection.",
+          "business_term_reference": "BT-006",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "is_amendment",
+          "data_type": "BOOLEAN",
+          "nullable": false,
+          "definition": "True if form ends with '/A' (e.g., 10-K/A, 10-Q/A). Derived field.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "is_superseded",
+          "data_type": "BOOLEAN",
+          "nullable": false,
+          "definition": "True if a later filing exists for the same grain (cik, concept, unit, start_date, end_date). Derived field.",
+          "dq_rules": [
+            "BASE-FM-003"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "superseded_by",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Accession number of the superseding (latest) filing. Null if not superseded.",
+          "dq_rules": [
+            "BASE-FM-003"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "promoted_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this fact was written to the base zone.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -319,18 +892,106 @@
       "spec_reference": "docs/specs/base-financial-facts-model.md",
       "row_grain": "One fiscal period for one company: (cik, fiscal_year, fiscal_period).",
       "fields": [
-        {"field_name": "calendar_id", "data_type": "STRING", "nullable": false, "definition": "Deterministic hash of (cik, fiscal_year, fiscal_period). Primary key.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key.", "business_term_reference": "BT-001", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "entity_id", "data_type": "STRING", "nullable": false, "definition": "FK to entity_mappings.mapping_id.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year", "data_type": "INTEGER", "nullable": false, "definition": "Fiscal year (e.g., 2024).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_period", "data_type": "STRING", "nullable": false, "definition": "Fiscal period: FY, Q1, Q2, Q3, Q4.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year_end", "data_type": "STRING", "nullable": false, "definition": "Fiscal year end in MMDD format from entity_mappings.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "period_start", "data_type": "DATE", "nullable": true, "definition": "Earliest start_date observed for this period. Null if all facts are instant (no start_date).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "period_end", "data_type": "DATE", "nullable": false, "definition": "Latest end_date observed for this period.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "calendar_year", "data_type": "INTEGER", "nullable": false, "definition": "Calendar year of period_end.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "calendar_quarter", "data_type": "INTEGER", "nullable": false, "definition": "Calendar quarter (1-4) of period_end.", "dq_rules": ["BASE-FM-005"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "duration_days", "data_type": "INTEGER", "nullable": true, "definition": "Number of days in the period (period_end - period_start). Null if period_start is null.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "is_annual", "data_type": "BOOLEAN", "nullable": false, "definition": "True if fiscal_period is 'FY'.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "calendar_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic hash of (cik, fiscal_year, fiscal_period). Primary key.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key.",
+          "business_term_reference": "BT-001",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to entity_mappings.mapping_id.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Fiscal year (e.g., 2024).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal period: FY, Q1, Q2, Q3, Q4.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal year end in MMDD format from entity_mappings.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "period_start",
+          "data_type": "DATE",
+          "nullable": true,
+          "definition": "Earliest start_date observed for this period. Null if all facts are instant (no start_date).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "period_end",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Latest end_date observed for this period.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year of period_end.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_quarter",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar quarter (1-4) of period_end.",
+          "dq_rules": [
+            "BASE-FM-005"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "duration_days",
+          "data_type": "INTEGER",
+          "nullable": true,
+          "definition": "Number of days in the period (period_end - period_start). Null if period_start is null.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "is_annual",
+          "data_type": "BOOLEAN",
+          "nullable": false,
+          "definition": "True if fiscal_period is 'FY'.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -340,22 +1001,141 @@
       "spec_reference": "docs/specs/base-financial-facts-model.md",
       "row_grain": "One supersession pair: an original filing superseded by a later filing for the same fact grain.",
       "fields": [
-        {"field_name": "tracking_id", "data_type": "STRING", "nullable": false, "definition": "UUID primary key.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key.", "business_term_reference": "BT-001", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "concept", "data_type": "STRING", "nullable": false, "definition": "XBRL concept that was amended.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "unit", "data_type": "STRING", "nullable": false, "definition": "Measurement unit for the amended value.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "start_date", "data_type": "DATE", "nullable": true, "definition": "Period start of the amended fact.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "end_date", "data_type": "DATE", "nullable": false, "definition": "Period end of the amended fact.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "original_accession", "data_type": "STRING", "nullable": false, "definition": "Accession number of the original (superseded) filing.", "dq_rules": ["BASE-FM-006"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "original_filed_date", "data_type": "DATE", "nullable": false, "definition": "Filing date of the original.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "original_val", "data_type": "DOUBLE", "nullable": false, "definition": "Value reported in the original filing.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "amendment_accession", "data_type": "STRING", "nullable": false, "definition": "Accession number of the superseding (amendment) filing.", "dq_rules": ["BASE-FM-006"], "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "amendment_filed_date", "data_type": "DATE", "nullable": false, "definition": "Filing date of the amendment.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "amendment_val", "data_type": "DOUBLE", "nullable": false, "definition": "Value reported in the amendment filing.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "val_change", "data_type": "DOUBLE", "nullable": false, "definition": "amendment_val - original_val.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "val_change_pct", "data_type": "DOUBLE", "nullable": true, "definition": "Percentage change: (val_change / abs(original_val)) * 100. Null if original_val is 0.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "amendment_form", "data_type": "STRING", "nullable": false, "definition": "Form type of the amendment (e.g., 10-K/A, 10-Q/A).", "last_updated": "2026-03-14", "updated_by": "@doc-generator"},
-        {"field_name": "detected_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when this supersession was detected.", "last_updated": "2026-03-14", "updated_by": "@doc-generator"}
+        {
+          "field_name": "tracking_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "UUID primary key.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key.",
+          "business_term_reference": "BT-001",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "XBRL concept that was amended.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "unit",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Measurement unit for the amended value.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "start_date",
+          "data_type": "DATE",
+          "nullable": true,
+          "definition": "Period start of the amended fact.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Period end of the amended fact.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "original_accession",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Accession number of the original (superseded) filing.",
+          "dq_rules": [
+            "BASE-FM-006"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "original_filed_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Filing date of the original.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "original_val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Value reported in the original filing.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "amendment_accession",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Accession number of the superseding (amendment) filing.",
+          "dq_rules": [
+            "BASE-FM-006"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "amendment_filed_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Filing date of the amendment.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "amendment_val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Value reported in the amendment filing.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "val_change",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "amendment_val - original_val.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "val_change_pct",
+          "data_type": "DOUBLE",
+          "nullable": true,
+          "definition": "Percentage change: (val_change / abs(original_val)) * 100. Null if original_val is 0.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "amendment_form",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Form type of the amendment (e.g., 10-K/A, 10-Q/A).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "detected_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this supersession was detected.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     },
     {
@@ -365,30 +1145,458 @@
       "spec_reference": "docs/specs/consumable-company-financials.md",
       "row_grain": "One financial metric value for one company in one fiscal period: (cik, business_term_id, fiscal_year, fiscal_period).",
       "fields": [
-        {"field_name": "record_id", "data_type": "STRING", "nullable": false, "definition": "Deterministic SHA-256 hash of grain fields (cik, business_term_id, fiscal_year, fiscal_period), truncated to 16 chars. Primary key.", "dq_rules": ["CONS-CF-001"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "cik", "data_type": "INTEGER", "nullable": false, "definition": "SEC Central Index Key from base.financial_facts.", "business_term_reference": "BT-001", "dq_rules": ["CONS-CF-003", "CONS-CF-008"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "entity_id", "data_type": "STRING", "nullable": false, "definition": "FK to entity_mappings.mapping_id. Denormalized from base.financial_facts.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "ticker", "data_type": "STRING", "nullable": true, "definition": "Primary stock ticker symbol from base.financial_facts.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "canonical_name", "data_type": "STRING", "nullable": false, "definition": "Normalized company name from base.financial_facts.", "business_term_reference": "BT-005", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "sector", "data_type": "STRING", "nullable": false, "definition": "Human-readable sector derived from SIC code via static SIC_TO_SECTOR mapping. One of: Technology, Financials, Healthcare, Consumer Staples, Consumer Discretionary, Energy, Industrials, Communication Services.", "business_term_reference": "BT-049", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "business_term_id", "data_type": "STRING", "nullable": false, "definition": "Business glossary reference (BT-022 through BT-048). Identifies the canonical financial metric.", "dq_rules": ["CONS-CF-002", "CONS-CF-007"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "business_term", "data_type": "STRING", "nullable": false, "definition": "Human-readable business term name (e.g., Revenue, Net Income, Total Assets).", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "financial_statement", "data_type": "STRING", "nullable": false, "definition": "Primary financial statement: balance_sheet, income_statement, cash_flow, per_share, other.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "category", "data_type": "STRING", "nullable": false, "definition": "Category within financial statement (e.g., revenue, assets, eps, tax).", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "val", "data_type": "DOUBLE", "nullable": false, "definition": "The financial value from the selected source concept after collision resolution. Never null.", "dq_rules": ["CONS-CF-004"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "unit", "data_type": "STRING", "nullable": false, "definition": "Unit of measurement: USD for dollar amounts, USD/shares for per-share metrics. Filtered to primary unit per business term.", "dq_rules": ["CONS-CF-005"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "source_concept", "data_type": "STRING", "nullable": false, "definition": "The XBRL concept selected by collision resolution. Audit trail showing which concept provided the val.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year", "data_type": "INTEGER", "nullable": false, "definition": "Fiscal year of the reporting period (e.g., 2023). May differ from calendar year.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_period", "data_type": "STRING", "nullable": false, "definition": "Fiscal period: FY (full year), Q1, Q2, Q3.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "fiscal_year_end", "data_type": "STRING", "nullable": true, "definition": "Fiscal year end in MMDD format from entity_mappings (e.g., 0930 for Apple's September year-end).", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "period_end_date", "data_type": "DATE", "nullable": false, "definition": "End date of the reporting period from base.financial_facts.end_date.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "calendar_year", "data_type": "INTEGER", "nullable": false, "definition": "Calendar year of period_end_date. Enables cross-company temporal alignment regardless of fiscal year.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "calendar_quarter", "data_type": "INTEGER", "nullable": false, "definition": "Calendar quarter (1-4) of period_end_date.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "accession_number", "data_type": "STRING", "nullable": false, "definition": "SEC accession number of the source filing that provided the selected value.", "business_term_reference": "BT-002", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "filed_date", "data_type": "DATE", "nullable": false, "definition": "Date the source filing was submitted to the SEC.", "business_term_reference": "BT-006", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "companies_reporting", "data_type": "INTEGER", "nullable": false, "definition": "Count of distinct companies with this business term in this fiscal_period type. Enables immediate coverage assessment.", "business_term_reference": "BT-050", "dq_rules": ["CONS-CF-006"], "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "promoted_at", "data_type": "TIMESTAMPTZ", "nullable": false, "definition": "UTC timestamp when this row was written to the consumable zone.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"},
-        {"field_name": "load_date", "data_type": "DATE", "nullable": false, "definition": "System date when the row was produced. Used for pipeline auditing.", "last_updated": "2026-03-15", "updated_by": "@doc-generator"}
+        {
+          "field_name": "record_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic SHA-256 hash of grain fields (cik, business_term_id, fiscal_year, fiscal_period), truncated to 16 chars. Primary key.",
+          "dq_rules": [
+            "CONS-CF-001"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key from base.financial_facts.",
+          "business_term_reference": "BT-001",
+          "dq_rules": [
+            "CONS-CF-003",
+            "CONS-CF-008"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to entity_mappings.mapping_id. Denormalized from base.financial_facts.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Primary stock ticker symbol from base.financial_facts.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company name from base.financial_facts.",
+          "business_term_reference": "BT-005",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable sector derived from SIC code via static SIC_TO_SECTOR mapping. One of: Technology, Financials, Healthcare, Consumer Staples, Consumer Discretionary, Energy, Industrials, Communication Services.",
+          "business_term_reference": "BT-049",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Business glossary reference (BT-022 through BT-048). Identifies the canonical financial metric.",
+          "dq_rules": [
+            "CONS-CF-002",
+            "CONS-CF-007"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "business_term",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable business term name (e.g., Revenue, Net Income, Total Assets).",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "financial_statement",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Primary financial statement: balance_sheet, income_statement, cash_flow, per_share, other.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "category",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Category within financial statement (e.g., revenue, assets, eps, tax).",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "The financial value from the selected source concept after collision resolution. Never null.",
+          "dq_rules": [
+            "CONS-CF-004"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "unit",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Unit of measurement: USD for dollar amounts, USD/shares for per-share metrics. Filtered to primary unit per business term.",
+          "dq_rules": [
+            "CONS-CF-005"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "source_concept",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "The XBRL concept selected by collision resolution. Audit trail showing which concept provided the val.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Fiscal year of the reporting period (e.g., 2023). May differ from calendar year.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal period: FY (full year), Q1, Q2, Q3.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Fiscal year end in MMDD format from entity_mappings (e.g., 0930 for Apple's September year-end).",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "period_end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "End date of the reporting period from base.financial_facts.end_date.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year of period_end_date. Enables cross-company temporal alignment regardless of fiscal year.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_quarter",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar quarter (1-4) of period_end_date.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "accession_number",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "SEC accession number of the source filing that provided the selected value.",
+          "business_term_reference": "BT-002",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "filed_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "Date the source filing was submitted to the SEC.",
+          "business_term_reference": "BT-006",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "companies_reporting",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Count of distinct companies with this business term in this fiscal_period type. Enables immediate coverage assessment.",
+          "business_term_reference": "BT-050",
+          "dq_rules": [
+            "CONS-CF-006"
+          ],
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "promoted_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this row was written to the consumable zone.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "load_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "System date when the row was produced. Used for pipeline auditing.",
+          "last_updated": "2026-03-15",
+          "updated_by": "@doc-generator"
+        }
+      ]
+    },
+    {
+      "table_name": "consumable.financial_ratios",
+      "zone": "consumable",
+      "description": "Cross-company financial ratio comparison table. One row per (company, ratio, fiscal year, fiscal period). Computes 7 financial ratios from consumable.company_financials by joining numerator and denominator business terms. Preserves both component values for audit transparency.",
+      "spec_reference": "docs/specs/consumable-financial-ratios.md",
+      "row_grain": "One computed ratio value for one company in one fiscal period: (cik, ratio_id, fiscal_year, fiscal_period).",
+      "fields": [
+        {
+          "field_name": "record_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Deterministic SHA-256 hash of grain fields (cik, ratio_id, fiscal_year, fiscal_period), truncated to 16 chars. Primary key.",
+          "dq_rules": [
+            "CONS-FR-001"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "cik",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "SEC Central Index Key from consumable.company_financials.",
+          "business_term_reference": "BT-001",
+          "dq_rules": [
+            "CONS-FR-003"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "entity_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "FK to entity_mappings.mapping_id.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ticker",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Stock ticker symbol (denormalized).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "canonical_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Normalized company name (denormalized).",
+          "business_term_reference": "BT-005",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "sector",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Industry sector (denormalized from company_financials).",
+          "business_term_reference": "BT-049",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ratio_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Ratio definition ID: RATIO-001 (Gross Margin), RATIO-002 (Operating Margin), RATIO-003 (Net Margin), RATIO-004 (Debt-to-Equity), RATIO-005 (R&D Intensity), RATIO-006 (SGA Ratio), RATIO-007 (CapEx-to-Revenue).",
+          "business_term_reference": "BT-051",
+          "dq_rules": [
+            "CONS-FR-002",
+            "CONS-FR-008"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ratio_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable ratio name (e.g., 'Net Margin', 'Debt-to-Equity').",
+          "business_term_reference": "BT-051",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "ratio_value",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Computed ratio: numerator_val / denominator_val. For RATIO-007, abs(numerator) is used.",
+          "dq_rules": [
+            "CONS-FR-004",
+            "CONS-FR-009"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "numerator_bt_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Business term ID of the numerator component (e.g., BT-023 for Net Income).",
+          "dq_rules": [
+            "CONS-FR-006"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "numerator_bt_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable name of the numerator business term.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "numerator_val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Value of the numerator from company_financials. Original value preserved (not abs'd).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "denominator_bt_id",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Business term ID of the denominator component (e.g., BT-022 for Revenue).",
+          "dq_rules": [
+            "CONS-FR-006",
+            "CONS-FR-010"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "denominator_bt_name",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Human-readable name of the denominator business term.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "denominator_val",
+          "data_type": "DOUBLE",
+          "nullable": false,
+          "definition": "Value of the denominator from company_financials. Never zero.",
+          "dq_rules": [
+            "CONS-FR-005"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Fiscal year of the reporting period.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_period",
+          "data_type": "STRING",
+          "nullable": false,
+          "definition": "Fiscal period: FY, Q1, Q2, Q3.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "fiscal_year_end",
+          "data_type": "STRING",
+          "nullable": true,
+          "definition": "Fiscal year end in MMDD format (denormalized).",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "period_end_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "End date of the reporting period.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_year",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar year of period_end_date.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "calendar_quarter",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Calendar quarter (1-4) of period_end_date.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "companies_reporting",
+          "data_type": "INTEGER",
+          "nullable": false,
+          "definition": "Count of distinct companies with this ratio for this fiscal_period type.",
+          "business_term_reference": "BT-050",
+          "dq_rules": [
+            "CONS-FR-007"
+          ],
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "promoted_at",
+          "data_type": "TIMESTAMPTZ",
+          "nullable": false,
+          "definition": "UTC timestamp when this row was written to the consumable zone.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        },
+        {
+          "field_name": "load_date",
+          "data_type": "DATE",
+          "nullable": false,
+          "definition": "System date for pipeline auditing.",
+          "last_updated": "2026-03-14",
+          "updated_by": "@doc-generator"
+        }
       ]
     }
   ]

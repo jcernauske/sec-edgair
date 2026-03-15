@@ -1,0 +1,128 @@
+{
+  "spec": "consumable-financial-ratios",
+  "tables": [
+    "consumable.financial_ratios"
+  ],
+  "rules": [
+    {
+      "rule_id": "CONS-FR-001",
+      "category": "Uniqueness",
+      "priority": "P0",
+      "description": "record_id is unique (no duplicate grain)",
+      "sql": "SELECT record_id, COUNT(*) FROM consumable.financial_ratios GROUP BY record_id HAVING COUNT(*) > 1",
+      "threshold": "result_count = 0",
+      "rationale": "record_id is a deterministic SHA-256 hash of the grain (cik, ratio_id, fiscal_year, fiscal_period). Duplicates indicate a computation or dedup guard bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-002",
+      "category": "Validity",
+      "priority": "P0",
+      "description": "Every row has valid ratio_id (RATIO-001 through RATIO-007)",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios WHERE ratio_id NOT IN ('RATIO-001', 'RATIO-002', 'RATIO-003', 'RATIO-004', 'RATIO-005', 'RATIO-006', 'RATIO-007')",
+      "threshold": "result = 0",
+      "rationale": "Only 7 defined ratios exist. Unknown ratio_ids indicate a config or build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-003",
+      "category": "Referential Integrity",
+      "priority": "P0",
+      "description": "Every row has valid cik (exists in consumable.company_financials)",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios fr WHERE NOT EXISTS (SELECT 1 FROM consumable.company_financials cf WHERE cf.cik = fr.cik)",
+      "threshold": "result = 0",
+      "rationale": "All ratio CIKs must exist in the source company_financials table. Orphan CIKs indicate a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-004",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "No null ratio_value (every row has a computed value)",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios WHERE ratio_value IS NULL",
+      "threshold": "result = 0",
+      "rationale": "Every ratio row must have a computed value. Null ratio_value indicates the build pipeline created a row without computing the division.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-005",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "denominator_val is never 0 (division by zero guard)",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios WHERE denominator_val = 0",
+      "threshold": "result = 0",
+      "rationale": "The build pipeline skips rows where denominator is 0. Any row with denominator_val=0 indicates the guard failed.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-006",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "Numerator and denominator business term IDs match the ratio definition",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios WHERE (ratio_id = 'RATIO-001' AND (numerator_bt_id != 'BT-035' OR denominator_bt_id != 'BT-022')) OR (ratio_id = 'RATIO-002' AND (numerator_bt_id != 'BT-036' OR denominator_bt_id != 'BT-022')) OR (ratio_id = 'RATIO-003' AND (numerator_bt_id != 'BT-023' OR denominator_bt_id != 'BT-022')) OR (ratio_id = 'RATIO-004' AND (numerator_bt_id != 'BT-027' OR denominator_bt_id != 'BT-028')) OR (ratio_id = 'RATIO-005' AND (numerator_bt_id != 'BT-038' OR denominator_bt_id != 'BT-022')) OR (ratio_id = 'RATIO-006' AND (numerator_bt_id != 'BT-039' OR denominator_bt_id != 'BT-022')) OR (ratio_id = 'RATIO-007' AND (numerator_bt_id != 'BT-043' OR denominator_bt_id != 'BT-022'))",
+      "threshold": "result = 0",
+      "rationale": "Each ratio has a fixed numerator/denominator pair defined in RATIO_DEFINITIONS. Mismatches indicate the config was modified without rebuilding.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-007",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "companies_reporting is accurate (matches actual distinct company count per ratio per period type)",
+      "sql": "SELECT fr.ratio_id, fr.fiscal_period, fr.companies_reporting, COUNT(DISTINCT fr.cik) AS actual_count FROM consumable.financial_ratios fr GROUP BY fr.ratio_id, fr.fiscal_period, fr.companies_reporting HAVING fr.companies_reporting != COUNT(DISTINCT fr.cik)",
+      "threshold": "result_count = 0",
+      "rationale": "companies_reporting is a denormalized aggregate. It must match the actual count of distinct CIKs for each (ratio_id, fiscal_period) combination.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-008",
+      "category": "Completeness",
+      "priority": "P0",
+      "description": "All 7 ratios represented in the table",
+      "sql": "SELECT 7 - COUNT(DISTINCT ratio_id) FROM consumable.financial_ratios",
+      "threshold": "result = 0",
+      "rationale": "The table must contain data for all 7 defined ratios. EDA confirms each ratio has at least 9 companies, so missing ratios indicate a build bug.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-009",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "CapEx-to-Revenue (RATIO-007) ratio_value is always >= 0 (abs applied)",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios WHERE ratio_id = 'RATIO-007' AND ratio_value < 0",
+      "threshold": "result = 0",
+      "rationale": "RATIO-007 uses abs(numerator) because CapEx is a negative cash outflow. The resulting ratio must always be non-negative.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    },
+    {
+      "rule_id": "CONS-FR-010",
+      "category": "Consistency",
+      "priority": "P0",
+      "description": "Margin ratios (RATIO-001, 002, 003, 005, 006, 007) use Revenue (BT-022) as denominator",
+      "sql": "SELECT COUNT(*) FROM consumable.financial_ratios WHERE ratio_id IN ('RATIO-001', 'RATIO-002', 'RATIO-003', 'RATIO-005', 'RATIO-006', 'RATIO-007') AND denominator_bt_id != 'BT-022'",
+      "threshold": "result = 0",
+      "rationale": "Six of seven ratios use Revenue as the denominator. Only Debt-to-Equity (RATIO-004) uses Stockholders Equity. This rule catches config mutations.",
+      "status": "active",
+      "proposed_by": "@dq-rule-writer",
+      "proposed_at": "2026-03-14T00:00:00Z"
+    }
+  ]
+}

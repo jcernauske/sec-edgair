@@ -309,7 +309,7 @@ Between zones (after all specs in a zone are complete, before the next zone's sp
 
 #### 4A — Core Data Products (from insight report Tier 1)
 - [x] `consumable-company-financials` (🟢 COMPLETE) — 26,894 rows, 20 companies, 25 business terms, FY2009-2026. One row per (company, business term, fiscal_year, fiscal_period). Concept collision resolution via primary concept preference. 8 DQ rules, all passing.
-- [ ] `consumable-financial-ratios` — Computed ratios from existing business terms: gross margin, operating margin, net margin, debt-to-equity, R&D intensity, SGA ratio, capex-to-revenue. Derived from company financials.
+- [x] `consumable-financial-ratios` (🟢 COMPLETE) — 6,544 rows, 20 companies, 7 ratios (gross margin, operating margin, net margin, debt-to-equity, R&D intensity, SGA ratio, capex-to-revenue). Coverage: 9-20 companies per ratio. 10 DQ rules, all passing.
 - [ ] `consumable-period-over-period` — YoY change, sequential change, CAGR for each (company, business term). Time-series analysis layer.
 - [ ] `consumable-amendment-analysis` — Amendment frequency, magnitude, patterns per company. Unique insight about corporate reporting quality.
 - [ ] **Milestone:** Four queryable consumable tables — cross-company comparison, ratios, growth, amendment intelligence
