@@ -11,6 +11,7 @@ dependencies = [
     "pyarrow>=17.0",
     "pyiceberg[sql-sqlite]>=0.7",
     "pytz>=2026.1.post1",
+    "pyyaml>=6.0.3",
 ]
 
 [dependency-groups]

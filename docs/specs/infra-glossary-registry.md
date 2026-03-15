@@ -1,6 +1,6 @@
 # Spec: Shared Glossary Registry
 
-## Status: 🟡 DRAFT
+## Status: 🟠 IMPLEMENTATION
 
 | Status | Meaning |
 |--------|---------|

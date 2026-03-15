@@ -1,13 +1,25 @@
 {
   "glossary_metadata": {
-    "version": "2.0",
+    "version": "3.0",
     "last_updated": "2026-03-15",
     "term_count": 54,
     "sources": {
       "xbrl-taxonomy": "US GAAP XBRL Taxonomy \u2014 authoritative financial reporting standard. Auto-approved.",
       "sec-edgar": "SEC EDGAR documentation \u2014 filing types, entity identifiers, regulatory concepts. Auto-approved.",
       "project-specific": "Terms defined by this project for pipeline-specific concepts. Requires human approval."
-    }
+    },
+    "inherited_from": [
+      {
+        "glossary": "sec-edgar",
+        "tier": 1,
+        "terms_inherited": 7
+      },
+      {
+        "glossary": "xbrl-us-gaap",
+        "tier": 1,
+        "terms_inherited": 29
+      }
+    ]
   },
   "terms": [
     {
@@ -35,7 +47,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Core entity identifier critical for cross-system joins and audit trails.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-001",
+      "read_only": true
     },
     {
       "term_id": "BT-002",
@@ -61,7 +76,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Primary filing identifier critical for source traceability and regulatory audit.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-002",
+      "read_only": true
     },
     {
       "term_id": "BT-003",
@@ -89,7 +107,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Core entity identifier critical for cross-system joins and audit trails.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-003",
+      "read_only": true
     },
     {
       "term_id": "BT-004",
@@ -118,7 +139,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-004",
+      "read_only": true
     },
     {
       "term_id": "BT-005",
@@ -146,7 +170,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Core entity identifier critical for cross-system joins and audit trails.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-006",
@@ -173,7 +200,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Filing temporal metadata critical for amendment detection and regulatory timeline analysis.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-005",
+      "read_only": true
     },
     {
       "term_id": "BT-007",
@@ -200,7 +230,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-006",
+      "read_only": true
     },
     {
       "term_id": "BT-008",
@@ -228,7 +261,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-009",
@@ -257,7 +293,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-001",
+      "read_only": true
     },
     {
       "term_id": "BT-010",
@@ -286,7 +325,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-011",
@@ -314,7 +356,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-012",
@@ -341,7 +386,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-013",
@@ -369,7 +417,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-014",
@@ -396,7 +447,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-015",
@@ -424,7 +478,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-016",
@@ -451,7 +508,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-017",
@@ -480,7 +540,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-018",
@@ -508,7 +571,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-002",
+      "read_only": true
     },
     {
       "term_id": "BT-019",
@@ -534,7 +600,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-020",
@@ -561,7 +630,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-003",
+      "read_only": true
     },
     {
       "term_id": "BT-021",
@@ -589,7 +661,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-004",
+      "read_only": true
     },
     {
       "term_id": "BT-022",
@@ -619,7 +694,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-005",
+      "read_only": true
     },
     {
       "term_id": "BT-023",
@@ -647,7 +725,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-006",
+      "read_only": true
     },
     {
       "term_id": "BT-024",
@@ -672,7 +753,10 @@
       "is_cde": true,
       "is_pii": false,
       "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-007",
+      "read_only": true
     },
     {
       "term_id": "BT-025",
@@ -698,7 +782,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 1,
+      "upstream_term_id": "ST-SEC-007",
+      "read_only": true
     },
     {
       "term_id": "BT-026",
@@ -720,7 +807,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-027",
@@ -742,7 +832,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-008",
+      "read_only": true
     },
     {
       "term_id": "BT-028",
@@ -764,7 +857,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-009",
+      "read_only": true
     },
     {
       "term_id": "BT-029",
@@ -786,7 +882,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-010",
+      "read_only": true
     },
     {
       "term_id": "BT-030",
@@ -808,7 +907,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-011",
+      "read_only": true
     },
     {
       "term_id": "BT-031",
@@ -830,7 +932,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-012",
+      "read_only": true
     },
     {
       "term_id": "BT-032",
@@ -852,7 +957,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-013",
+      "read_only": true
     },
     {
       "term_id": "BT-033",
@@ -874,7 +982,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-014",
+      "read_only": true
     },
     {
       "term_id": "BT-034",
@@ -896,7 +1007,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-015",
+      "read_only": true
     },
     {
       "term_id": "BT-035",
@@ -918,7 +1032,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-016",
+      "read_only": true
     },
     {
       "term_id": "BT-036",
@@ -940,7 +1057,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-017",
+      "read_only": true
     },
     {
       "term_id": "BT-037",
@@ -962,7 +1082,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-018",
+      "read_only": true
     },
     {
       "term_id": "BT-038",
@@ -984,7 +1107,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-019",
+      "read_only": true
     },
     {
       "term_id": "BT-039",
@@ -1006,7 +1132,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-020",
+      "read_only": true
     },
     {
       "term_id": "BT-040",
@@ -1028,7 +1157,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-021",
+      "read_only": true
     },
     {
       "term_id": "BT-041",
@@ -1050,7 +1182,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-022",
+      "read_only": true
     },
     {
       "term_id": "BT-042",
@@ -1072,7 +1207,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-023",
+      "read_only": true
     },
     {
       "term_id": "BT-043",
@@ -1094,7 +1232,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-024",
+      "read_only": true
     },
     {
       "term_id": "BT-044",
@@ -1116,7 +1257,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-025",
+      "read_only": true
     },
     {
       "term_id": "BT-045",
@@ -1138,7 +1282,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-026",
+      "read_only": true
     },
     {
       "term_id": "BT-046",
@@ -1160,7 +1307,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-027",
+      "read_only": true
     },
     {
       "term_id": "BT-047",
@@ -1182,7 +1332,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-028",
+      "read_only": true
     },
     {
       "term_id": "BT-048",
@@ -1204,7 +1357,10 @@
       "used_in_models": [
         "base-xbrl-tag-normalization",
         "base-financial-facts-model"
-      ]
+      ],
+      "source_tier": 1,
+      "upstream_term_id": "ST-XBRL-029",
+      "read_only": true
     },
     {
       "term_id": "BT-049",
@@ -1231,7 +1387,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-050",
@@ -1258,7 +1417,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": null,
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-051",
@@ -1284,7 +1446,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": "Derived metric, not a primary data element.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-052",
@@ -1312,7 +1477,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": "Derived metric, not a primary data element.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-053",
@@ -1341,7 +1509,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": "Derived metric, not a primary data element.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     },
     {
       "term_id": "BT-054",
@@ -1369,7 +1540,10 @@
       "is_cde": false,
       "is_pii": false,
       "cde_rationale": "Derived metric summarizing amendment patterns, not a primary data element.",
-      "pii_rationale": null
+      "pii_rationale": null,
+      "source_tier": 3,
+      "upstream_term_id": null,
+      "read_only": false
     }
   ]
 }

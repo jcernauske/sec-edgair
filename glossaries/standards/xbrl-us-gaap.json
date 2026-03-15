@@ -1,0 +1,381 @@
+{
+  "glossary_metadata": {
+    "name": "xbrl-us-gaap",
+    "tier": 1,
+    "authority": "Financial Accounting Standards Board (FASB)",
+    "version": "2024",
+    "description": "US GAAP XBRL Taxonomy - authoritative financial reporting concepts",
+    "term_count": 29
+  },
+  "terms": [
+    {
+      "term_id": "ST-XBRL-001",
+      "project_term_id": "BT-009",
+      "term": "XBRL Concept",
+      "definition": "A specific financial metric tag from an XBRL taxonomy (e.g., us-gaap:Revenues, us-gaap:Assets). Each concept has a standardized name, human-readable label, and formal definition from the taxonomy authority.",
+      "source_reference": "XBRL International Specification, Section 5.1",
+      "synonyms": [
+        "XBRL Tag",
+        "Taxonomy Element",
+        "Concept"
+      ],
+      "category": "financial",
+      "is_cde": false,
+      "is_pii": false
+    },
+    {
+      "term_id": "ST-XBRL-002",
+      "project_term_id": "BT-018",
+      "term": "Fiscal Period",
+      "definition": "A company's reporting period, identified by fiscal year and period type (FY = full year, Q1-Q4 = quarters). Each company has its own fiscal calendar \u2014 fiscal years may not align with calendar years (e.g., Apple's fiscal year ends September 30).",
+      "source_reference": "us-gaap Reporting Period documentation",
+      "synonyms": [
+        "Reporting Period",
+        "Fiscal Quarter",
+        "Fiscal Year"
+      ],
+      "category": "financial",
+      "is_cde": false,
+      "is_pii": false
+    },
+    {
+      "term_id": "ST-XBRL-003",
+      "project_term_id": "BT-020",
+      "term": "XBRL Taxonomy",
+      "definition": "A structured classification system that defines financial reporting concepts and their relationships. The primary taxonomy is us-gaap (US Generally Accepted Accounting Principles). Others include dei (Document and Entity Information) and ifrs-full (International Financial Reporting Standards).",
+      "source_reference": "XBRL International Specification",
+      "synonyms": [
+        "Taxonomy",
+        "Reporting Taxonomy"
+      ],
+      "category": "financial",
+      "is_cde": false,
+      "is_pii": false
+    },
+    {
+      "term_id": "ST-XBRL-004",
+      "project_term_id": "BT-021",
+      "term": "Financial Statement",
+      "definition": "A category of financial reporting. The five categories used in this pipeline: Balance Sheet (assets, liabilities, equity), Income Statement (revenue, expenses, profit), Cash Flow (operating, investing, financing), Per-Share (EPS, dividends), and Other (comprehensive income, retained earnings).",
+      "source_reference": "us-gaap Financial Statement classification",
+      "synonyms": [
+        "Statement Type",
+        "Report Type"
+      ],
+      "category": "financial",
+      "is_cde": false,
+      "is_pii": false
+    },
+    {
+      "term_id": "ST-XBRL-005",
+      "project_term_id": "BT-022",
+      "term": "Revenue",
+      "definition": "Total revenue recognized from the sale of goods and services, before deductions. The top line of the income statement. Multiple XBRL concepts map to this CDE (Revenues, RevenueFromContractWithCustomerExcludingAssessedTax, SalesRevenueNet, etc.).",
+      "source_reference": "us-gaap:Revenues",
+      "synonyms": [
+        "Sales",
+        "Net Sales",
+        "Total Revenue",
+        "Top Line"
+      ],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-006",
+      "project_term_id": "BT-023",
+      "term": "Net Income",
+      "definition": "Total profit after all expenses, interest, and taxes. The bottom line of the income statement.",
+      "source_reference": "us-gaap:NetIncomeLoss",
+      "synonyms": [
+        "Net Profit",
+        "Net Earnings",
+        "Bottom Line"
+      ],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-007",
+      "project_term_id": "BT-024",
+      "term": "Total Assets",
+      "definition": "Sum of all current and non-current assets reported on the balance sheet.",
+      "source_reference": "us-gaap:Assets",
+      "synonyms": [
+        "Assets"
+      ],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-008",
+      "project_term_id": "BT-027",
+      "term": "Total Liabilities",
+      "definition": "Sum of all current and non-current liabilities reported on the balance sheet.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-009",
+      "project_term_id": "BT-028",
+      "term": "Total Stockholders Equity",
+      "definition": "Total equity attributable to shareholders, including common stock, APIC, retained earnings, and AOCI.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-010",
+      "project_term_id": "BT-029",
+      "term": "Cash and Cash Equivalents",
+      "definition": "Cash on hand and short-term, highly liquid investments readily convertible to known cash amounts.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-011",
+      "project_term_id": "BT-030",
+      "term": "Accounts Receivable",
+      "definition": "Amounts owed to the company by customers for goods or services delivered, net of allowances.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-012",
+      "project_term_id": "BT-031",
+      "term": "Inventory",
+      "definition": "Goods available for sale or in production, including raw materials, WIP, and finished goods.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-013",
+      "project_term_id": "BT-032",
+      "term": "Property Plant and Equipment",
+      "definition": "Tangible long-lived assets used in operations, net of accumulated depreciation.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-014",
+      "project_term_id": "BT-033",
+      "term": "Goodwill",
+      "definition": "Excess of purchase price over fair value of net identifiable assets acquired in a business combination.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core balance sheet metric critical for financial health assessment and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-015",
+      "project_term_id": "BT-034",
+      "term": "Cost of Revenue",
+      "definition": "Direct costs attributable to the production of goods and services sold.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-016",
+      "project_term_id": "BT-035",
+      "term": "Gross Profit",
+      "definition": "Revenue minus cost of revenue. Measures production efficiency.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-017",
+      "project_term_id": "BT-036",
+      "term": "Operating Income",
+      "definition": "Profit from core business operations, after operating expenses but before interest and taxes.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-018",
+      "project_term_id": "BT-037",
+      "term": "Income Tax Expense",
+      "definition": "Total income tax expense (benefit) recognized for the period.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-019",
+      "project_term_id": "BT-038",
+      "term": "Research and Development Expense",
+      "definition": "Costs incurred for research and development activities.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-020",
+      "project_term_id": "BT-039",
+      "term": "Selling General and Administrative Expense",
+      "definition": "Operating expenses for selling, general, and administrative activities.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core income statement metric critical for profitability analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-021",
+      "project_term_id": "BT-040",
+      "term": "Operating Cash Flow",
+      "definition": "Net cash provided by or used in operating activities.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core cash flow metric critical for liquidity analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-022",
+      "project_term_id": "BT-041",
+      "term": "Investing Cash Flow",
+      "definition": "Net cash provided by or used in investing activities.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core cash flow metric critical for liquidity analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-023",
+      "project_term_id": "BT-042",
+      "term": "Financing Cash Flow",
+      "definition": "Net cash provided by or used in financing activities.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core cash flow metric critical for liquidity analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-024",
+      "project_term_id": "BT-043",
+      "term": "Capital Expenditures",
+      "definition": "Payments to acquire property, plant, and equipment.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core cash flow metric critical for liquidity analysis and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-025",
+      "project_term_id": "BT-044",
+      "term": "Earnings Per Share Basic",
+      "definition": "Net income divided by weighted average basic shares outstanding.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core per-share metric critical for investor valuation and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-026",
+      "project_term_id": "BT-045",
+      "term": "Earnings Per Share Diluted",
+      "definition": "Net income divided by weighted average diluted shares outstanding.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core per-share metric critical for investor valuation and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-027",
+      "project_term_id": "BT-046",
+      "term": "Dividends Per Share",
+      "definition": "Cash dividends declared per common share.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core per-share metric critical for investor valuation and cross-company comparison."
+    },
+    {
+      "term_id": "ST-XBRL-028",
+      "project_term_id": "BT-047",
+      "term": "Comprehensive Income",
+      "definition": "Net income plus other comprehensive income items (unrealized gains/losses, foreign currency adjustments).",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core financial metric critical for comprehensive financial analysis."
+    },
+    {
+      "term_id": "ST-XBRL-029",
+      "project_term_id": "BT-048",
+      "term": "Retained Earnings",
+      "definition": "Cumulative net income retained in the business, not distributed as dividends.",
+      "source_reference": "us-gaap XBRL Taxonomy",
+      "synonyms": [],
+      "category": "financial",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core financial metric critical for comprehensive financial analysis."
+    }
+  ]
+}

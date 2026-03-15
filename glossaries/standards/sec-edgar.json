@@ -1,0 +1,116 @@
+{
+  "glossary_metadata": {
+    "name": "sec-edgar",
+    "tier": 1,
+    "authority": "U.S. Securities and Exchange Commission",
+    "version": "2024",
+    "description": "SEC EDGAR filing types, entity identifiers, and regulatory concepts",
+    "term_count": 7
+  },
+  "terms": [
+    {
+      "term_id": "ST-SEC-001",
+      "project_term_id": "BT-001",
+      "term": "Central Index Key (CIK)",
+      "definition": "Unique numeric identifier assigned by the SEC to every entity that files with the Commission. Used as the primary company identifier throughout the pipeline.",
+      "source_reference": "SEC EDGAR Filing Manual, Section 3.1",
+      "synonyms": [
+        "CIK",
+        "CIK Number"
+      ],
+      "category": "entity",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core entity identifier critical for cross-system joins and audit trails."
+    },
+    {
+      "term_id": "ST-SEC-002",
+      "project_term_id": "BT-002",
+      "term": "Accession Number",
+      "definition": "Unique identifier for each filing submitted to SEC EDGAR. Format: XXXXXXXXXX-YY-ZZZZZZ. Used to trace any data point back to its source filing.",
+      "source_reference": "SEC EDGAR Filing Manual, Section 4.2",
+      "synonyms": [
+        "Filing ID",
+        "Accession"
+      ],
+      "category": "filing",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Primary filing identifier critical for source traceability and regulatory audit."
+    },
+    {
+      "term_id": "ST-SEC-003",
+      "project_term_id": "BT-003",
+      "term": "Legal Entity Name",
+      "definition": "Official company name as registered with the SEC. May differ from commonly used brand names (e.g., 'MICROSOFT CORPORATION' vs 'Microsoft Corp.').",
+      "source_reference": "SEC EDGAR Company Search documentation",
+      "synonyms": [
+        "Entity Name",
+        "Registrant Name",
+        "Company Name"
+      ],
+      "category": "entity",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Core entity identifier critical for cross-system joins and audit trails."
+    },
+    {
+      "term_id": "ST-SEC-004",
+      "project_term_id": "BT-004",
+      "term": "SEC Filing",
+      "definition": "A document submitted to and accepted by the SEC through the EDGAR system. Includes periodic reports (10-K, 10-Q), current reports (8-K), and amendments (10-K/A, 10-Q/A).",
+      "source_reference": "SEC EDGAR Filing Types documentation",
+      "synonyms": [
+        "Filing",
+        "Report",
+        "Submission"
+      ],
+      "category": "filing",
+      "is_cde": false,
+      "is_pii": false
+    },
+    {
+      "term_id": "ST-SEC-005",
+      "project_term_id": "BT-006",
+      "term": "Filing Date",
+      "definition": "Date the filing was officially submitted to and accepted by the SEC. Critical for determining the timeline of financial disclosures and for amendment tracking.",
+      "source_reference": "SEC EDGAR Filing Manual",
+      "synonyms": [
+        "Filed Date",
+        "Submission Date"
+      ],
+      "category": "filing",
+      "is_cde": true,
+      "is_pii": false,
+      "cde_rationale": "Filing temporal metadata critical for amendment detection and regulatory timeline analysis."
+    },
+    {
+      "term_id": "ST-SEC-006",
+      "project_term_id": "BT-007",
+      "term": "Amendment",
+      "definition": "A revised SEC filing (form type ending in '/A', e.g., 10-K/A, 10-Q/A) that corrects or updates a previously submitted filing. Amendments supersede the original filing's values for the same reporting period and concept.",
+      "source_reference": "SEC EDGAR Amendment Filing documentation",
+      "synonyms": [
+        "Amended Filing",
+        "Restatement"
+      ],
+      "category": "filing",
+      "is_cde": false,
+      "is_pii": false
+    },
+    {
+      "term_id": "ST-SEC-007",
+      "project_term_id": "BT-025",
+      "term": "SIC Code",
+      "definition": "Standard Industrial Classification code. A four-digit code assigned by the SEC that classifies a company's primary line of business. Used for industry-level analysis and peer comparison.",
+      "source_reference": "SEC SIC Code List",
+      "synonyms": [
+        "Industry Code",
+        "Standard Industrial Classification"
+      ],
+      "category": "entity",
+      "is_cde": false,
+      "is_pii": false
+    }
+  ]
+}

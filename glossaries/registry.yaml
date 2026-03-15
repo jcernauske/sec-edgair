@@ -1,0 +1,29 @@
+# Shared Glossary Registry
+#
+# Three-tier hierarchy:
+#   Tier 1: STANDARDS — published industry/regulatory standards (read-only, always auto-approved)
+#   Tier 2: DOMAINS  — community-curated domain glossaries (shared, auto-approved)
+#   Tier 3: PROJECT  — terms invented by a specific project (local, human approval required)
+#
+# Tier 3 terms live in the project's governance/business-glossary.json, not here.
+
+standards:
+  - name: sec-edgar
+    file: standards/sec-edgar.json
+    authority: U.S. Securities and Exchange Commission
+    term_count: 7
+    description: "SEC EDGAR filing types, entity identifiers, and regulatory concepts"
+
+  - name: xbrl-us-gaap
+    file: standards/xbrl-us-gaap.json
+    authority: Financial Accounting Standards Board (FASB)
+    term_count: 29
+    description: "US GAAP XBRL Taxonomy - authoritative financial reporting concepts"
+
+domains: []
+  # None yet — created when domain packs mature and share terms across projects.
+  # Example:
+  # - name: finance
+  #   file: domains/finance.json
+  #   term_count: 0
+  #   description: "Cross-project financial reporting patterns"
