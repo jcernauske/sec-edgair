@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production Deployment - SEC EDGAIR</title>
+  <meta name="description" content="Four deployment paths for taking SEC EDGAIR from 20 companies on a laptop to 10,000 companies with SLAs. AWS, Azure, Snowflake, and Databricks -- what changes, what stays, and what it costs.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><a href="production.html" class="active">Production</a></li>
+        <li><a href="trust.html">Trust</a></li>
+        <li><a href="bcbs239.html">BCBS 239</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">Production Deployment</div>
+      <h1>You have seen the architecture work at 20 companies. Here is what changes at 10,000.</h1>
+      <p>This is not a rewrite proposal. The current architecture -- Python + DuckDB + PyIceberg + SQLite catalog -- is correctly designed. The zone boundaries are clean, the DQ gates are structural, the lineage is runtime, and the governance metadata travels with the data. The question is not &ldquo;does this design work?&rdquo; but &ldquo;what infrastructure replaces the laptop parts when you need SLAs, concurrent users, and 500x more data?&rdquo;</p>
+    </div>
+
+    <div class="container">
+
+      <h2>What Already Scales (Do Not Touch)</h2>
+      <div class="fade-in">
+        <p>Before talking about what changes, here is what stays the same on every platform. These are architectural decisions, not implementation details, and they are correct:</p>
+        <ul>
+          <li><strong>Four-zone medallion structure.</strong> Raw, Base, Consumable, AI-Ready. Each zone reads only from the prior zone. This is the pattern every lakehouse vendor recommends because it works.</li>
+          <li><strong>Iceberg as the table format.</strong> Every platform on this list supports Iceberg natively or is racing to. The Parquet data files written by this pipeline are already in the right format.</li>
+          <li><strong>DQ rules as JSON governance artifacts.</strong> The 128 rules in <code>governance/dq-rules/</code> are SQL-based, priority-tagged, and lifecycle-managed. They execute against any SQL engine, not just DuckDB.</li>
+          <li><strong>OpenLineage-compatible event schema.</strong> The <code>governance.lineage_events</code> table uses a schema that maps directly to OpenLineage START/COMPLETE/FAIL semantics. Any lineage platform (Marquez, DataHub, Atlan) can ingest these events.</li>
+          <li><strong>Promote-then-validate pattern.</strong> Every promote function calls <code>validate_after_write()</code>. This is the lakehouse equivalent of database constraints and it works regardless of compute engine.</li>
+          <li><strong>Governance artifacts as code.</strong> Business glossary, CDE catalog, concept priority rules, entity resolution mappings -- all versioned JSON in <code>governance/</code>. This is GitOps for data governance, and it ports to any platform without modification.</li>
+        </ul>
+      </div>
+
+      <h2>What Must Change (And Why)</h2>
+      <div class="fade-in">
+        <p>Three components are deliberately single-user/single-machine and need replacement at scale:</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Component</th><th>Current</th><th>Why It Must Change</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Catalog</strong></td>
+                <td>SQLite-backed PyIceberg <code>SqlCatalog</code></td>
+                <td>No concurrent writers. One person runs the pipeline at a time.</td>
+              </tr>
+              <tr>
+                <td><strong>Storage</strong></td>
+                <td>Local filesystem (<code>data/</code> directory)</td>
+                <td>Cannot be shared across compute nodes. No durability guarantees.</td>
+              </tr>
+              <tr>
+                <td><strong>Orchestration</strong></td>
+                <td>CLI commands (<code>python -m src.base.conformed_facts.cli build</code>)</td>
+                <td>No scheduling, no retry, no dependency graph, no alerting.</td>
+              </tr>
+              <tr>
+                <td><strong>Compute</strong></td>
+                <td>In-process DuckDB</td>
+                <td>Single-node. Works beautifully to ~10M rows, then you need distributed compute for the heavy joins.</td>
+              </tr>
+              <tr>
+                <td><strong>Monitoring</strong></td>
+                <td>DQ scorecards as markdown files</td>
+                <td>No alerting, no dashboards, no SLA tracking.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Everything else -- the Python transformation logic, the DQ rule definitions, the lineage event emission, the governance metadata structure -- ports directly.</p>
+      </div>
+
+      <hr>
+
+      <h2>AWS: S3 + Glue Catalog + Step Functions</h2>
+
+      <h3>Architecture</h3>
+      <div class="fade-in">
+        <pre><code>SEC EDGAR API
+    |
+    v
+Lambda (raw ingest, 15-min timeout is fine for bulk ZIP download)
+    |
+    v
+S3 bucket: s3://sec-edgair-{env}/raw/
+    |
+    v
+Step Functions state machine (orchestrates zone transitions)
+    |
+    v
+Glue ETL Jobs (Spark, Python shell) or Athena queries
+    - base zone: entity resolution, tag normalization, conformed facts
+    - consumable zone: ratios, growth, peer comparison
+    |
+    v
+S3 bucket: s3://sec-edgair-{env}/{zone}/iceberg_warehouse/
+    |
+    v
+Athena (ad-hoc queries) + Lambda (AI-Ready tool functions)</code></pre>
+      </div>
+
+      <h3>What Changes</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Local</th><th>AWS</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Catalog</td><td>SQLite file</td><td>AWS Glue Data Catalog (native Iceberg support since 2023)</td></tr>
+            <tr><td>Storage</td><td><code>data/</code> directory</td><td>S3 with Iceberg table format</td></tr>
+            <tr><td>Compute</td><td>DuckDB in-process</td><td>Glue ETL (PySpark for heavy joins) or Athena (SQL-only transforms)</td></tr>
+            <tr><td>Orchestration</td><td>CLI</td><td>Step Functions with EventBridge schedules</td></tr>
+            <tr><td>DQ execution</td><td><code>python -m src.infra.dq_runner run</code></td><td>Glue Python Shell job, same SQL engine (Athena), results to S3</td></tr>
+            <tr><td>Lineage</td><td>Iceberg table in <code>data/governance/</code></td><td>Same events emitted to S3-backed Iceberg table; Glue lineage view in Data Catalog</td></tr>
+            <tr><td>AI-Ready</td><td>Local Python + Claude API</td><td>Lambda functions behind API Gateway, same tool function signatures</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Iceberg Strategy</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Catalog:</strong> Glue Data Catalog. It is the only AWS-native option with cross-service compatibility (Athena, EMR, Redshift Spectrum all read from it). Do not use a standalone Hive Metastore unless you enjoy suffering.</li>
+          <li><strong>Storage:</strong> Single S3 bucket, prefixed by zone: <code>raw/</code>, <code>base/</code>, <code>consumable/</code>, <code>governance/</code>. Iceberg manages the file layout.</li>
+          <li><strong>Partitioning:</strong> <code>base.financial_facts</code> partitioned by <code>company_cik</code> (20 companies = 20 partitions now, scales to 10K). <code>consumable.company_financials</code> partitioned by <code>fiscal_year</code> for time-based queries. <code>raw.xbrl_company_facts</code> partitioned by <code>cik</code> to parallelize ingest.</li>
+          <li><strong>Compaction:</strong> Glue ETL job on a daily schedule to compact small Parquet files. Iceberg's <code>rewrite_data_files</code> procedure. At 10K companies, expect ~50K files without compaction.</li>
+        </ul>
+      </div>
+
+      <h3>DQ at Scale</h3>
+      <div class="fade-in">
+        <p>The current DQ runner executes SQL against DuckDB via <code>iceberg_scan()</code>. On AWS, the same SQL runs against Athena. The change is mechanical:</p>
+        <ol>
+          <li>Replace <code>duckdb.connect()</code> + <code>iceberg_scan()</code> with <code>boto3.client('athena').start_query_execution()</code>.</li>
+          <li>Results still write to <code>governance/dq-results/</code> (now an S3 prefix).</li>
+          <li>P0 failures still block the Step Functions state machine -- the Glue job exits non-zero, Step Functions catches the failure and halts the pipeline.</li>
+          <li>Add SNS topic for DQ failure alerting. CloudWatch alarm on the Step Functions failure state.</li>
+        </ol>
+      </div>
+
+      <h3>Cost Model (10K Companies)</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Service</th><th>Monthly Estimate</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>S3 storage</td><td>$50-100</td><td>~500GB Iceberg data (Parquet + metadata). S3 Standard.</td></tr>
+            <tr><td>Glue ETL</td><td>$200-400</td><td>10 DPU-hours/day for base zone transforms. Spot instances.</td></tr>
+            <tr><td>Athena</td><td>$50-100</td><td>DQ rules + ad-hoc queries. ~500GB scanned/month at $5/TB.</td></tr>
+            <tr><td>Step Functions</td><td>$5</td><td>State transitions are cheap.</td></tr>
+            <tr><td>Lambda</td><td>$20</td><td>Raw ingest + AI-Ready tool functions.</td></tr>
+            <tr><td>Glue Catalog</td><td>$1</td><td>First million objects free.</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>$325-625/month</strong></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Timeline</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Week 1:</strong> S3 bucket + Glue Catalog setup. Port <code>iceberg_setup.py</code> to use Glue Catalog instead of SQLite. Raw ingest Lambda. Validate one table end-to-end.</li>
+          <li><strong>Month 1:</strong> All zone transforms running as Glue jobs. Step Functions state machine. DQ runner ported to Athena. Lineage events writing to S3.</li>
+          <li><strong>Quarter 1:</strong> Incremental refresh (change detection on SEC EDGAR filing dates). CloudWatch dashboards. Multi-environment (dev/staging/prod). CI/CD pipeline.</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Azure: ADLS Gen2 + Unity Catalog + Data Factory</h2>
+
+      <h3>Architecture</h3>
+      <div class="fade-in">
+        <pre><code>SEC EDGAR API
+    |
+    v
+Azure Function (raw ingest)
+    |
+    v
+ADLS Gen2: abfss://sec-edgair@{account}.dfs.core.windows.net/raw/
+    |
+    v
+Data Factory pipeline (orchestration)
+    |
+    v
+Azure Databricks (Spark) or Synapse Serverless SQL
+    - base zone transforms
+    - consumable zone transforms
+    |
+    v
+ADLS Gen2: abfss://sec-edgair@{account}.dfs.core.windows.net/{zone}/
+    |
+    v
+Synapse Serverless SQL (ad-hoc) + Azure Function (AI-Ready)</code></pre>
+      </div>
+
+      <h3>What Changes</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Local</th><th>Azure</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Catalog</td><td>SQLite file</td><td>Unity Catalog (if Databricks) or Synapse Lake Database (if pure Azure)</td></tr>
+            <tr><td>Storage</td><td><code>data/</code> directory</td><td>ADLS Gen2 with hierarchical namespace</td></tr>
+            <tr><td>Compute</td><td>DuckDB in-process</td><td>Databricks clusters or Synapse Spark pools</td></tr>
+            <tr><td>Orchestration</td><td>CLI</td><td>Azure Data Factory with trigger schedules</td></tr>
+            <tr><td>DQ execution</td><td><code>dq_runner.py</code></td><td>Synapse Serverless SQL pool running the same DQ SQL</td></tr>
+            <tr><td>AI-Ready</td><td>Local Python + Claude API</td><td>Azure Function + Claude API (or swap to Azure OpenAI)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Iceberg Strategy</h3>
+      <div class="fade-in">
+        <p>Azure's Iceberg story has two paths:</p>
+        <ol>
+          <li><strong>Databricks on Azure (recommended):</strong> Unity Catalog manages Iceberg tables natively. Delta Lake is Databricks' preferred format, but Unity Catalog supports Iceberg via UniForm -- writes Delta, reads as Iceberg. This gives you the best of both: Delta's optimization features (Z-order, liquid clustering) with Iceberg compatibility for external tools.</li>
+          <li><strong>Pure Azure (Synapse):</strong> Synapse Serverless SQL can read Iceberg tables from ADLS Gen2. Less mature than the Databricks path. You manage the Iceberg catalog yourself (Hive Metastore on Azure SQL or the Nessie catalog).</li>
+        </ol>
+        <p>Go with option 1 unless you have a contractual reason to avoid Databricks.</p>
+      </div>
+
+      <h3>DQ at Scale</h3>
+      <div class="fade-in">
+        <ul>
+          <li>DQ SQL rules execute as Synapse Serverless SQL queries or Databricks SQL queries. Same SQL, different engine.</li>
+          <li>Data Factory pipeline has a &ldquo;DQ gate&rdquo; activity after each transform activity. Gate checks the DQ result JSON in ADLS Gen2. Failure halts the pipeline.</li>
+          <li>Azure Monitor alert rules on Data Factory pipeline failures. Integration with PagerDuty/Slack via Logic Apps.</li>
+        </ul>
+      </div>
+
+      <h3>Cost Model (10K Companies)</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Service</th><th>Monthly Estimate</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>ADLS Gen2</td><td>$30-60</td><td>~500GB, hot tier. Cheaper than S3 for large files.</td></tr>
+            <tr><td>Databricks</td><td>$400-800</td><td>Standard tier, 2-4 node cluster, auto-scaling. Heaviest cost.</td></tr>
+            <tr><td>Data Factory</td><td>$50-100</td><td>Pipeline orchestration + data movement activities.</td></tr>
+            <tr><td>Synapse Serverless</td><td>$50-100</td><td>DQ queries + ad-hoc analysis. Pay-per-query.</td></tr>
+            <tr><td>Azure Functions</td><td>$15</td><td>Raw ingest + AI-Ready endpoints.</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>$545-1,075/month</strong></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="fade-in">
+        <p>Azure is more expensive than AWS primarily because Databricks licensing adds to the compute cost. If you go pure Synapse (no Databricks), drop the estimate to $300-600/month, but you lose Unity Catalog's lineage features and the Iceberg story gets weaker.</p>
+      </div>
+
+      <h3>Timeline</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Week 1:</strong> ADLS Gen2 storage account + Databricks workspace. Port catalog setup to Unity Catalog. One table end-to-end.</li>
+          <li><strong>Month 1:</strong> All transforms as Databricks notebooks or jobs. Data Factory pipeline. DQ runner ported.</li>
+          <li><strong>Quarter 1:</strong> Unity Catalog lineage integration (auto-captures column-level lineage). Incremental refresh. Purview integration for enterprise governance.</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Snowflake: Managed Iceberg Tables + Snowpark</h2>
+
+      <h3>Architecture</h3>
+      <div class="fade-in">
+        <pre><code>SEC EDGAR API
+    |
+    v
+Snowpark Python UDF or external stage load (raw ingest)
+    |
+    v
+Snowflake-managed Iceberg table: raw.xbrl_company_facts
+    |
+    v
+Snowflake Tasks + DAG (orchestration)
+    |
+    v
+Snowpark Python (transforms) or Snowflake SQL
+    - base zone: entity resolution, tag normalization, conformed facts
+    - consumable zone: ratios, growth, peer comparison
+    |
+    v
+Snowflake-managed Iceberg tables: base.*, consumable.*
+    |
+    v
+Snowflake Cortex or external Claude API (AI-Ready)</code></pre>
+      </div>
+
+      <h3>What Changes</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Local</th><th>Snowflake</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Catalog</td><td>SQLite file</td><td>Snowflake's internal catalog (Polaris Catalog for external access)</td></tr>
+            <tr><td>Storage</td><td><code>data/</code> directory</td><td>Snowflake-managed storage (or external S3/GCS/ADLS with Iceberg)</td></tr>
+            <tr><td>Compute</td><td>DuckDB in-process</td><td>Snowflake virtual warehouses (auto-suspend, auto-scale)</td></tr>
+            <tr><td>Orchestration</td><td>CLI</td><td>Snowflake Tasks with CRON schedules and DAG dependencies</td></tr>
+            <tr><td>DQ execution</td><td><code>dq_runner.py</code></td><td>Snowflake SQL executing the same DQ rule SQL directly</td></tr>
+            <tr><td>Lineage</td><td>Iceberg table</td><td>ACCESS_HISTORY + OBJECT_DEPENDENCIES views (built-in)</td></tr>
+            <tr><td>AI-Ready</td><td>Local Python + Claude API</td><td>Snowpark Container Services or external API</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Why Snowflake Is Interesting Here</h3>
+      <div class="fade-in">
+        <p>Snowflake is the path of least resistance for this specific project, for one reason: <strong>the DQ rules are already SQL.</strong> All 128 rules in <code>governance/dq-rules/</code> are SQL queries with threshold expressions. They run on Snowflake without modification (after replacing <code>namespace.table</code> references, which the current <code>_rewrite_sql()</code> function already handles).</p>
+        <p>The Python transformation logic in <code>src/base/</code> and <code>src/consumable/</code> uses DuckDB SQL via PyIceberg scan. Snowpark Python provides the same pattern: read Iceberg table into a DataFrame, transform, write back. The <code>promote.py</code> files need the least modification on Snowflake.</p>
+      </div>
+
+      <h3>Iceberg Strategy</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Snowflake-managed Iceberg tables</strong> (GA since 2024). Snowflake manages the catalog, storage, and compaction. You write to them like regular Snowflake tables. External tools (Spark, DuckDB, Trino) can read them via Iceberg REST Catalog (Polaris).</li>
+          <li><strong>Partitioning:</strong> Snowflake handles micro-partitioning automatically. You do not declare partition columns. Snowflake's query optimizer prunes partitions based on query predicates. This is a genuine advantage over the explicit partitioning you need on AWS/Azure.</li>
+          <li><strong>Time travel:</strong> Snowflake's native time travel (up to 90 days on Enterprise) replaces PyIceberg's snapshot-based time travel. The <code>get_snapshots()</code> and <code>read_with_duckdb(snapshot_id=...)</code> functions map to <code>SELECT * FROM table AT(TIMESTAMP =&gt; ...)</code>.</li>
+        </ul>
+      </div>
+
+      <h3>DQ at Scale</h3>
+      <div class="fade-in">
+        <p>This is where Snowflake shines. The DQ runner becomes trivially simple:</p>
+        <ol>
+          <li>Load rule JSON files (same <code>governance/dq-rules/*.json</code>).</li>
+          <li>Execute each SQL rule as a Snowflake SQL statement. No iceberg_scan, no view registration, no Arrow bridge. Just SQL.</li>
+          <li>Evaluate thresholds (same <code>evaluate_threshold()</code> function).</li>
+          <li>Write results to a <code>governance.dq_results</code> table (or S3/GCS external stage for portability).</li>
+          <li>Snowflake Tasks check DQ results before proceeding to the next zone. Task DAG dependencies enforce the gate.</li>
+        </ol>
+        <p>Snowflake Alerts (built-in) can notify on P0 failures. No SNS, no CloudWatch, no Logic Apps.</p>
+      </div>
+
+      <h3>Cost Model (10K Companies)</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Service</th><th>Monthly Estimate</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Snowflake compute</td><td>$300-600</td><td>Standard edition, X-Small warehouse (auto-suspend after 60s). Base zone transforms ~2 hours/day.</td></tr>
+            <tr><td>Snowflake storage</td><td>$40-80</td><td>~500GB compressed. $40/TB/month.</td></tr>
+            <tr><td>Snowpark</td><td>$0</td><td>Included in compute.</td></tr>
+            <tr><td>Snowflake Tasks</td><td>$0</td><td>Included (uses warehouse compute).</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>$340-680/month</strong></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="fade-in">
+        <p>The cost advantage of Snowflake is simplicity: one bill, one vendor, one set of credentials. The cost disadvantage is vendor lock-in, mitigated by the Iceberg table format (you can always read the Parquet files from external tools).</p>
+      </div>
+
+      <h3>Timeline</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Week 1:</strong> Snowflake account + database/schema setup matching the current namespace structure (<code>raw</code>, <code>base</code>, <code>consumable</code>, <code>governance</code>). Create managed Iceberg tables matching current schemas. Load raw data via <code>COPY INTO</code>.</li>
+          <li><strong>Month 1:</strong> All transforms ported to Snowpark Python or pure SQL. Task DAG replacing CLI. DQ runner executing natively. Lineage via ACCESS_HISTORY.</li>
+          <li><strong>Quarter 1:</strong> Incremental refresh via Snowflake Streams (CDC on raw tables). Cortex ML functions for anomaly detection on DQ metrics. Polaris Catalog for external Iceberg access.</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Databricks: Unity Catalog + Delta/Iceberg + Workflows</h2>
+
+      <h3>Architecture</h3>
+      <div class="fade-in">
+        <pre><code>SEC EDGAR API
+    |
+    v
+Databricks Job (Python task, raw ingest)
+    |
+    v
+Unity Catalog: sec_edgair.raw.xbrl_company_facts (Delta + UniForm)
+    |
+    v
+Databricks Workflows (orchestration with task dependencies)
+    |
+    v
+Databricks Spark or DuckDB-on-Databricks (yes, this works)
+    - base zone transforms
+    - consumable zone transforms
+    |
+    v
+Unity Catalog: sec_edgair.{zone}.{table}
+    |
+    v
+Databricks SQL warehouse (ad-hoc) + Model Serving (AI-Ready)</code></pre>
+      </div>
+
+      <h3>What Changes</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Local</th><th>Databricks</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Catalog</td><td>SQLite file</td><td>Unity Catalog (three-level namespace maps perfectly to current structure)</td></tr>
+            <tr><td>Storage</td><td><code>data/</code> directory</td><td>Cloud storage (S3/ADLS/GCS) managed by Unity Catalog</td></tr>
+            <tr><td>Compute</td><td>DuckDB in-process</td><td>Databricks clusters (or Serverless SQL for DQ)</td></tr>
+            <tr><td>Orchestration</td><td>CLI</td><td>Databricks Workflows with task dependencies</td></tr>
+            <tr><td>DQ execution</td><td><code>dq_runner.py</code></td><td>Databricks SQL or DuckDB extension on Databricks</td></tr>
+            <tr><td>Lineage</td><td>Iceberg table</td><td>Unity Catalog lineage (automatic column-level lineage)</td></tr>
+            <tr><td>AI-Ready</td><td>Local Python + Claude API</td><td>Model Serving endpoint or external Claude API</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Why Databricks Is The Most Natural Fit</h3>
+      <div class="fade-in">
+        <p>The current codebase already uses the exact abstractions that Databricks provides:</p>
+        <ol>
+          <li><strong>Three-level namespace.</strong> The project uses <code>namespace.table</code> everywhere (<code>base.financial_facts</code>, <code>consumable.company_financials</code>). Unity Catalog uses <code>catalog.schema.table</code>. Add one level and the naming is identical: <code>sec_edgair.base.financial_facts</code>.</li>
+          <li><strong>PyIceberg compatibility.</strong> Unity Catalog speaks the Iceberg REST Catalog protocol. The <code>get_catalog()</code> function in <code>iceberg_setup.py</code> can point to Unity Catalog's REST endpoint instead of SQLite. The PyIceberg write path works unchanged.</li>
+          <li><strong>DuckDB on Databricks.</strong> Databricks supports DuckDB as a library on clusters. The existing DuckDB-based transforms can run without modification while you incrementally migrate to Spark for the joins that need distributed compute.</li>
+          <li><strong>Automatic lineage.</strong> Unity Catalog captures column-level lineage automatically for any Spark SQL or DataFrame operation. The custom <code>lineage.py</code> emission becomes a supplemental signal (DQ results, row counts) rather than the primary lineage source.</li>
+        </ol>
+      </div>
+
+      <h3>Iceberg Strategy</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Delta Lake with UniForm.</strong> Databricks writes Delta format and generates Iceberg metadata via UniForm. External tools (DuckDB, Trino, Snowflake) read the tables as Iceberg. You get Delta's optimization features (Z-order, liquid clustering, predictive I/O) with Iceberg's openness.</li>
+          <li><strong>Catalog:</strong> Unity Catalog. Shared across all workspaces. Supports fine-grained access control at the column level (relevant for any PII flags).</li>
+          <li><strong>Partitioning:</strong> Liquid clustering replaces traditional partitioning on Databricks. Specify clustering columns (<code>company_cik</code>, <code>fiscal_year</code>) and Databricks optimizes the layout incrementally. No partition management overhead.</li>
+        </ul>
+      </div>
+
+      <h3>DQ at Scale</h3>
+      <div class="fade-in">
+        <p>Databricks has a built-in option and a custom option:</p>
+        <ol>
+          <li><strong>Built-in: Databricks Lakehouse Monitoring.</strong> Automatic statistical profiling, drift detection, and anomaly alerts on Delta tables. Good for the &ldquo;is the data weird?&rdquo; question. Does not replace the custom DQ rules (which encode business logic like &ldquo;no superseded facts in conformed_facts&rdquo;), but complements them.</li>
+          <li><strong>Custom: Port the DQ runner.</strong> Run the existing SQL rules against Databricks SQL Serverless warehouse. The <code>_register_iceberg_views()</code> function is unnecessary -- Unity Catalog resolves <code>base.financial_facts</code> directly. Simplify <code>run_rules()</code> to execute SQL via <code>databricks-sql-connector</code> Python package.</li>
+          <li><strong>Workflow gate:</strong> Databricks Workflows supports task dependencies with conditions. The DQ task writes a status flag. The next zone's tasks depend on that flag. P0 failure = pipeline stops.</li>
+        </ol>
+      </div>
+
+      <h3>DuckDB-on-Databricks Migration Path</h3>
+      <div class="fade-in">
+        <p>This is the pragmatic migration that no one talks about:</p>
+        <ol>
+          <li><strong>Week 1:</strong> Run the existing Python code as Databricks Jobs with DuckDB. Zero code changes. DuckDB reads from Unity Catalog via the Iceberg REST protocol. This works today.</li>
+          <li><strong>Month 1:</strong> Identify the 2-3 transforms that are slow on single-node DuckDB (likely <code>conformed_facts</code> build with the full collision resolution join, and <code>period_over_period</code> with the 5-year window). Rewrite those in Spark SQL.</li>
+          <li><strong>Quarter 1:</strong> Everything that benefits from distribution runs on Spark. Everything that is fast enough on single-node stays on DuckDB. This is the correct hybrid, not &ldquo;rewrite everything in Spark.&rdquo;</li>
+        </ol>
+      </div>
+
+      <h3>Cost Model (10K Companies)</h3>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Service</th><th>Monthly Estimate</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Databricks compute</td><td>$350-700</td><td>Jobs clusters (auto-terminate). Serverless SQL for DQ.</td></tr>
+            <tr><td>Cloud storage</td><td>$40-80</td><td>S3/ADLS/GCS, ~500GB.</td></tr>
+            <tr><td>Unity Catalog</td><td>$0</td><td>Included with Databricks.</td></tr>
+            <tr><td>Workflows</td><td>$0</td><td>Included (uses cluster compute).</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>$390-780/month</strong></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Timeline</h3>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Week 1:</strong> Databricks workspace + Unity Catalog. Create <code>sec_edgair</code> catalog with <code>raw</code>, <code>base</code>, <code>consumable</code>, <code>governance</code> schemas. Run existing Python code as a Databricks Job with DuckDB. One table end-to-end.</li>
+          <li><strong>Month 1:</strong> All transforms running as Databricks Jobs. Workflows DAG. DQ runner ported to Databricks SQL. Unity Catalog lineage active.</li>
+          <li><strong>Quarter 1:</strong> Incremental refresh via Delta CDF (Change Data Feed). Lakehouse Monitoring for drift detection. Selective Spark migration for heavy transforms. Asset bundles for CI/CD.</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Platform Comparison</h2>
+      <div class="table-wrapper fade-in">
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>AWS</th><th>Azure</th><th>Snowflake</th><th>Databricks</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Iceberg maturity</strong></td><td>Good (Glue Catalog)</td><td>Fair (needs Databricks)</td><td>Good (managed Iceberg)</td><td>Best (UniForm)</td></tr>
+            <tr><td><strong>Migration effort</strong></td><td>Medium</td><td>Medium-High</td><td>Medium-Low</td><td>Low</td></tr>
+            <tr><td><strong>DQ rule portability</strong></td><td>High (SQL is SQL)</td><td>High</td><td>Highest (native SQL)</td><td>High</td></tr>
+            <tr><td><strong>Lineage integration</strong></td><td>Manual (Glue + custom)</td><td>Good (Unity/Purview)</td><td>Fair (ACCESS_HISTORY)</td><td>Best (Unity auto-lineage)</td></tr>
+            <tr><td><strong>Vendor lock-in risk</strong></td><td>Low (all open formats)</td><td>Medium (Purview/Synapse)</td><td>Medium (Snowflake SQL)</td><td>Low (Delta+Iceberg)</td></tr>
+            <tr><td><strong>Monthly cost (10K)</strong></td><td>$325-625</td><td>$545-1,075</td><td>$340-680</td><td>$390-780</td></tr>
+            <tr><td><strong>Operational complexity</strong></td><td>High (many services)</td><td>High (many services)</td><td>Low (one service)</td><td>Medium</td></tr>
+            <tr><td><strong>Best for</strong></td><td>AWS-native shops</td><td>Microsoft shops</td><td>SQL-first teams</td><td>Data engineering teams</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>My Recommendation</h2>
+      <div class="fade-in">
+        <p>If I had to pick one platform to deploy this project to production tomorrow, here is my order:</p>
+        <ol>
+          <li><strong>Databricks</strong> -- lowest migration effort because the namespace structure, PyIceberg patterns, and even DuckDB itself port directly. Unity Catalog gives you lineage for free. The DuckDB-on-Databricks bridge means you can run the existing code on day 1 and migrate incrementally.</li>
+          <li><strong>Snowflake</strong> -- if your team is SQL-first and you want the simplest operational model. One service, one bill, DQ rules run natively. The trade-off is less flexibility for the Python transformation code.</li>
+          <li><strong>AWS</strong> -- if you are already in AWS and want to minimize vendor lock-in. More operational surface area, but all open-source components. Best long-term optionality.</li>
+          <li><strong>Azure</strong> -- only if you are a Microsoft shop. The Iceberg story requires Databricks anyway, so you are really choosing Databricks-on-Azure, not &ldquo;Azure.&rdquo;</li>
+        </ol>
+      </div>
+
+      <h2>What I Would Not Do</h2>
+      <div class="fade-in">
+        <ul>
+          <li><strong>Do not rewrite the DQ rules.</strong> They are SQL. They work on every platform. Port the runner, keep the rules.</li>
+          <li><strong>Do not replace the governance metadata structure.</strong> The JSON artifacts in <code>governance/</code> are the right abstraction. They are code-reviewable, version-controlled, and platform-independent.</li>
+          <li><strong>Do not start with Spark.</strong> Start with DuckDB on whatever platform you choose. Migrate to Spark only for the transforms that demonstrably need distribution. Most of this pipeline will never need Spark.</li>
+          <li><strong>Do not build a custom catalog.</strong> Use whatever catalog your platform provides. The current SQLite catalog was always meant to be replaced.</li>
+          <li><strong>Do not skip incremental refresh.</strong> Full rebuilds work at 20 companies because they take seconds. At 10K companies, the base zone rebuild will take hours. Change detection on SEC EDGAR filing dates (they have a <code>filed</code> date) is the first optimization to build.</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

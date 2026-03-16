@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trust & Verification - SEC EDGAIR</title>
+  <meta name="description" content="An adversarial audit of an AI-built data pipeline. 12 hallucination risks identified, examined against 128 DQ rules, 88 verification checks, 12 chaos monkey runs, and 4 human approval gates. Honest assessment of what holds up and what does not.">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">SEC EDG<span class="ai">AI</span>R</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="architecture.html">Architecture</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="ai-ready.html">AI-Ready</a></li>
+        <li><a href="governance.html">Governance</a></li>
+        <li><a href="results.html">Results</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+        <li><a href="sessions.html">Sessions</a></li>
+        <li><a href="production.html">Production</a></li>
+        <li><a href="trust.html" class="active">Trust</a></li>
+        <li><a href="bcbs239.html">BCBS 239</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme">Light</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="eyebrow">Trust & Verification</div>
+      <h1>For the skeptical architect, the compliance officer, and the CDO who have seen too many AI demos that fell apart under scrutiny.</h1>
+      <p>This page is structured as an adversarial dialogue. The auditor asks the hard questions. The project responds with specific evidence. Then the auditor gives an honest grade. No marketing. No hand-waving.</p>
+    </div>
+
+    <div class="container">
+
+      <p>The meta-question: <strong>This entire pipeline was built by AI agents. Every business term definition, every concept mapping, every DQ rule threshold, every data model &mdash; an AI agent proposed it. A human approved it. But the human approved what the AI suggested. If the AI was confidently wrong, would the human have caught it?</strong></p>
+
+      <h2>Part 1: Risk Register</h2>
+
+      <div class="fade-in">
+        <p>Twelve specific places where AI hallucination could produce outputs that look correct but are wrong.</p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Risk</th><th>Severity</th><th>Category</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Concept mappings assign XBRL tags to wrong business terms</td><td>Critical</td><td>Semantic accuracy</td></tr>
+              <tr><td>2</td><td>Business term definitions are plausible but incorrect</td><td>High</td><td>Semantic accuracy</td></tr>
+              <tr><td>3</td><td>DQ rule thresholds are set by AI without domain grounding</td><td>High</td><td>Rule calibration</td></tr>
+              <tr><td>4</td><td>Verification scripts compare AI output to AI-generated expected values</td><td>Critical</td><td>Circular validation</td></tr>
+              <tr><td>5</td><td>88 checks verified out of 547K+ facts &mdash; coverage is &lt;0.02%</td><td>High</td><td>Coverage gap</td></tr>
+              <tr><td>6</td><td>Entity resolution maps CIKs to wrong companies</td><td>Critical</td><td>Identity</td></tr>
+              <tr><td>7</td><td>Financial fact values silently mutated during transformation</td><td>Critical</td><td>Data integrity</td></tr>
+              <tr><td>8</td><td>The &ldquo;architect review&rdquo; was another AI agent grading AI agents</td><td>Medium</td><td>Independence</td></tr>
+              <tr><td>9</td><td>Prefix/pattern mapping rules produce false positives at scale</td><td>High</td><td>Classification</td></tr>
+              <tr><td>10</td><td>Human approval gate can be globally disabled with one flag</td><td>Medium</td><td>Control bypass</td></tr>
+              <tr><td>11</td><td>Reasonableness bounds are too wide to catch subtle errors</td><td>Medium</td><td>Threshold calibration</td></tr>
+              <tr><td>12</td><td>No independent external audit or reconciliation to non-EDGAR source</td><td>High</td><td>External validation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>Part 2: Challenge, Response, and Evidence</h2>
+
+      <h3>Risk 1: Concept Mappings Assign XBRL Tags to Wrong Business Terms</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The AI mapped <code>RevenueFromContractWithCustomerExcludingAssessedTax</code> to BT-022 (Revenue). Is that right? What about <code>SalesRevenueNet</code> &mdash; is that Revenue or something else? The XBRL taxonomy has thousands of concepts with subtle distinctions. An AI could plausibly map <code>OtherOperatingIncome</code> to Revenue and nobody would notice until a financial analyst got a wrong number.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The mapping system uses a three-tier architecture with declining confidence levels, defined in <code>src/base/xbrl_tag_normalization/config.py</code>:</p>
+
+        <ul>
+          <li><strong>Tier 1 (Exact match, confidence 1.0):</strong> 35 hardcoded XBRL concept names mapped to specific business terms (lines 189-233). These are the canonical concepts that the US GAAP taxonomy defines for each financial line item. Example: <code>"RevenueFromContractWithCustomerExcludingAssessedTax": ("BT-022", "income_statement", "revenue")</code> at line 207.</li>
+          <li><strong>Tier 2 (Prefix rules, confidence 0.7):</strong> 22 prefix patterns (lines 241-275). Example: any concept starting with <code>"RevenueFromContract"</code> maps to BT-022. This catches variant concepts like <code>RevenueFromContractWithCustomerIncludingAssessedTax</code>.</li>
+          <li><strong>Tier 3 (Unmapped, confidence 0.0):</strong> Concepts that match no rule stay unmapped with <code>business_term_id = NULL</code>. These are not used in downstream analysis.</li>
+        </ul>
+
+        <p><strong>Structural controls:</strong></p>
+
+        <ol>
+          <li>DQ rule <code>BASE-TN-002</code> (P0) enforces that no concept maps to multiple business terms: <code>SELECT concept, COUNT(DISTINCT business_term_id) ... HAVING COUNT(DISTINCT business_term_id) &gt; 1</code>. File: <code>governance/dq-rules/base-tag-normalization.json</code>, line 18.</li>
+          <li>DQ rule <code>BASE-TN-006</code> (P0) enforces Tier 3 concepts have NULL business_term_id and Tier 1+2 have non-NULL. File: <code>governance/dq-rules/base-tag-normalization.json</code>, line 66.</li>
+          <li>The verification script <code>scripts/verify.py</code> cross-checks pipeline output against 57 known 10-K figures across 20 companies. If Revenue were mapped to the wrong concept, Apple&rsquo;s FY2023 Revenue would not match $383.3B (line 15). It does match.</li>
+          <li>The verification script <code>scripts/verify_all_metrics.py</code> checks all 25 business terms for Apple FY2023 against the 10-K filing. Revenue, Cost of Revenue, Gross Profit, Operating Income, Net Income, and 20 other metrics all match within 1% tolerance. If any concept mapping were wrong, the corresponding metric would fail.</li>
+        </ol>
+
+        <p><strong>What is NOT validated:</strong> The 2,947 Tier 3 concepts (89.6% of all XBRL concepts) are unmapped and unverified. If a financially material concept exists in Tier 3 that should be mapped to a business term, the pipeline would silently exclude it from consumable tables. DQ rule <code>BASE-TN-004</code> (P1) checks that Tier 1+2 cover at least 25% of raw fact instances (actual: 30%). This catches gross undercoverage but not individual misses.</p>
+
+        <p><strong>Grade: Adequate.</strong> Tier 1 exact mappings are verifiable against the XBRL taxonomy specification. Tier 2 prefix rules introduce classification risk but are constrained to common patterns. The 10-K cross-checks provide meaningful end-to-end validation. The gap is in Tier 3: no mechanism to detect concepts that <em>should</em> be mapped but are not.</p>
+      </div>
+
+      <h3>Risk 2: Business Term Definitions Are Plausible but Incorrect</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The AI defined 54 business terms in <code>governance/business-glossary.json</code>. For example, BT-022 (Revenue) is defined as &ldquo;Total revenue recognized from the sale of goods and services, before deductions.&rdquo; Is that correct? GAAP Revenue recognition has changed significantly (ASC 606). A plausible-sounding definition could be subtly wrong.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The glossary uses a three-tier source system:</p>
+
+        <ul>
+          <li><strong>XBRL taxonomy terms</strong> (auto-approved): Definitions sourced from the US GAAP XBRL Taxonomy. These are authoritative by construction. Example: BT-001 (CIK) cites &ldquo;SEC EDGAR Filing Manual, Section 3.1&rdquo;.</li>
+          <li><strong>SEC EDGAR terms</strong> (auto-approved): Definitions from SEC documentation.</li>
+          <li><strong>Project-specific terms</strong> (require human approval): Terms the project created for pipeline concepts.</li>
+        </ul>
+
+        <p>Of the 54 terms, 41 cite external authoritative sources. The remaining 13 are project-specific (e.g., BT-049 &ldquo;Concept Mapping&rdquo; &mdash; a pipeline artifact, not a financial concept).</p>
+
+        <p><strong>What is NOT validated:</strong> The AI&rsquo;s paraphrasing of XBRL taxonomy definitions is not machine-compared to the original XBRL taxonomy text. A human approved the glossary, but the human was reviewing AI-generated definitions, not the authoritative source text side-by-side. For terms like &ldquo;Revenue&rdquo; this is low risk (the concept is well-understood). For terms like &ldquo;Comprehensive Income&rdquo; or &ldquo;Retained Earnings&rdquo; the distinction between GAAP definitions matters more.</p>
+
+        <p><strong>Grade: Adequate.</strong> External-standard terms have authoritative citations. Project-specific terms are flagged for human review. The gap: no automated comparison of AI-written definitions to source-of-truth XBRL taxonomy text.</p>
+      </div>
+
+      <h3>Risk 3: DQ Rule Thresholds Are Set by AI Without Domain Grounding</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The AI proposed that Revenue should be &gt; 0 for all non-financial companies (rule <code>BASE-CF-020</code>). Is that true? Are there valid cases where revenue is zero or negative? Who decided that <code>ABS(val) &gt; 1e14</code> is the right threshold for extreme outliers (rule <code>RAW-CF-020</code>)?</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>DQ thresholds are derived from EDA (Exploratory Data Analysis) against real data, not from the AI&rsquo;s general knowledge. The evidence chain is:</p>
+
+        <ol>
+          <li><strong>@data-analyst</strong> profiles real Iceberg data, producing EDA reports in <code>governance/eda/</code>. These contain actual distributions, min/max values, and outlier counts.</li>
+          <li><strong>@dq-rule-writer</strong> writes rules from EDA evidence, citing the specific EDA findings in each rule&rsquo;s <code>rationale</code> field.</li>
+        </ol>
+
+        <p>Example evidence chain for <code>BASE-CF-020</code> (Revenue &gt; 0):</p>
+        <ul>
+          <li>Rationale field: &ldquo;EDA: 1,326/1,329 Revenue values (99.77%) are positive. 3 negative values exist: Apple ($-29M), Microsoft ($-6B), Goldman Sachs ($-4.7B).&rdquo;</li>
+          <li>The rule accounts for known exceptions: Goldman Sachs excluded as financial; Apple and Microsoft negatives tolerated (threshold <code>&lt;= 2</code>).</li>
+          <li>File: <code>governance/dq-rules/base-conformed-facts.json</code>, rule <code>BASE-CF-020</code>, line 239.</li>
+        </ul>
+
+        <p>Example evidence chain for <code>RAW-CF-020</code> ($100 trillion bound):</p>
+        <ul>
+          <li>Rationale: &ldquo;Chaos monkey injected 1,290 extreme outliers (val=999,999,999,999,999) &mdash; zero caught. The entire US GDP is ~$28 trillion.&rdquo;</li>
+          <li>This rule was added <em>after</em> the chaos monkey found the gap. File: <code>governance/dq-rules/raw-xbrl-company-facts.json</code>, line 249.</li>
+        </ul>
+
+        <p>The chaos monkey validated that 15 new DQ rules (RAW-CF-014 through RAW-CF-028), all added post-chaos-testing, catch 100% of injected corruptions across 10 dimensions. Evidence: <code>governance/chaos-reports/chaos-aar-2026-03-15-20-20-09.md</code>, Section 3: 38,317/38,317 corruptions detected (100%).</p>
+
+        <p><strong>What is NOT validated:</strong> The Reasonableness rules for financial ratios use wide bounds ([-100, 100] for most ratios). These catch extreme outliers but would not catch a 20% error in Operating Margin. The rationale acknowledges this: &ldquo;catches catastrophic failures, not subtle issues&rdquo; (from <code>docs/site/content/results.md</code>, line 164).</p>
+
+        <p><strong>Grade: Strong for structural rules, Adequate for value-range rules.</strong> Thresholds grounded in EDA evidence are defensible. The chaos monkey provides adversarial validation. The gap: reasonableness bounds are wide by design &mdash; they catch data corruption, not data quality drift.</p>
+      </div>
+
+      <h3>Risk 4: Verification Scripts Compare AI Output to AI-Generated Expected Values</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The project claims &ldquo;88/88 verification checks against real 10-K filings.&rdquo; But who created the expected values in <code>scripts/verify.py</code>? If the AI generated both the pipeline output and the expected values, you are comparing AI output to AI output. That is circular validation.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The expected values in <code>scripts/verify.py</code> are hardcoded financial figures from public 10-K filings. Each value has a source citation. Examples from the file:</p>
+
+        <ul>
+          <li>Line 13: <code>"expected": 391_035_000_000, "source": "Apple 10-K FY2024"</code> (Apple Revenue FY2024)</li>
+          <li>Line 52: <code>"expected": 158_104_000_000, "source": "JPM 10-K FY2023"</code> (JPMorgan Revenue FY2023)</li>
+          <li>Line 58: <code>"expected": -2_222_000_000, "source": "Boeing 10-K FY2023"</code> (Boeing Net Income &mdash; negative, testing loss scenarios)</li>
+        </ul>
+
+        <p>These values are verifiable by anyone with access to SEC EDGAR. Apple&rsquo;s FY2024 10-K (accession number 0000320193-24-000123) reports Revenue of $391,035M on the Consolidated Statements of Operations. The values are NOT generated by the pipeline &mdash; they are manually researched from the actual filings.</p>
+
+        <p><strong>However, there is a legitimate concern:</strong> The expected values were entered by the same AI agents that built the pipeline. While the values are objectively verifiable, a skeptic could argue that the AI selected 10-K figures that it knew the pipeline would produce correctly, avoiding edge cases.</p>
+
+        <p>The negative verification script (<code>scripts/verify_negative.py</code>) partially addresses this by asserting the <em>absence</em> of incorrect data: no duplicate grains, no superseded fact leaks, no null business terms, no wrong-unit values, no fiscal year collisions, no orphan ratios, and cross-zone row alignment. These 10 checks are structural, not value-based, and harder to game.</p>
+
+        <p><strong>Grade: Adequate.</strong> The expected values are independently verifiable from public SEC filings. The concern about selection bias is valid but mitigated by the breadth of coverage (20 companies, 8 sectors, all 4 fiscal year-end patterns, negative values, per-share values). An independent party could re-derive every expected value from sec.gov in about an hour.</p>
+      </div>
+
+      <h3>Risk 5: 88 Checks Verified Out of 547K+ Facts &mdash; Coverage Is &lt;0.02%</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The pipeline processes 547,398 raw facts and produces 136,257 consumable rows. Only 88 specific values were verified against 10-K filings. That is a coverage rate of 0.016%. What about the other 99.98% of the data?</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The 88 value-level checks are the tip of the verification pyramid:</p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Layer</th><th>What It Checks</th><th>Coverage</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>128 DQ rules</td><td>Structural integrity, referential integrity, uniqueness, completeness, consistency, validity, volume, accuracy, reasonableness</td><td>Every row in every table, every execution</td></tr>
+              <tr><td>10 negative checks</td><td>Absence of known error patterns</td><td>Full table scans across 5 tables</td></tr>
+              <tr><td>88 value checks</td><td>Specific financial values against 10-K filings</td><td>88 specific data points across 20 companies</td></tr>
+              <tr><td>Chaos monkey</td><td>Adversarial injection of 38,317 corrupted rows across 10 DQ dimensions</td><td>100% detection rate validated</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The DQ rules execute SQL against every row. For example:</p>
+        <ul>
+          <li><code>BASE-CF-006</code> checks 22 columns for NULL values across all 28,849 rows in <code>base.conformed_facts</code>.</li>
+          <li><code>CONS-CF-001</code> checks every <code>record_id</code> for uniqueness across all 26,894 rows in <code>consumable.company_financials</code>.</li>
+          <li><code>RAW-CF-002</code> checks 7 required fields for NULLs across all 547,398 raw rows.</li>
+        </ul>
+
+        <p>The 88 value checks serve a different purpose: they validate <em>semantic accuracy</em>, not structural integrity. DQ rules prove the data is internally consistent. The 10-K checks prove the data matches external reality.</p>
+
+        <p><strong>What is NOT validated:</strong> For the ~136K consumable rows that are NOT among the 88 verified values, the only guarantee is structural correctness (DQ rules) and lineage traceability (every row carries <code>accession_number</code> back to its SEC filing). A subtle transformation bug that produces a plausible but wrong value for, say, Intel&rsquo;s FY2019 R&amp;D Expense would not be caught unless someone manually checks Intel&rsquo;s 10-K.</p>
+
+        <p><strong>Grade: Adequate.</strong> The verification pyramid is well-structured. 88 value checks across 20 companies and 8 sectors provides meaningful sampling. The DQ rules provide full structural coverage. The gap: semantic accuracy is verified by sampling, not exhaustively.</p>
+      </div>
+
+      <h3>Risk 6: Entity Resolution Maps CIKs to Wrong Companies</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The AI mapped CIK 320193 to &ldquo;Apple Inc.&rdquo; How do you know that is correct? What if a CIK was mapped to the wrong company?</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>Entity resolution uses a hardcoded lookup table of 20 CIK-to-company mappings in <code>src/base/entity_resolution/config.py</code> (lines 13-134). These are not AI-inferred &mdash; they are CIK numbers from SEC EDGAR, which is a public, authoritative registry. Anyone can verify that CIK 320193 is Apple Inc. by visiting <code>https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&amp;CIK=320193</code>.</p>
+
+        <p>The staging/approval gate in <code>src/base/entity_resolution/staging.py</code> enforces:</p>
+        <ul>
+          <li>Mappings below <code>CONFIDENCE_FLOOR</code> (0.7) always require human review (line 73)</li>
+          <li>When <code>REQUIRE_HUMAN_APPROVAL = True</code>, all mappings require human review (line 76)</li>
+          <li>A hard floor exists that cannot be bypassed even when the toggle is off (line 73)</li>
+        </ul>
+
+        <p>DQ controls:</p>
+        <ul>
+          <li><code>BASE-ER-001</code> (P0): Every CIK in raw data has an approved mapping (no orphans)</li>
+          <li><code>BASE-ER-002</code> (P0): No duplicate CIKs in approved mappings (one mapping per entity)</li>
+          <li><code>BASE-ER-004</code> (P0): Every approved mapping has non-null <code>approved_by</code> and <code>approved_at</code> (audit trail)</li>
+        </ul>
+
+        <p>Since all 20 entities use exact CIK matches at confidence 1.0, and CIK is a SEC-assigned identifier, this mapping is verifiable against an authoritative external source.</p>
+
+        <p><strong>Grade: Strong.</strong> CIK-to-company mapping is deterministic and externally verifiable. The approval gate has a hard floor that cannot be toggled off. This is one of the strongest controls in the pipeline.</p>
+      </div>
+
+      <h3>Risk 7: Financial Fact Values Silently Mutated During Transformation</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The pipeline moves data from raw to base to consumable. At each stage, values could be transformed, truncated, or corrupted. How do you prove the numbers that come out match the numbers that went in?</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>DQ rule <code>BASE-CF-007</code> (P1) explicitly validates value preservation:</p>
+        <pre><code>SELECT COUNT(*) FROM base.conformed_facts cf
+JOIN base.financial_facts ff ON cf.source_fact_id = ff.fact_id
+WHERE cf.val != ff.val</code></pre>
+        <p>File: <code>governance/dq-rules/base-conformed-facts.json</code>, line 84. Threshold: <code>result = 0</code>. This proves that conformed_facts values are exact copies of the winning fact values &mdash; no transformation applied.</p>
+
+        <p>DQ rule <code>CONS-CF-011</code> (P0) validates row count alignment between consumable and base:</p>
+        <pre><code>SELECT ABS(
+  (SELECT COUNT(*) FROM consumable.company_financials)
+  - (SELECT COUNT(*) FROM base.conformed_facts)
+)</code></pre>
+        <p>File: <code>governance/dq-rules/consumable-company-financials.json</code>, line 131. Threshold: <code>result = 0</code>. No rows created or lost.</p>
+
+        <p>Negative verification check 8 (<code>check_row_count_alignment</code> in <code>scripts/verify_negative.py</code>, line 225) independently confirms the same: <code>company_financials</code> row count equals <code>conformed_facts</code> row count.</p>
+
+        <p>The <code>accession_number</code> field is preserved at every layer, enabling manual trace-back to the original SEC filing for any value.</p>
+
+        <p><strong>Grade: Strong.</strong> Value preservation is validated by cross-table DQ rules. Row count alignment is checked at both DQ and verification levels. Lineage is traceable via <code>accession_number</code> at every layer.</p>
+      </div>
+
+      <h3>Risk 8: The &ldquo;Architect Review&rdquo; Was Another AI Agent Grading AI Agents</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The project cites a &ldquo;principal data architect&rdquo; review that gave the pipeline a B+ then an A. But this was an AI agent reviewing other AI agents&rsquo; work. This is not independent validation.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The project acknowledges this directly in <code>docs/site/content/results.md</code> (line 84): <em>&ldquo;Yes &mdash; an AI agent grading other AI agents&rsquo; work. We are fully aware of the optics.&rdquo;</em></p>
+
+        <p>The project&rsquo;s defense is that the findings were actionable and the fixes were real:</p>
+        <ul>
+          <li>The review identified 6 specific architectural problems (in-memory dedup, missing DQ gates, hardcoded anomaly detection, static lineage, no negative testing, buried config)</li>
+          <li>Each finding was remediated in a tracked spec (<code>docs/specs/infra-architect-remediation.md</code>)</li>
+          <li>The re-review confirmed the remediations were implemented</li>
+        </ul>
+
+        <p>The architect review is documentation of an AI-driven review process. It is not a substitute for independent human review. The project makes no claim otherwise.</p>
+
+        <p><strong>Grade: Weak as independent validation, Adequate as a process artifact.</strong> The review produced real findings and real fixes. But an AI agent cannot serve as an independent auditor of other AI agents. A regulator would require a human architect review.</p>
+      </div>
+
+      <h3>Risk 9: Prefix/Pattern Mapping Rules Produce False Positives at Scale</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The Tier 2 prefix rule maps any concept starting with <code>"RevenueFromContract"</code> to Revenue (BT-022). What about <code>RevenueFromContractWithCustomerExcludingAssessedTax_DiscontinuedOperations</code>? That is revenue from discontinued operations &mdash; arguably not the same as the Revenue line item. The pattern rules (Tier 2, confidence 0.6) use regex like <code>(?i).*Revenue.*(?!Deferred|Remaining|Recognized)</code> which could match concepts that are not revenue.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The prefix rules are at confidence 0.7, and pattern rules at confidence 0.6. Both are below the exact match confidence of 1.0. The staging gate in <code>src/base/entity_resolution/staging.py</code> (and its equivalent for tag normalization) applies the <code>CONFIDENCE_FLOOR</code> of 0.7:</p>
+
+        <ul>
+          <li>Tier 1 (confidence 1.0): auto-promotes when <code>REQUIRE_HUMAN_APPROVAL = False</code></li>
+          <li>Tier 2 prefixes (confidence 0.7): auto-promotes when <code>REQUIRE_HUMAN_APPROVAL = False</code> (at the floor)</li>
+          <li>Tier 2 patterns (confidence 0.6): <strong>always requires human review</strong> because 0.6 &lt; 0.7 floor</li>
+        </ul>
+
+        <p>This is defined in <code>src/base/xbrl_tag_normalization/config.py</code>, line 12: <code>CONFIDENCE_FLOOR = 0.7</code>.</p>
+
+        <p>DQ rule <code>BASE-TN-002</code> (P0) prevents any concept from mapping to multiple business terms. If a prefix rule incorrectly captures a concept that should map to a different business term, this DQ rule would fire when the correct mapping is also attempted.</p>
+
+        <p><strong>What is NOT validated:</strong> A concept that <em>should</em> map to BT-036 (Operating Income) but is captured by the Revenue prefix rule (BT-022) would not trigger <code>BASE-TN-002</code> because it maps to exactly one term &mdash; just the wrong one. The only defense is the 10-K cross-checks: if Apple&rsquo;s Operating Income is wrong because a concept was mis-mapped to Revenue, the Operating Income verification would fail.</p>
+
+        <p><strong>Grade: Adequate.</strong> The confidence floor provides a structural defense for low-confidence mappings. The one-to-one DQ rule prevents split mappings. The gap: a confident-but-wrong prefix match would only be caught by downstream 10-K verification.</p>
+      </div>
+
+      <h3>Risk 10: Human Approval Gate Can Be Globally Disabled With One Flag</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> <code>REQUIRE_HUMAN_APPROVAL = True</code> in <code>src/config.py</code> (line 20) is a single boolean. Set it to <code>False</code> and every gate auto-approves. This is a global kill switch for governance.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The toggle exists by design for two modes:</p>
+        <ul>
+          <li><code>True</code>: Production mode. All proposals pause for human review.</li>
+          <li><code>False</code>: Dev/demo mode. Proposals auto-advance but all artifacts are still produced.</li>
+        </ul>
+
+        <p>Critical safety nets when the toggle is off:</p>
+
+        <ol>
+          <li><strong>Hard confidence floor:</strong> Mappings below <code>CONFIDENCE_FLOOR</code> (0.7) always require human review regardless of the toggle. This is enforced in <code>src/base/entity_resolution/staging.py</code>, line 73: <code>if confidence &lt; confidence_floor: needs_review.append(proposal)</code>. The floor check happens <em>before</em> the toggle check.</li>
+          <li><strong>DQ P0 gate cannot be toggled off:</strong> <code>validate_after_write()</code> in <code>src/infra/dq_runner.py</code> (line 274) raises <code>DQValidationError</code> on P0 failures regardless of the approval toggle. This is wired into all 11 promote functions (11 files reference <code>validate_after_write</code>).</li>
+          <li><strong>The toggle is visible:</strong> It is in <code>src/config.py</code>, a tracked file in version control. Any change is auditable via git history.</li>
+          <li><strong>Current state:</strong> <code>REQUIRE_HUMAN_APPROVAL = True</code> (line 20). It is on.</li>
+        </ol>
+
+        <p><strong>Grade: Adequate.</strong> The confidence floor and P0 gate provide defense-in-depth. The toggle&rsquo;s existence is a pragmatic engineering choice. A regulator would want the toggle enforced at the infrastructure level (e.g., environment variable, secrets manager) rather than a Python constant.</p>
+      </div>
+
+      <h3>Risk 11: Reasonableness Bounds Are Too Wide to Catch Subtle Errors</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The Reasonableness DQ rules use bounds like [-100, 100] for Operating Margin (<code>CONS-FR-012</code>). That is an absurdly wide range. A company with a true 30% operating margin could report 2% or 80% and the DQ rule would pass. These bounds catch data corruption, not data quality issues.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>The project explicitly acknowledges this. From <code>docs/site/content/results.md</code> (line 164): <em>&ldquo;The Reasonableness DQ bounds are wide ([-100, 100] for most ratios) &mdash; they catch catastrophic failures, not subtle issues.&rdquo;</em></p>
+
+        <p>The bounds were widened from tighter spec-defined ranges after EDA revealed real outliers:</p>
+        <ul>
+          <li>Netflix Q1 2010: Operating Margin of 4,862x (revenue was $12K in that quarter &mdash; the company was pre-scale)</li>
+          <li>Exxon FY2008: Net Margin of 367x ($45B NI / $123M revenue &mdash; a data artifact from quarterly-vs-annual mismatch)</li>
+        </ul>
+
+        <p>These are documented in the rationale fields of rules <code>CONS-FR-012</code> through <code>CONS-FR-015</code> in <code>governance/dq-rules/consumable-financial-ratios.json</code>.</p>
+
+        <p>The tight-bound alternative would require company-specific or sector-specific rules, which the pipeline does not implement.</p>
+
+        <p><strong>Grade: Weak for detecting subtle errors, Adequate for detecting data corruption.</strong> The bounds serve their stated purpose (catching catastrophic failures). A production system would need tighter, context-sensitive bounds &mdash; ideally per-company or per-sector baseline ranges with drift detection.</p>
+      </div>
+
+      <h3>Risk 12: No Independent External Audit or Reconciliation to Non-EDGAR Source</h3>
+
+      <div class="fade-in">
+        <p><strong>Challenge:</strong> The 88 verification checks compare pipeline output to values from the same source (SEC EDGAR 10-K filings). This verifies that the pipeline faithfully reproduces EDGAR data. It does not verify that the EDGAR data is correct. Furthermore, no independent third party (Bloomberg, FactSet, S&amp;P Capital IQ) has reconciled this data.</p>
+
+        <p><strong>Response:</strong></p>
+
+        <p>This is a genuine gap. The pipeline verifies internal consistency and faithfulness to the SEC EDGAR source. It does not verify against any independent data provider.</p>
+
+        <p>The project&rsquo;s position (from <code>docs/site/content/results.md</code>, line 159): <em>&ldquo;This is not production-ready at scale.&rdquo;</em> And: <em>&ldquo;The project&rsquo;s value is in the methodology, not in claiming perfection.&rdquo;</em></p>
+
+        <p>The pipeline&rsquo;s traceability architecture (every row carries <code>accession_number</code>) makes third-party reconciliation <em>possible</em> &mdash; you could join pipeline output to Bloomberg data by (ticker, metric, fiscal_year) and compare. But this has not been done.</p>
+
+        <p><strong>Grade: Missing.</strong> No external reconciliation exists. This is the largest gap in the project&rsquo;s trust story. A financial services regulator would require reconciliation to at least one independent data source before the data could be used for any regulated purpose.</p>
+      </div>
+
+      <h2>Part 3: Honest Assessment</h2>
+
+      <h3>Controls That Are Strong</h3>
+
+      <div class="fade-in">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Control</th><th>Why It Is Strong</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Entity resolution</strong> (Risk 6)</td><td>CIK-to-company mappings are deterministic, externally verifiable against sec.gov, and protected by a confidence floor that cannot be toggled off</td></tr>
+              <tr><td><strong>Value preservation</strong> (Risk 7)</td><td>Cross-table DQ rules prove values are not mutated. Row count alignment checked at two independent levels</td></tr>
+              <tr><td><strong>DQ P0 gate</strong></td><td><code>validate_after_write()</code> runs on all 11 promotes, raises exceptions on P0 failures, cannot be disabled by the approval toggle</td></tr>
+              <tr><td><strong>Chaos monkey</strong></td><td>38,317 adversarial corruptions across 10 dimensions, 100% detection rate, with 12 after-action reports in <code>governance/chaos-reports/</code></td></tr>
+              <tr><td><strong>Lineage traceability</strong></td><td><code>accession_number</code> preserved at every layer. Runtime lineage events in Iceberg table. Any value traceable to source SEC filing</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3>Controls That Are Adequate</h3>
+
+      <div class="fade-in">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Control</th><th>Why It Is Adequate</th><th>What Would Make It Strong</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Concept mappings</strong> (Risk 1)</td><td>Tier 1 exact matches are verifiable. 10-K cross-checks catch end-to-end errors. But Tier 3 has no coverage validation</td><td>Automated comparison of Tier 1 mappings against XBRL taxonomy spec. Tier 3 materiality analysis</td></tr>
+              <tr><td><strong>Business term definitions</strong> (Risk 2)</td><td>External sources cited. Human approval gates. But no machine comparison to authoritative text</td><td>Side-by-side comparison tool: AI definition vs XBRL taxonomy definition</td></tr>
+              <tr><td><strong>DQ thresholds</strong> (Risk 3)</td><td>EDA-grounded. Chaos-validated. But reasonableness bounds are wide</td><td>Per-company baseline ranges. Statistical drift detection</td></tr>
+              <tr><td><strong>Verification values</strong> (Risk 4)</td><td>Independently verifiable from sec.gov. But created by same AI agents</td><td>Independent party re-derives expected values from scratch</td></tr>
+              <tr><td><strong>Verification coverage</strong> (Risk 5)</td><td>Pyramid structure: 128 DQ rules + 10 negative checks + 88 value checks</td><td>Expand value checks to all 25 metrics for all 20 companies (500 checks)</td></tr>
+              <tr><td><strong>Approval toggle</strong> (Risk 10)</td><td>Confidence floor + P0 gate provide defense-in-depth</td><td>Environment-level enforcement, not a Python constant</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3>Controls That Are Weak or Missing</h3>
+
+      <div class="fade-in">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Control</th><th>Status</th><th>Impact</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Reasonableness bounds</strong> (Risk 11)</td><td>Weak</td><td>Subtle value errors (20% off) would pass all DQ rules</td></tr>
+              <tr><td><strong>Independent architect review</strong> (Risk 8)</td><td>Weak</td><td>AI agent review is not a substitute for human architect review</td></tr>
+              <tr><td><strong>External reconciliation</strong> (Risk 12)</td><td>Missing</td><td>No comparison to Bloomberg, FactSet, or any non-EDGAR source</td></tr>
+              <tr><td><strong>Prefix/pattern false positive detection</strong> (Risk 9)</td><td>Adequate but unverified</td><td>No automated test validates that prefix rules do not capture wrong concepts</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>Part 4: What Would Satisfy a Financial Services Regulator</h2>
+
+      <div class="fade-in">
+        <p>A regulator in banking, insurance, or asset management would require the following before this data could be used for any regulated purpose:</p>
+
+        <h3>1. Independent Data Reconciliation</h3>
+        <p>Reconcile pipeline output against at least one independent data provider (Bloomberg, FactSet, S&amp;P Capital IQ) for all companies and all metrics. Document discrepancies and root causes. Currently: <strong>Not done.</strong></p>
+
+        <h3>2. Human Model Validation</h3>
+        <p>An independent human data architect (not an AI agent) reviews the conceptual, logical, and physical models in <code>governance/models/</code> and signs off. The AI-generated architect review in <code>governance/reviews/</code> is a process artifact, not an independent audit. Currently: <strong>Not done.</strong> The <code>@principal-data-architect</code> review was an AI agent.</p>
+
+        <h3>3. Mapping Certification</h3>
+        <p>Each of the 35 Tier 1 XBRL concept mappings should be certified against the US GAAP XBRL Taxonomy specification by a subject matter expert (CPA or XBRL specialist). The AI proposed them correctly as far as the 10-K cross-checks can tell, but &ldquo;correct by output&rdquo; is not the same as &ldquo;certified by reference.&rdquo; Currently: <strong>Not done.</strong></p>
+
+        <h3>4. Tighter Reasonableness Bounds</h3>
+        <p>Replace the wide [-100, 100] ratio bounds with company-specific or sector-specific ranges derived from historical baselines. Implement statistical drift detection (e.g., if Apple&rsquo;s Gross Margin moves more than 5 percentage points year-over-year, flag for investigation). Currently: <strong>Wide bounds only.</strong> Rules like <code>CONS-FR-012</code> explicitly tolerate extreme outliers.</p>
+
+        <h3>5. Access Control on Approval Toggle</h3>
+        <p>Move <code>REQUIRE_HUMAN_APPROVAL</code> from a Python constant (<code>src/config.py</code>, line 20) to an environment variable or secrets manager with audit logging. Prevent developers from disabling governance controls without a change management record. Currently: <strong>Python constant in version-controlled file.</strong> Auditable via git history but not access-controlled.</p>
+
+        <h3>6. Automated Regression Testing Against Known Values</h3>
+        <p>The 88 verification checks in <code>scripts/verify.py</code> and <code>scripts/verify_all_metrics.py</code> should run automatically on every pipeline execution (CI/CD), not just on manual invocation. Currently: <strong>Manual execution only.</strong> These are scripts, not integrated tests.</p>
+
+        <h3>7. Data Retention and Immutability Proof</h3>
+        <p>While Iceberg provides snapshot isolation, a regulator would want proof that snapshots are retained for the required retention period (typically 7 years for financial data) and that previous snapshots are not deletable by operators. Currently: <strong>Iceberg snapshots exist but no retention policy is enforced.</strong></p>
+
+        <h3>8. Formal Data Lineage Standard</h3>
+        <p>The runtime lineage events in <code>governance.lineage_events</code> follow OpenLineage conventions, but a regulator may require formal BCBS 239 compliance (risk data aggregation and risk reporting), including data quality attestation at each transformation step. Currently: <strong>OpenLineage-format events exist.</strong> No formal BCBS 239 mapping.</p>
+      </div>
+
+      <h2>The Bottom Line</h2>
+
+      <div class="fade-in">
+        <p>This pipeline demonstrates that AI agents can produce data governance artifacts &mdash; business terms, data models, DQ rules, lineage records &mdash; that are structurally sound, internally consistent, and verifiable against external references. The 128 DQ rules, 12 chaos monkey runs, 88 verification checks, and 4 human approval gates represent a level of governance rigor that many <em>human-built</em> data pipelines do not achieve.</p>
+
+        <p>But &ldquo;better than many human-built pipelines&rdquo; is not the bar for regulated industries. The bar is: <strong>can you prove to a skeptical regulator that the data is correct, the controls are effective, and the process is auditable?</strong></p>
+
+        <p>Today, the answer is: mostly yes for structural controls (entity resolution, value preservation, referential integrity, uniqueness), and not yet for semantic controls (concept mapping certification, external reconciliation, tight reasonableness bounds).</p>
+
+        <p>The architecture makes it possible to close these gaps. The gaps are known, documented, and addressable. That is itself a form of trustworthiness &mdash; not the trustworthiness of perfection, but the trustworthiness of transparency.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="models.html">Models</a>
+        <a href="ai-ready.html">AI-Ready</a>
+        <a href="governance.html">Governance</a>
+        <a href="results.html">Results</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="sessions.html">Session Logs</a>
+      </div>
+      <p><a href="https://github.com/jcernauske/sec_edgair">github.com/jcernauske/sec_edgair</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
