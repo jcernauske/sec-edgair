@@ -1,7 +1,7 @@
 {
   "eventType": "COMPLETE",
   "eventTime": "2026-03-15T12:14:58Z",
-  "producer": "https://github.com/jcernauske/sec_edgair",
+  "producer": "https://github.com/jcernauske/sec-edgair",
   "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
   "run": {
     "runId": "consumable-amendment-analysis-build-001",

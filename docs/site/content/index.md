@@ -117,7 +117,7 @@ This is not a demo. This is not synthetic data with placeholder governance.
 
 **Stack:** Python 3.11+, DuckDB + Apache Iceberg, Claude Code with 14+ specialized agents
 
-**Source:** [github.com/jcernauske/sec_edgair](https://github.com/jcernauske/sec_edgair)
+**Source:** [github.com/jcernauske/sec-edgair](https://github.com/jcernauske/sec-edgair)
 
 <!-- FOOTER NAV: Link to all pages -->
 
